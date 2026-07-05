@@ -1,0 +1,210 @@
+# 装备系统 (GDD §5)
+# 装备不直接给战斗数值（战斗数值归羁绊/技能），只管经济。
+# 双轨：保底轨（升级给固定经济属性）+ 赌博轨（+3/+6/+9 抽词条，含诅咒）。
+# 掉落轨（精英/Boss 掉成品）是可选 spice，不作为主路径。
+
+# 保底轨：每级固定加一条经济属性（确定性）
+upgrade_curve:
+  cost_base: 15
+  cost_per_level: 4           # cost(lv) = 15 + 4*lv  （lv=0 升到 +1 花 15）
+  max_level: 9
+  # 逐级固定收益（显式数组，loader 直接读取，无奇偶推断）
+  # 规律：奇数级 +1 金/秒，偶数级 +0.5 杀敌金
+  per_level_income:
+    - level: 1                # +1
+      gold_per_sec_delta: 1.0
+    - level: 2                # +2
+      per_kill_gold_delta: 0.5
+    - level: 3                # +3（里程碑：抽词条）
+      gold_per_sec_delta: 1.0
+      milestone: true
+    - level: 4                # +4
+      per_kill_gold_delta: 0.5
+    - level: 5                # +5
+      gold_per_sec_delta: 1.0
+    - level: 6                # +6（里程碑：抽词条）
+      per_kill_gold_delta: 0.5
+      milestone: true
+    - level: 7                # +7
+      gold_per_sec_delta: 1.0
+    - level: 8                # +8
+      per_kill_gold_delta: 0.5
+    - level: 9                # +9（里程碑：抽词条，保底为正面）
+      gold_per_sec_delta: 1.0
+      milestone: true
+      milestone_guaranteed_positive: true
+
+# 赌博轨：达到里程碑等级抽 1 条词条
+milestones: [3, 6, 9]         # +3/+6/+9 各抽 1 条
+milestone_guarantee_positive_at: 9   # +9 保底为正面词条
+
+# 装备词条池（经济向 + 诅咒＝代价换收益）
+# 决策：诅咒不是纯惩罚，而是"代价换收益"——cost 与 benefit 势均力敌，让玩家难以取舍。
+# 验收（B-3）：每条诅咒携带率 15%–35%；携带 vs 不携带通关率 ±10%；每条至少在一种 build 下是最优。
+# 见 GDD §5.2 与 ENGAGEMENT_DESIGN.md §10。
+# 机制优先扩充：经济正向 / 诅咒（代价↔收益）/ 联动向 三类。
+affixes:
+  # ══ 经济正向词条 ══
+  - id: gold_per_sec_plus
+    name: 每秒金币
+    polarity: positive
+    effect: { gold_per_sec_delta: 3 }
+
+  - id: gold_per_sec_plus_2
+    name: 财源滚滚
+    polarity: positive
+    effect: { gold_per_sec_delta: 5 }
+    note: 加强版被动收入
+
+  - id: kill_gold_plus
+    name: 杀敌金币
+    polarity: positive
+    effect: { per_kill_gold_delta: 1 }
+
+  - id: kill_gold_plus_2
+    name: 屠夫
+    polarity: positive
+    effect: { per_kill_gold_delta: 2 }
+    note: 高杀敌收益（清杂兵流）
+
+  - id: gold_lump
+    name: 一次性金币
+    polarity: positive
+    effect: { gold_lump: 80 }
+
+  - id: gold_lump_2
+    name: 宝箱
+    polarity: positive
+    effect: { gold_lump: 200 }
+    note: 大额一次性
+
+  - id: gold_multiplier
+    name: 金币倍增
+    polarity: positive
+    effect: { gold_mult: 0.15 }
+
+  - id: gold_multiplier_2
+    name: 财神眷顾
+    polarity: positive
+    effect: { gold_mult: 0.25 }
+    note: 更强的金币乘区（雪球流核心）
+
+  - id: double_gold_chance
+    name: 双倍金币概率
+    polarity: positive
+    effect: { double_gold_chance: 0.15 }
+
+  - id: double_gold_chance_2
+    name: 幸运硬币
+    polarity: positive
+    effect: { double_gold_chance: 0.25 }
+
+  - id: bond_draw_discount
+    name: 羁绊抽取折扣
+    polarity: positive
+    effect: { bond_draw_cost_delta: -5 }
+
+  - id: reroll_discount
+    name: 刷新折扣
+    polarity: positive
+    effect: { reroll_cost_delta: -2 }
+    note: 重投成本 -2（配合心流 M2 重投流）
+
+  - id: equip_upgrade_discount
+    name: 升级折扣
+    polarity: positive
+    effect: { equip_upgrade_cost_delta: -3 }
+
+  # ══ 战力补偿词条（经济装备也能给战力，制造取舍）══
+  - id: atk_from_gold
+    name: 财气
+    polarity: positive
+    effect: { atk_pct_delta: 0.05, gold_mult: 0.10 }
+    note: 战力+经济双修
+
+  - id: crit_from_gold
+    name: 金锋
+    polarity: positive
+    effect: { crit_rate_delta: 0.05, gold_mult: 0.10 }
+
+  # ══ 联动向词条 ══
+  - id: bond_devour_boost
+    name: 羁绊吞噬增益
+    polarity: positive
+    effect: { bond_devour_level_delta: 1 }
+    note: 吞噬时额外 +1 级
+
+  - id: synergy_amp
+    name: 联动增幅
+    polarity: positive
+    effect: { synergy_effect_mult: 0.20 }
+    note: 所有联动效果 +20%（B-3 联动引擎用）
+
+  # ══ 回血/生存向（GDD §12.4 回血流）══
+  - id: holy_spring
+    name: 圣泉
+    polarity: positive
+    effect: { heal_on_kill_pct: 0.01 }
+
+  - id: vitality_core
+    name: 生机核心
+    polarity: positive
+    effect: { hp_pct_delta: 0.10, hp_regen_pct_per_5s: 0.01 }
+
+  # ══ 诅咒词条（代价 ↔ 收益，纠结型）══
+  # cost 与 benefit 必须势均力敌；每条适配不同 build。
+  - id: blood_pact
+    name: 血祭
+    polarity: curse
+    cost:   { dmg_taken_mult: 0.25 }
+    benefit: { gold_gain_mult: 0.60 }
+    fit: 滚雪球经济流
+
+  - id: burn_heaven
+    name: 焚天
+    polarity: curse
+    cost:   { core_hp_loss_per_5s: 0.01 }
+    benefit: { final_dmg_mult: 0.20 }
+    fit: 斩杀/爆发流
+
+  - id: minimalism
+    name: 断舍离
+    polarity: curse
+    cost:   { bond_pool_capacity_delta: -2 }
+    benefit: { per_bond_effect_mult: 0.30 }
+    fit: 少而精构筑（精铺流）
+
+  - id: doom_pact
+    name: 厄运契约
+    polarity: curse
+    cost:   { draw_cost_mult: 0.20 }
+    benefit: { legendary_draw_chance_mult: 0.50 }
+    fit: 赌狗流
+
+  - id: time_blade
+    name: 时之刃
+    polarity: curse
+    cost:   { attack_speed_delta: -0.15 }
+    benefit: { per_hit_dmg_mult: 0.40 }
+    fit: 慢速重击 build
+
+  - id: glass_cannon
+    name: 玻璃大炮
+    polarity: curse
+    cost:   { dmg_taken_mult: 0.50, hp_pct_delta: -0.20 }
+    benefit: { final_dmg_mult: 0.35 }
+    fit: 极致爆发流（高风险高回报）
+
+  - id: misers_curse
+    name: 守财奴诅咒
+    polarity: curse
+    cost:   { atk_pct_delta: -0.15 }
+    benefit: { gold_mult: 0.50, gold_per_sec_delta: 5 }
+    fit: 纯经济流（战力换金币）
+
+  - id: fragility
+    name: 易碎
+    polarity: curse
+    cost:   { damage_reduction_delta: -0.20 }
+    benefit: { crit_dmg_delta: 0.50 }
+    fit: 暴击流（生存换暴伤）

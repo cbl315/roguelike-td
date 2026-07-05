@@ -1,0 +1,33 @@
+# 敌人曲线参数 (GDD §3.3)
+# enemy_hp       = base * growth^(wave-1)
+# enemy_count    = round(count_base + count_per_wave * wave)
+# wave_total_hp  = enemy_hp * enemy_count   (Boss 波额外加成，见 boss_total_hp_share)
+# wave_duration  = duration_base + duration_per_wave * wave
+# required_dps   = wave_total_hp / wave_duration
+#
+# Boss 波（每 10 波）的血量 ≈ 该波总血量的 boss_total_hp_share，单独结算。
+
+enemy_hp:
+  base: 100.0
+  growth: 1.05        # B-3 校准：1.18→1.05（原曲线增长太快，任何 build 都打不过；1.05 让 build 可达）
+
+enemy_count:
+  base: 8
+  per_wave: 1.5
+
+wave_duration:
+  base_seconds: 25
+  per_wave_seconds: 1
+
+boss:
+  every_n_waves: 10
+  # Boss 波的"总血量"已包含 Boss 本体：总血量 = Σ小怪血量 + Boss血量。
+  # Boss 占其中 share。"单独结算"仅指 Boss 有独立血条 UI，非额外 DPS 需求。
+  total_hp_share: 0.4   # Boss 本体血量占该波总血量比例（小怪占其余 60%）
+
+elite:
+  every_n_waves: 5      # 每 5 波一个小精英（不含 Boss 波）
+
+# 30 波 = 主线
+main_quest:
+  waves: 30

@@ -1,0 +1,91 @@
+name: Build & Deploy Pages
+
+# 把 balance/ 的数据可视化 + 验证结论发布到 GitHub Pages。
+# 改数据(YAML)或脚本后，push 自动重跑脚本、重建站点、发布。
+#
+# 前置：GitHub 仓库 Settings → Pages → Source = "GitHub Actions"（已开启）
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "balance/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install CJK fonts (中文图表渲染)
+        run: sudo apt-get update && sudo apt-get install -y fonts-noto-cjk
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: "Install deps (dev: pytest + reports: matplotlib)"
+        working-directory: balance
+        run: uv sync --extra dev --extra reports
+
+      - name: Run pytest (gate)
+        working-directory: balance
+        run: uv run pytest -q
+
+      - name: Generate JSON reports + build site
+        working-directory: balance
+        run: uv run python reports/build_all.py
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # GitHub Pages 部署偶发瞬时失败（"try again later"）。
+      # deploy-pages action 是幂等的（同 artifact 重复部署不出错），
+      # 故用 nick-fields/retry 在 shell 里调 deploy-pages 的底层 API 不可行，
+      # 改为：失败时由下方 redeploy job 自动重试整个 deploy。
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # deploy 失败时自动重试（最多 2 次额外尝试，共 3 次）
+  redeploy:
+    needs: deploy
+    if: failure()
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    steps:
+      - name: Retry deploy (attempt 2)
+        id: deployment
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - name: Retry deploy (attempt 3, if needed)
+        if: steps.deployment.outcome == 'failure'
+        uses: actions/deploy-pages@v4

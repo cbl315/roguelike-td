@@ -1,0 +1,114 @@
+# Boss Debuff 系统 (GDD §12)
+# 参考 Balatro Boss Blind：每个 Boss 绑定一个固定 debuff，3 个 Boss 出场顺序随机。
+# 决策：统一强度，不分级；Boss 本身已有强度，debuff 只为增加随机性。
+#
+# 三原则：可见性（波前展示）/ 应变性（削弱一方面逼多元）/ 痛但不致命（减免而非失效）。
+# 效果字段 key 说明：
+#   crit_dmg_mult_delta    暴击伤害增减（-0.5 = -50%）
+#   armor_pen_mult_delta   护甲穿透增减（-1.0 = 完全失效）
+#   projectile_delta       投射物数量增减（不低于 1）
+#   immune_cc              免疫控制
+#   gold_gain_mult_delta   金币获取增减
+#   bond_effect_mult_delta 羁绊效果增减
+#   draw_reroll_delta      下波大厅抽取/刷新次数增减
+#   magic_dmg_taken_mult   怪受法术伤害倍率（0.5 = 减免 50%）
+#   physical_dmg_taken_mult 怪受物理伤害倍率
+#   enemy_speed_mult       怪移速倍率
+#   reflect_pct            怪反弹受击伤害比例
+#   ult_energy_mult        大招能量获取倍率
+#   core_hp_loss_per_hit   每次受击额外掉核心血（%）
+#   boss_hp_mult           Boss 血量倍率
+#   boss_regen_pct_per_5s  Boss 每 5s 回血（% max hp）
+#   healing_disabled       玩家回血全部失效
+bosses:
+  - id: blind_eye
+    name: 致盲之眼
+    debuff: { crit_dmg_mult_delta: -0.5 }
+    counters: 暴击流
+
+  - id: crit_shatter
+    name: 暴击瓦解
+    debuff: { crit_rate_delta: -0.3 }
+    counters: 暴击流（率向，配合致盲之眼形成双重软克制）
+
+  - id: armor_break
+    name: 破甲之兆
+    debuff: { armor_pen_mult_delta: -1.0 }
+    counters: 穿甲流
+
+  - id: single_shot_curse
+    name: 单发之咒
+    debuff: { projectile_delta: -2 }
+    counters: 多重射流
+
+  - id: immovable
+    name: 不动如山
+    debuff: { immune_cc: true }
+    counters: 控制流
+
+  - id: greed_devour
+    name: 贪婪之噬
+    debuff: { gold_gain_mult_delta: -0.5 }
+    counters: 经济流
+
+  - id: bond_suppress
+    name: 羁绊压制
+    debuff: { bond_effect_mult_delta: -0.3 }
+    counters: 数值堆叠流
+
+  - id: seal_hand
+    name: 封印之手
+    debuff: { draw_reroll_delta: -1 }
+    counters: 抽取流
+
+  - id: magic_resist
+    name: 法术抗性
+    debuff: { magic_dmg_taken_mult: 0.5 }
+    counters: 法术流
+
+  - id: physical_resist
+    name: 物理抗性
+    debuff: { physical_dmg_taken_mult: 0.5 }
+    counters: 物理流
+
+  - id: swift_order
+    name: 急行之令
+    debuff: { enemy_speed_mult: 1.5 }
+    counters: 慢速重击流
+
+  - id: mirror_armor
+    name: 镜面之甲
+    debuff: { reflect_pct: 0.2 }
+    counters: 高频低伤流
+
+  - id: ult_seal
+    name: 大招禁制
+    debuff: { ult_energy_mult: 0.2 }
+    counters: 大招流
+
+  - id: rebound_force
+    name: 反噬之力
+    debuff: { core_hp_loss_per_hit: 0.005 }   # 每次受击额外掉 0.5% 核心血
+    counters: 挂机流
+
+  - id: immortal_body
+    name: 不灭之躯
+    debuff: { boss_hp_mult: 1.5 }
+    counters: DPS 不足
+
+  - id: regen_core
+    name: 回春之核
+    debuff: { boss_regen_pct_per_5s: 0.05 }
+    counters: 无斩杀
+
+  - id: heal_seal
+    name: 禁疗之印
+    debuff: { healing_mult: 0.3 }            # 回血效果剩 30%（即 −70%），保留余地不致命
+    counters: 生存/回血流
+
+# 主线 3 个 Boss（10/20/30 波），每局从全池随机抽 3 个且打乱顺序。
+# 每个抽中的 Boss 绑定其固定 debuff。
+main_quest:
+  boss_waves: [10, 20, 30]
+  pick_count: 3
+  order_random: true

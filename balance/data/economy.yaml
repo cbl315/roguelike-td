@@ -1,0 +1,33 @@
+# 经济系统数值 (GDD §3.4)
+# 局内货币 = 金币（仅当局有效）。
+income:
+  base_passive: 3          # B-3 校准：恢复到能买 build（×3 of B-2 极低值；囤积 1439 可控）
+  per_kill: 1.5            # ×3
+  per_wave_clear: 45       # ×3
+  elite_bonus: 30          # ×3
+  boss_bonus: 120          # ×3
+
+# 玩家支出
+costs:
+  draw_bond: 30            # 抽羁绊（3 选 1）
+  bond_draw_increment: 10  # 每次抽取递增
+  bond_draw_cap: 60        # 抽取成本上限（30+10×n 封顶 60，防后期不敢抽）
+  equipment_upgrade_base: 15   # 装备升级：cost = base + 4*level
+  equipment_upgrade_per_level: 4
+  skill_skip_reward: 20    # 3 选 1 全跳过换的金币
+  devour: 80               # 吞噬羁绊组合消耗（金币 sink，GDD §6.1；每套仅一次，非 scalable sink）
+
+# 商店刷新/锁定（GDD §4.4 / ENGAGEMENT M2）—— 小丑牌式刷新找关键牌
+# 让"攒钱 = 更多重投 = 更易凑齐 combo"，咬合经济层与构筑层。
+# B-2 校准：成本调高、上限收紧，使后期操作数落在 1.5-2 次/波。
+shop_reroll:
+  skill_reroll_base: 20        # 技能重投基础成本
+  skill_reroll_increment: 5    # 每次递增
+  bond_reroll_base: 15         # 羁绊重投基础成本
+  bond_reroll_increment: 5
+  reroll_cap_per_wave: 3       # 每波软上限（技能/羁绊合计），收紧防过频
+  lock_cost: 5                 # 锁定一张牌的成本（金）
+
+# 设计目标：每波 1.5–2 次 Rogue 操作（B-2 用此校验，含重投动作）
+target:
+  rogue_ops_per_wave: [1.5, 2.0]
