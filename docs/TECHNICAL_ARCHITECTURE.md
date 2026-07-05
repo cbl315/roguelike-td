@@ -223,16 +223,65 @@ res://
 
 | 阶段 | 范围 | 产出 |
 |---|---|---|
-| **M0 引擎与骨架** ✅（2026-07-04 完成） | Godot 项目、分层架构、EventBus autoload、数据 JSON 接入、debug 面板 | `client/` 能打开运行，显示数据加载校验（20技能/71羁绊/8路径/29词条/9联动） |
-| **M1 核心战斗循环**（2–3 周） | 英雄自动战斗 + 波次刷怪 + 基础敌人曲线 + Master Pipeline | 能"打怪、清波、看血条" |
-| **M2 技能 3 选 1**（1–2 周） | 抽取池、词条、3 选 1 UI | **第一个可玩 vertical slice** |
-| **M3 羁绊与池子**（2 周） | 抽取、池子、吞噬、套系 | build 经营成立 |
-| **M4 装备经济**（1–2 周） | 升级/里程碑词条/掉落 | 经济滚雪球 |
-| **M5 联动引擎**（1–2 周） | SynergyEngine + 首批 5–8 条联动 | 1+2+3 缝合完成 |
-| **M6 内容与平衡**（持续） | 多套系、多技能、曲线调参 | 可玩性达标 |
-| **M7 跨端与发布**（2–3 周） | iOS/Android/Web 导出、IAP/广告、云存档 | 上架/itch.io |
+| **M0 引擎与骨架** ✅ | Godot 项目、分层架构、EventBus autoload、数据 JSON 接入、debug 面板 | `client/` 能打开运行，显示数据加载校验（20技能/71羁绊/8路径/29词条/9联动） |
+| **M1 核心战斗循环** ✅ | 英雄自动战斗 + 波次刷怪 + 基础敌人曲线 + Master Pipeline | 能"打怪、清波、看血条" |
+| **M2 技能 3 选 1** ✅ | 抽取池、词条、3 选 1 UI、羁绊抽取、英雄=核心、弹道锁定、卡片加成显示 | **第一个可玩 vertical slice** |
+| **M3 装备经济**（1–2 周） | 升级/里程碑词条/掉落 | 经济滚雪球 |
+| **M4 联动引擎**（1–2 周） | SynergyEngine + 首批 5–8 条联动（客户端接入 transform/chain/followup） | 1+2+3 缝合完成 |
+| **M5 内容与平衡**（持续） | 多套系、多技能、曲线调参 | 可玩性达标 |
+| **M6 跨端与发布**（2–3 周） | iOS/Android/Web 导出、IAP/广告、云存档 | 上架/itch.io |
 
 > 建议 **M2 结束就做第一次 playtest**，验证"3 选 1 + 自动战斗"是否好玩，再决定后续投入。
+
+### 8.1 客户端实现现状（M0–M2，截至 2026-07-05）
+
+> 本节记录 Godot 客户端**实际落地**的架构，与上方"建议路线"对照。
+
+**核心设计决策：英雄 = 核心（hero-as-core）**
+
+英雄既是防守目标（被怪走到 = 扣英雄血），又是唯一输出（全屏攻击范围自动开火）。**没有独立的 Core/基地节点**——简化了架构（少一个实体、少一套碰撞），也更适合"英雄就是主角"的沉浸感。怪沿 Path2D 走向英雄，走到 = 英雄掉血；英雄血归零 = 失败。
+
+**分层落地（strict-typed GDScript，Godot 4.6）**：
+
+| 层 | 文件 | 职责 |
+|---|---|---|
+| Core | `combat_stats.gd` | Master Damage Pipeline（移植自 Python，常量一致：ATK=50/暴击5%/暴伤1.5/攻速1.0/护甲K=100） |
+| Core | `effect_resolver.gd` | ~25 个 effect key → CombatStats（atk_pct/crit/攻速/物法伤/元素/最终/真伤/穿甲/弹数 + atk_ratio_delta） |
+| Core | `rogue_pools.gd` | 技能 3 选 1（50% 新技能/50% 词条，权重 60/30/8/2）+ 羁绊抽取（71 池，排除已拥有，50% prefer 境界/50% 全池）+ 境界吞噬；加载 skills/affixes/bonds JSON |
+| Core | `wave_curves.gd` | 读 waves.json，算 hp/count/duration（曲线 1.05^wave） |
+| Systems | `game_manager.gd` | 波次状态机（READY→WAVE_IN_PROGRESS→WAVE_CLEARED→WON/LOST），连接 spawner/hero/hud/lobby |
+| Systems | `wave_spawner.gd` | Timer 节点驱动刷怪（参考 quiver-td 模式），信号 wave_finished |
+| Systems | `build_state.gd` | 金币/技能/羁绊池/境界/累积 effect；bond_draw_cost()=min(60, 30+10n)；assemble_stats()→CombatStats |
+| Systems | `event_bus.gd` | autoload 全局信号总线（enemy_killed/reached_core/gold_changed/...） |
+| Systems | `target_priority.gd` | 目标选择（最近/最远/最高血/最低血） |
+| Scenes | `hero.gd` | 英雄=核心：max_hp/take_damage、全屏范围自动开火、HP 环显示、点击切换目标优先级 |
+| Scenes | `enemy.gd` | Node2D 沿 Path2D 进度移动；set_current_hp setter（归零自动 died）；数据驱动 kill_reward/leak_damage |
+| Scenes | `projectile.gd` | **追踪锁定**：持有 target 引用，飞到目标当前位置才结算伤害（不会误伤途中敌人） |
+| Scenes | `hud.gd` | 波次/敌人数/金币/英雄血条 + 技能/羁绊触发按钮（按需打开 lobby） |
+| Scenes | `lobby.gd` | 按需选择器：3 选 1 卡片显示加成数值（黄色 desc）、刷新/跳过/Tab 切换、z_index=100 不被怪遮挡 |
+
+**数据管线**：`balance/data/*.yaml`（Python SSOT）→ `export_json.py` → `client/data/*.json`（Godot 原生读取，零依赖）。
+
+**M2 已知缺口（后续里程碑补）**：
+- 联动精确效果（transform/chain/followup）未接入客户端（Python 已建模，见 M4）
+- 装备系统未做（M3）
+- 服务端未做（M6+）
+- 怪的移动仍是固定 Path2D（**下一步计划改为土豆兄弟式房间**——见 §8.2）
+
+### 8.2 计划中的架构演进：固定路径 → 房间生存（土豆兄弟式）
+
+> **状态：规划中，待 review 后实施。** 会动到核心系统（enemy 寻路、spawner、hero 定位），但 Core 层（数值/抽取/管线）基本不动。
+
+当前：怪沿固定 Path2D 走向英雄（英雄固定在屏幕中央）。
+目标：英雄可在**固定房间**内自由移动，怪**随机刷新**且会移动追击英雄，英雄自动释放技能——沉浸感更强，更接近土豆兄弟/吸血鬼幸存者的手感。
+
+预计改动范围：
+- `enemy.gd`：从 Path2D 进度移动 → 自主移动（朝英雄追击 / 房间内游荡）
+- `wave_spawner.gd`：从 Path2D 出生 → 房间边缘随机位置出生
+- `hero.gd`：新增玩家操控移动（摇杆/键盘）；攻击范围从全屏 → 局部圆形
+- `main.tscn`：Path2D → 房间边界（CollisionShape2D / 矩形区域）；英雄出生点
+- 新增：`enemy_ai.gd`（追击/分离/避障，简化版 steering）
+- Core 层（CombatStats/RoguePools/WaveCurves/BuildState）**基本不动**——数值与构筑逻辑与移动方式解耦
 
 ---
 
