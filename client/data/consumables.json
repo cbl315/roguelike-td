@@ -1,0 +1,21 @@
+{
+  "reroll": {
+    "cost": 40,
+    "repeatable": true,
+    "acceptance_target": [
+      0.3,
+      0.5
+    ]
+  },
+  "remove": {
+    "cost": 120,
+    "repeatable": false,
+    "acceptance_target": [
+      0.15,
+      0.3
+    ]
+  },
+  "overall_acceptance": {
+    "boss_clear_rate_gap": 0.15
+  }
+}

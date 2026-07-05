@@ -1,0 +1,318 @@
+{
+  "upgrade_curve": {
+    "cost_base": 15,
+    "cost_per_level": 4,
+    "max_level": 9,
+    "per_level_income": [
+      {
+        "level": 1,
+        "gold_per_sec_delta": 1.0
+      },
+      {
+        "level": 2,
+        "per_kill_gold_delta": 0.5
+      },
+      {
+        "level": 3,
+        "gold_per_sec_delta": 1.0,
+        "milestone": true
+      },
+      {
+        "level": 4,
+        "per_kill_gold_delta": 0.5
+      },
+      {
+        "level": 5,
+        "gold_per_sec_delta": 1.0
+      },
+      {
+        "level": 6,
+        "per_kill_gold_delta": 0.5,
+        "milestone": true
+      },
+      {
+        "level": 7,
+        "gold_per_sec_delta": 1.0
+      },
+      {
+        "level": 8,
+        "per_kill_gold_delta": 0.5
+      },
+      {
+        "level": 9,
+        "gold_per_sec_delta": 1.0,
+        "milestone": true,
+        "milestone_guaranteed_positive": true
+      }
+    ]
+  },
+  "milestones": [
+    3,
+    6,
+    9
+  ],
+  "milestone_guarantee_positive_at": 9,
+  "affixes": [
+    {
+      "id": "gold_per_sec_plus",
+      "name": "每秒金币",
+      "polarity": "positive",
+      "effect": {
+        "gold_per_sec_delta": 3
+      }
+    },
+    {
+      "id": "gold_per_sec_plus_2",
+      "name": "财源滚滚",
+      "polarity": "positive",
+      "effect": {
+        "gold_per_sec_delta": 5
+      },
+      "note": "加强版被动收入"
+    },
+    {
+      "id": "kill_gold_plus",
+      "name": "杀敌金币",
+      "polarity": "positive",
+      "effect": {
+        "per_kill_gold_delta": 1
+      }
+    },
+    {
+      "id": "kill_gold_plus_2",
+      "name": "屠夫",
+      "polarity": "positive",
+      "effect": {
+        "per_kill_gold_delta": 2
+      },
+      "note": "高杀敌收益（清杂兵流）"
+    },
+    {
+      "id": "gold_lump",
+      "name": "一次性金币",
+      "polarity": "positive",
+      "effect": {
+        "gold_lump": 80
+      }
+    },
+    {
+      "id": "gold_lump_2",
+      "name": "宝箱",
+      "polarity": "positive",
+      "effect": {
+        "gold_lump": 200
+      },
+      "note": "大额一次性"
+    },
+    {
+      "id": "gold_multiplier",
+      "name": "金币倍增",
+      "polarity": "positive",
+      "effect": {
+        "gold_mult": 0.15
+      }
+    },
+    {
+      "id": "gold_multiplier_2",
+      "name": "财神眷顾",
+      "polarity": "positive",
+      "effect": {
+        "gold_mult": 0.25
+      },
+      "note": "更强的金币乘区（雪球流核心）"
+    },
+    {
+      "id": "double_gold_chance",
+      "name": "双倍金币概率",
+      "polarity": "positive",
+      "effect": {
+        "double_gold_chance": 0.15
+      }
+    },
+    {
+      "id": "double_gold_chance_2",
+      "name": "幸运硬币",
+      "polarity": "positive",
+      "effect": {
+        "double_gold_chance": 0.25
+      }
+    },
+    {
+      "id": "bond_draw_discount",
+      "name": "羁绊抽取折扣",
+      "polarity": "positive",
+      "effect": {
+        "bond_draw_cost_delta": -5
+      }
+    },
+    {
+      "id": "reroll_discount",
+      "name": "刷新折扣",
+      "polarity": "positive",
+      "effect": {
+        "reroll_cost_delta": -2
+      },
+      "note": "重投成本 -2（配合心流 M2 重投流）"
+    },
+    {
+      "id": "equip_upgrade_discount",
+      "name": "升级折扣",
+      "polarity": "positive",
+      "effect": {
+        "equip_upgrade_cost_delta": -3
+      }
+    },
+    {
+      "id": "atk_from_gold",
+      "name": "财气",
+      "polarity": "positive",
+      "effect": {
+        "atk_pct_delta": 0.05,
+        "gold_mult": 0.1
+      },
+      "note": "战力+经济双修"
+    },
+    {
+      "id": "crit_from_gold",
+      "name": "金锋",
+      "polarity": "positive",
+      "effect": {
+        "crit_rate_delta": 0.05,
+        "gold_mult": 0.1
+      }
+    },
+    {
+      "id": "bond_devour_boost",
+      "name": "羁绊吞噬增益",
+      "polarity": "positive",
+      "effect": {
+        "bond_devour_level_delta": 1
+      },
+      "note": "吞噬时额外 +1 级"
+    },
+    {
+      "id": "synergy_amp",
+      "name": "联动增幅",
+      "polarity": "positive",
+      "effect": {
+        "synergy_effect_mult": 0.2
+      },
+      "note": "所有联动效果 +20%（B-3 联动引擎用）"
+    },
+    {
+      "id": "holy_spring",
+      "name": "圣泉",
+      "polarity": "positive",
+      "effect": {
+        "heal_on_kill_pct": 0.01
+      }
+    },
+    {
+      "id": "vitality_core",
+      "name": "生机核心",
+      "polarity": "positive",
+      "effect": {
+        "hp_pct_delta": 0.1,
+        "hp_regen_pct_per_5s": 0.01
+      }
+    },
+    {
+      "id": "blood_pact",
+      "name": "血祭",
+      "polarity": "curse",
+      "cost": {
+        "dmg_taken_mult": 0.25
+      },
+      "benefit": {
+        "gold_gain_mult": 0.6
+      },
+      "fit": "滚雪球经济流"
+    },
+    {
+      "id": "burn_heaven",
+      "name": "焚天",
+      "polarity": "curse",
+      "cost": {
+        "core_hp_loss_per_5s": 0.01
+      },
+      "benefit": {
+        "final_dmg_mult": 0.2
+      },
+      "fit": "斩杀/爆发流"
+    },
+    {
+      "id": "minimalism",
+      "name": "断舍离",
+      "polarity": "curse",
+      "cost": {
+        "bond_pool_capacity_delta": -2
+      },
+      "benefit": {
+        "per_bond_effect_mult": 0.3
+      },
+      "fit": "少而精构筑（精铺流）"
+    },
+    {
+      "id": "doom_pact",
+      "name": "厄运契约",
+      "polarity": "curse",
+      "cost": {
+        "draw_cost_mult": 0.2
+      },
+      "benefit": {
+        "legendary_draw_chance_mult": 0.5
+      },
+      "fit": "赌狗流"
+    },
+    {
+      "id": "time_blade",
+      "name": "时之刃",
+      "polarity": "curse",
+      "cost": {
+        "attack_speed_delta": -0.15
+      },
+      "benefit": {
+        "per_hit_dmg_mult": 0.4
+      },
+      "fit": "慢速重击 build"
+    },
+    {
+      "id": "glass_cannon",
+      "name": "玻璃大炮",
+      "polarity": "curse",
+      "cost": {
+        "dmg_taken_mult": 0.5,
+        "hp_pct_delta": -0.2
+      },
+      "benefit": {
+        "final_dmg_mult": 0.35
+      },
+      "fit": "极致爆发流（高风险高回报）"
+    },
+    {
+      "id": "misers_curse",
+      "name": "守财奴诅咒",
+      "polarity": "curse",
+      "cost": {
+        "atk_pct_delta": -0.15
+      },
+      "benefit": {
+        "gold_mult": 0.5,
+        "gold_per_sec_delta": 5
+      },
+      "fit": "纯经济流（战力换金币）"
+    },
+    {
+      "id": "fragility",
+      "name": "易碎",
+      "polarity": "curse",
+      "cost": {
+        "damage_reduction_delta": -0.2
+      },
+      "benefit": {
+        "crit_dmg_delta": 0.5
+      },
+      "fit": "暴击流（生存换暴伤）"
+    }
+  ]
+}

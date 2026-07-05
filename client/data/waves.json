@@ -1,0 +1,24 @@
+{
+  "enemy_hp": {
+    "base": 100.0,
+    "growth": 1.05
+  },
+  "enemy_count": {
+    "base": 8,
+    "per_wave": 1.5
+  },
+  "wave_duration": {
+    "base_seconds": 25,
+    "per_wave_seconds": 1
+  },
+  "boss": {
+    "every_n_waves": 10,
+    "total_hp_share": 0.4
+  },
+  "elite": {
+    "every_n_waves": 5
+  },
+  "main_quest": {
+    "waves": 30
+  }
+}
