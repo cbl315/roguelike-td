@@ -6,6 +6,7 @@
 #     "zhipuai>=2.1",
 #     "sniffio",      # zhipuai 实际依赖但未在 its metadata 中声明
 #     "pillow>=10.0", # 水印去除后处理
+#     "numpy>=1.26",  # 水印背景采样（逐行中位数渐变插值）
 # ]
 # ///
 """AI 批量生图脚本 —— 读 art_prompts.yaml，调 CogView-3-Flash 生成图片并入库。
