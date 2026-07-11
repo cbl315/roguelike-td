@@ -5,6 +5,7 @@
 #     "pyyaml>=6.0",
 #     "zhipuai>=2.1",
 #     "sniffio",      # zhipuai 实际依赖但未在 its metadata 中声明
+#     "pillow>=10.0", # 水印去除后处理
 # ]
 # ///
 """AI 批量生图脚本 —— 读 art_prompts.yaml，调 CogView-3-Flash 生成图片并入库。
@@ -162,6 +163,51 @@ def download(url: str, dest: Path) -> None:
         f.write(r.read())
 
 
+# 智谱 CogView 固定在右下角加"AI生成"水印（全图右下 ~12%×4% 区域）。
+# 水印相对坐标（按图片宽高比例），适配任意分辨率。
+WATERMARK_BOX = (0.846, 0.936, 0.963, 0.970)  # (x0, y0, x1, y1) 比例
+
+
+def remove_watermark(path: Path, box: tuple[float, float, float, float] = WATERMARK_BOX) -> bool:
+    """用水印周围的背景色填充水印区域（inpaint 式覆盖）。
+
+    原理：素材是居中构图，角落是纯背景。取水印框左侧/上方一条像素带
+    的中位数色作为背景色，整块填进去。对纯色/渐变背景几乎无痕。
+
+    返回 True 表示已处理，False 表示跳过（如 Pillow 不可用）。
+    """
+    try:
+        from PIL import Image
+    except ImportError:
+        return False
+
+    img = Image.open(path).convert("RGB")
+    w, h = img.size
+    x0, y0, x1, y1 = (int(v * dim) for v, dim in zip(box, (w, h, w, h)))
+
+    # 取水印框左侧一条 8px 宽的像素带作为背景采样（避开主体）
+    sample_x0 = max(0, x0 - 12)
+    sample_x1 = max(sample_x0 + 1, x0 - 4)
+    sample = img.crop((sample_x0, y0, sample_x1, y1 + 1))
+
+    # 中位数色（对渐变更稳：逐列取中位数，再横向插值）
+    try:
+        import numpy as np
+        arr = np.array(sample)
+        # 每行取中位数，得到 y 方向的渐变背景
+        row_median = np.median(arr, axis=1).astype("uint8")
+        fill = Image.fromarray(row_median.reshape(-1, 1, 3), "RGB").resize((x1 - x0, y1 - y0 + 1))
+    except ImportError:
+        # 没 numpy 就用纯中位数色填一块
+        pixels = list(sample.getdata())
+        med = tuple(sorted(p)[len(p) // 2])
+        fill = Image.new("RGB", (x1 - x0, y1 - y0 + 1), med)
+
+    img.paste(fill, (x0, y0))
+    img.save(path)
+    return True
+
+
 # ── 命令 ──────────────────────────────────────────────────────────────
 def cmd_dry_run(args: argparse.Namespace) -> None:
     entries = load_entries()
@@ -207,7 +253,9 @@ def cmd_gen(args: argparse.Namespace) -> None:
             url = call_cogview(e.prompt, e.size, api_key)
             dest = out_path(e)
             download(url, dest)
-            print(f"    ✓ 已保存 {dest.relative_to(REPO_ROOT)}")
+            removed = remove_watermark(dest)
+            wm_note = "，已去水印" if removed else ""
+            print(f"    ✓ 已保存 {dest.relative_to(REPO_ROOT)}{wm_note}")
             ok += 1
         except Exception as e2:  # noqa: BLE001
             print(f"    ✗ 失败：{e2}")
