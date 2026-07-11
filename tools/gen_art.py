@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "pyyaml>=6.0",
+#     "zhipuai>=2.1",
+# ]
+# ///
 """AI 批量生图脚本 —— 读 art_prompts.yaml，调 CogView-3-Flash 生成图片并入库。
 
 管线设计（见 docs/ART_PIPELINE.md）：
@@ -6,18 +13,18 @@
   - Seedream 4.5 / GLM-Image（付费）精修一致性敏感素材（羁绊卡面 / 英雄 / Boss）
   - 本脚本只负责调用 CogView；精修环节可在后续按需接入
 
-用法：
-  uv run python tools/gen_art.py dry-run                  # 不调 API，只打印计划
-  uv run python tools/gen_art.py gen --category bonds     # 只生成羁绊卡面
-  uv run python tools/gen_art.py gen --id bond_zhutian_01 # 只生成指定条目
-  uv run python tools/gen_art.py gen                      # 生成全部
-  uv run python tools/gen_art.py sync --id bond_zhutian_01 --ref exported.png
-                                                           # 用现成图替换某条目
+用法（用 uv run 直接运行脚本，自动装依赖；勿加 python）：
+  uv run tools/gen_art.py dry-run                  # 不调 API，只打印计划
+  uv run tools/gen_art.py gen --category bonds     # 只生成羁绊卡面
+  uv run tools/gen_art.py gen --id bond_zhutian_01 # 只生成指定条目
+  uv run tools/gen_art.py gen                      # 生成全部
+  uv run tools/gen_art.py sync --id bond_zhutian_01 --ref exported.png
+                                                    # 用现成图替换某条目
 
 环境变量：
   ZHIPU_API_KEY  智谱开放平台 API Key（open.bigmodel.cn 控制台获取）
 
-依赖：zhipuai>=2.1  pyyaml>=6.0  （pip install zhipuai pyyaml）
+依赖（PEP 723 内联声明于文件头，uv run 自动安装）：pyyaml>=6.0  zhipuai>=2.1
 """
 from __future__ import annotations
 

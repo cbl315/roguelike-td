@@ -6,9 +6,9 @@
 
 ## 安装
 
-```bash
-pip install zhipuai pyyaml
-```
+无需手动安装依赖。脚本用 [PEP 723](https://peps.python.org/pep-0723/) 内联声明了依赖（`pyyaml`、`zhipuai`），用 `uv run` 直接运行脚本时会自动安装。
+
+> 需要 [uv](https://docs.astral.sh/uv/)：`curl -LsSf https://astral.sh/uv/install.sh | sh`
 
 ## 配置 API Key
 
@@ -20,19 +20,21 @@ export ZHIPU_API_KEY="你的key"
 
 ## 用法
 
+> ⚠️ 用 `uv run tools/gen_art.py ...`（直接运行脚本），**不要**写 `uv run python tools/gen_art.py`——后者不会触发 PEP 723 自动装依赖。
+
 ```bash
 # 1. 预览：不调 API，只看会生成什么
-uv run python tools/gen_art.py dry-run
-uv run python tools/gen_art.py dry-run --category bonds
+uv run tools/gen_art.py dry-run
+uv run tools/gen_art.py dry-run --category bonds
 
 # 2. 生成（默认跳过已存在的文件）
-uv run python tools/gen_art.py gen                      # 全部
-uv run python tools/gen_art.py gen --category bonds     # 只生成羁绊卡面
-uv run python tools/gen_art.py gen --id bond_zhutian_emperor_cauldron  # 只生成一张
-uv run python tools/gen_art.py gen --force              # 强制覆盖已有
+uv run tools/gen_art.py gen                      # 全部
+uv run tools/gen_art.py gen --category bonds     # 只生成羁绊卡面
+uv run tools/gen_art.py gen --id bond_zhutian_emperor_cauldron  # 只生成一张
+uv run tools/gen_art.py gen --force              # 强制覆盖已有
 
 # 3. 精修后替换：用 Seedream/GLM-Image 精修过的图替换 CogView 草图
-uv run python tools/gen_art.py sync --id bond_zhutian_emperor_cauldron --ref ~/downloads/refined.png
+uv run tools/gen_art.py sync --id bond_zhutian_emperor_cauldron --ref ~/downloads/refined.png
 ```
 
 ## 输出
