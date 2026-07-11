@@ -125,7 +125,6 @@ func _on_lobby_confirmed() -> void:
 
 
 func open_skill_picker() -> void:
-	print("[GM] open_skill_picker called, banked=%d" % skill_upgrades_banked)
 	if skill_upgrades_banked <= 0:
 		return
 	get_tree().paused = true
@@ -134,7 +133,6 @@ func open_skill_picker() -> void:
 
 
 func open_bond_picker() -> void:
-	print("[GM] open_bond_picker called, gold=%.0f cost=%.0f" % [_build.gold, _build.bond_draw_cost()])
 	if _build.gold < _build.bond_draw_cost():
 		return
 	get_tree().paused = true
@@ -177,11 +175,9 @@ func _on_hero_fired(target: Node, dmg: float) -> void:
 ## #6: 由 HUD 的 Tab 键回调，切换角色面板 + 暂停
 func toggle_char_panel() -> void:
 	var open: bool = _hud.is_char_panel_open()
-	print("[GM] toggle_char_panel called, currently open=%s" % open)
 	if open:
 		_hud.close_character_panel()
 		get_tree().paused = false
 	else:
 		_hud.open_character_panel(_build, _pools)
 		get_tree().paused = true
-		print("[GM] char panel opened, paused=%s" % get_tree().paused)

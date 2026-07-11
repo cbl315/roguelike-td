@@ -50,6 +50,7 @@ horizontal_alignment = 1
 text = "目标:最近"
 
 [node name="UILayer" type="CanvasLayer" parent="."]
+layer = 10
 
 [node name="HUD" type="Control" parent="UILayer"]
 layout_mode = 3
@@ -118,6 +119,13 @@ theme = SubResource("Theme_hud")
 focus_mode = 0
 mouse_filter = 0
 text = "羁绊 (30金)"
+
+[node name="CharButton" type="Button" parent="UILayer/HUD/SideButtons"]
+custom_minimum_size = Vector2(280, 60)
+theme = SubResource("Theme_hud")
+focus_mode = 0
+mouse_filter = 0
+text = "角色面板"
 
 [node name="CoreHPBar" type="ProgressBar" parent="UILayer/HUD"]
 offset_left = 1500.0
