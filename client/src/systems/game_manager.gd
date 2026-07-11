@@ -26,8 +26,8 @@ var _started: bool = false
 func _ready() -> void:
 	_spawner = $WaveSpawner
 	_hero = $Hero
-	_hud = get_node("../HUD")
-	_lobby = get_node("../Lobby")
+	_hud = get_node("../UILayer/HUD")
+	_lobby = get_node("../UILayer/Lobby")
 	# 房间边界（与 main.tscn RoomBorder 一致：80,80 → 2920,1920）
 	var room_rect := Rect2(80, 80, 2840, 1840)
 	_spawner.setup(_hero, room_rect)
