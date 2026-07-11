@@ -296,3 +296,27 @@ func _find_bond(bid: String) -> Dictionary:
 		if b.get("id") == bid:
 			return b
 	return {}
+
+
+## 查羁绊名称（供 UI 显示）
+func _find_bond_name(bid: String) -> String:
+	var b: Dictionary = _find_bond(bid)
+	if b.is_empty():
+		return bid
+	return b.get("name", bid)
+
+
+## 查技能数据 by id
+func _find_skill(sid: String) -> Dictionary:
+	for s in _skills:
+		if s.get("id") == sid:
+			return s
+	return {}
+
+
+## 查技能名称（供 UI 显示）
+func _find_skill_name(sid: String) -> String:
+	var s: Dictionary = _find_skill(sid)
+	if s.is_empty():
+		return sid
+	return s.get("name", sid)

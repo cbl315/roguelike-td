@@ -23,7 +23,7 @@ var build: BuildState = null
 var _stats: CombatStats = null
 
 ## 房间边界（由 game_manager 设置）
-var room_rect: Rect2 = Rect2(80, 80, 1760, 920)
+var room_rect: Rect2 = Rect2(80, 80, 2840, 1840)
 
 @onready var _priority_label: Label = $PriorityLabel
 

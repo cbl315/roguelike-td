@@ -27,9 +27,11 @@ var armor: float = 20.0
 var _hero: Node2D = null
 var _dead: bool = false
 var _contact_cd: float = 0.0   # 接触冷却剩余
+var _flash_timer: float = 0.0   # #3: 受击闪白剩余
+var _burst_timer: float = -1.0  # #3: 死亡爆裂动画（>=0 时播放，0.2s 后 queue_free）
 
 ## 房间边界（由 spawner 设置）
-var _room_rect: Rect2 = Rect2(80, 80, 1760, 920)
+var _room_rect: Rect2 = Rect2(80, 80, 2840, 1840)
 
 
 func _ready() -> void:
@@ -37,14 +39,18 @@ func _ready() -> void:
 	z_index = 20
 
 
-## 血量 setter：归零自动触发死亡（参考 quiver-td set_health 模式）
+## 血量 setter：归零自动触发死亡 + 爆裂动画（参考 quiver-td set_health 模式）
 func set_current_hp(value: float) -> void:
 	current_hp = maxf(0.0, value)
+	# #3: 受击闪白（非致命伤害）
+	if current_hp > 0.0:
+		_flash_timer = 0.08
 	queue_redraw()
 	if current_hp <= 0.0 and not _dead:
 		_dead = true
 		died.emit(self)
-		queue_free()
+		# #3: 不立即 queue_free，播放 0.2s 爆裂动画
+		_burst_timer = 0.0
 
 
 func setup(hp: float, boss: bool, elite: bool, hero: Node2D, room_rect: Rect2) -> void:
@@ -65,8 +71,18 @@ func setup(hp: float, boss: bool, elite: bool, hero: Node2D, room_rect: Rect2) -
 
 
 func _process(delta: float) -> void:
+	# #3: 死亡爆裂动画播放中 → 不再移动，只播动画
+	if _burst_timer >= 0.0:
+		_burst_timer += delta
+		queue_redraw()
+		if _burst_timer > 0.2:
+			queue_free()
+		return
 	if _hero == null or not is_instance_valid(_hero):
 		return
+	# #3: 受击闪白计时
+	if _flash_timer > 0.0:
+		_flash_timer -= delta
 	# 朝英雄移动
 	var dir: Vector2 = (_hero.global_position - global_position)
 	var dist: float = dir.length()
@@ -92,12 +108,23 @@ func take_damage(amount: float) -> void:
 
 
 func _draw() -> void:
+	# #3: 死亡爆裂动画（0→40px 放大圆环，透明度递减）
+	if _burst_timer >= 0.0:
+		var t: float = _burst_timer / 0.2   # 0→1
+		var burst_r: float = radius + t * 40.0
+		var burst_a: float = 1.0 - t
+		draw_circle(Vector2.ZERO, burst_r, Color(1.0, 0.8, 0.3, burst_a * 0.6))
+		draw_arc(Vector2.ZERO, burst_r, 0, TAU, 32, Color(1.0, 0.9, 0.4, burst_a), 3.0)
+		return
 	var hp_ratio := clampf(current_hp / max_hp, 0.0, 1.0)
 	var col := Color(1.0, 0.25 + 0.4 * (1.0 - hp_ratio), 0.3 + 0.3 * (1.0 - hp_ratio))
 	if is_boss:
 		col = Color(1.0, 0.4, 0.8)
 	elif is_elite:
 		col = Color(1.0, 0.6, 0.3)
+	# #3: 受击闪白（混入白色）
+	if _flash_timer > 0.0:
+		col = col.lerp(Color.WHITE, 0.6)
 	draw_circle(Vector2.ZERO, radius + 6, Color(col.r, col.g, col.b, 0.25))
 	draw_circle(Vector2.ZERO, radius, col)
 	var bar_w := radius * 1.6

@@ -9,7 +9,7 @@ signal wave_finished()
 @export var spawn_interval: float = 0.8   # 每只怪间隔秒数
 
 var _hero: Node2D = null
-var _room_rect: Rect2 = Rect2(80, 80, 1760, 920)
+var _room_rect: Rect2 = Rect2(80, 80, 2840, 1840)
 var _enemies_to_spawn: int = 0
 var _wave: int = 1
 var _spawning: bool = false
@@ -28,10 +28,14 @@ func setup(hero: Node2D, room_rect: Rect2) -> void:
 func start_wave(wave: int) -> void:
 	_wave = wave
 	WaveCurves._current_wave = wave
-	_enemies_to_spawn = WaveCurves.enemy_count(wave)
+	var count: int = WaveCurves.enemy_count(wave)
+	_enemies_to_spawn = count
 	_spawning = true
-	# 第一只立刻刷，后续按间隔（quiver-td 模式）
-	_spawn_timer.wait_time = 0.1
+	# #7: 渐进式刷怪 — 间隔 = 波次时长 / 敌人数量（均匀铺满整波，波越大刷越快）
+	var dur: float = WaveCurves.wave_duration(wave)
+	spawn_interval = maxf(0.3, dur / float(count))
+	# 首只延迟 1 秒（给"波次开始了"的缓冲）
+	_spawn_timer.wait_time = 1.0
 	_spawn_timer.start()
 
 
@@ -101,6 +105,13 @@ func _remove_enemy(enemy: Enemy) -> void:
 
 func active_enemies() -> Array:
 	return _active_enemies
+
+
+## 强制停止刷怪（波次超时时调用，剩余待刷的不刷了）
+func stop_spawning() -> void:
+	_spawning = false
+	_enemies_to_spawn = 0
+	_spawn_timer.stop()
 
 
 func is_active() -> bool:

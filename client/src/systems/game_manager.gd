@@ -17,6 +17,7 @@ var _hero: Hero
 var _hud: HUD
 var _lobby: Lobby
 var _break_timer: float = 0.0
+var _wave_timer: float = 0.0   # #2: 波次倒计时剩余秒
 var _build: BuildState
 var _pools: RoguePools
 var _started: bool = false
@@ -27,8 +28,8 @@ func _ready() -> void:
 	_hero = $Hero
 	_hud = get_node("../HUD")
 	_lobby = get_node("../Lobby")
-	# 房间边界（与 main.tscn RoomBorder 一致）
-	var room_rect := Rect2(80, 80, 1760, 920)
+	# 房间边界（与 main.tscn RoomBorder 一致：80,80 → 2920,1920）
+	var room_rect := Rect2(80, 80, 2840, 1840)
 	_spawner.setup(_hero, room_rect)
 	_hero.room_rect = room_rect
 	_hero.max_hp = hero_hp
@@ -51,6 +52,7 @@ func _ready() -> void:
 	_lobby.confirmed.connect(_on_lobby_confirmed)
 	_hud.skill_picker_requested.connect(open_skill_picker)
 	_hud.bond_picker_requested.connect(open_bond_picker)
+	_hud.char_panel_toggled.connect(toggle_char_panel)
 	call_deferred("_start_next_wave")
 
 
@@ -59,6 +61,12 @@ func _process(delta: float) -> void:
 		State.WAVE_IN_PROGRESS:
 			_hero.set_enemies(_spawner.active_enemies())
 			_hud.update_enemy_count(_spawner.active_enemies().size())
+			# #2: 波次倒计时
+			_wave_timer -= delta
+			_hud.update_timer(_wave_timer)
+			if _wave_timer <= 0.0:
+				if _spawner: _spawner.stop_spawning()
+				_on_wave_finished()
 		State.WAVE_CLEARED:
 			_break_timer -= delta
 			if _break_timer <= 0.0:
@@ -76,6 +84,8 @@ func _start_next_wave() -> void:
 	state = State.WAVE_IN_PROGRESS
 	EventBus.wave_started.emit(current_wave)
 	if _hud: _hud.update_wave(current_wave)
+	# #2: 设置波次倒计时
+	_wave_timer = WaveCurves.wave_duration(current_wave)
 	skill_upgrades_banked += 2 if WaveCurves.is_boss_wave(current_wave) else 1
 	EventBus.skill_upgrade_available = skill_upgrades_banked
 	_lobby.set_build_ref(_build, _pools)
@@ -88,9 +98,17 @@ func _start_next_wave() -> void:
 
 
 func _on_wave_finished() -> void:
+	if state != State.WAVE_IN_PROGRESS:
+		return   # 防重复（超时 + 全清可能同时触发）
 	state = State.WAVE_CLEARED
 	EventBus.wave_cleared.emit(current_wave)
-	var bonus := 30.0 + 5.0 * current_wave
+	# #2: 清完怪提前结束 → 剩余时间奖励金币（每秒 2 金）
+	var time_bonus: float = 0.0
+	if _wave_timer > 0.0:
+		time_bonus = ceilf(_wave_timer) * 2.0
+	_wave_timer = 0.0
+	if _hud: _hud.update_timer(-1.0)   # 隐藏倒计时
+	var bonus := 30.0 + 5.0 * current_wave + time_bonus
 	_build.add_gold(bonus)
 	EventBus.gold_changed.emit(_build.gold)
 	if _hud: _hud.update_gold(_build.gold)
@@ -102,6 +120,7 @@ func _on_lobby_confirmed() -> void:
 	EventBus.skill_upgrade_available = skill_upgrades_banked
 	_hud.update_skill_count(skill_upgrades_banked)
 	_hud.update_gold(_build.gold)
+	_hud.update_bond_cost(_build.bond_draw_cost())   # #5: 买羁绊后刷新成本显示
 	_hero.refresh_stats()
 
 
@@ -151,3 +170,14 @@ func _on_hero_fired(target: Node, dmg: float) -> void:
 	var proj := Projectile.new()
 	add_child(proj)
 	proj.setup(_hero.global_position, target, dmg)
+
+
+## #6: 由 HUD 的 Tab 键回调，切换角色面板 + 暂停
+func toggle_char_panel() -> void:
+	var open: bool = _hud.is_char_panel_open()
+	if open:
+		_hud.close_character_panel()
+		get_tree().paused = false
+	else:
+		_hud.open_character_panel(_build, _pools)
+		get_tree().paused = true

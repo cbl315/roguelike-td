@@ -12,14 +12,16 @@ default_font_size = 24
 [node name="GameRoot" type="Node2D"]
 
 [node name="Background" type="ColorRect" parent="."]
-offset_right = 1920.0
-offset_bottom = 1080.0
+offset_right = 3000.0
+offset_bottom = 2000.0
 color = Color(0.08, 0.085, 0.12, 1)
 
 [node name="RoomBorder" type="Line2D" parent="."]
-points = PackedVector2Array(60, 60, 1860, 60, 1860, 1020, 60, 1020, 60, 60)
+points = PackedVector2Array(80, 80, 2920, 80, 2920, 1920, 80, 1920, 80, 80)
 width = 4.0
 default_color = Color(0.3, 0.35, 0.5, 0.8)
+
+[node name="GridLines" type="Node2D" parent="."]
 
 [node name="GameManager" type="Node2D" parent="."]
 script = ExtResource("1_gm")
@@ -30,11 +32,14 @@ script = ExtResource("2_spawner")
 [node name="SpawnTimer" type="Timer" parent="GameManager/WaveSpawner"]
 one_shot = true
 
-[connection signal="timeout" from="GameManager/WaveSpawner/SpawnTimer" to="GameManager/WaveSpawner" method="_on_spawn_timer_timeout"]
-
 [node name="Hero" type="Node2D" parent="GameManager"]
-position = Vector2(960, 540)
+position = Vector2(1500, 1000)
 script = ExtResource("4_hero")
+
+[node name="Camera2D" type="Camera2D" parent="GameManager/Hero"]
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+zoom = Vector2(0.7, 0.7)
 
 [node name="PriorityLabel" type="Label" parent="GameManager/Hero"]
 offset_left = -60.0
@@ -50,6 +55,7 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
+process_mode = 2
 script = ExtResource("5_hud")
 
 [node name="WaveLabel" type="Label" parent="HUD"]
@@ -59,6 +65,14 @@ offset_right = 400.0
 offset_bottom = 56.0
 theme = SubResource("Theme_hud")
 text = "第 0 波"
+
+[node name="TimerLabel" type="Label" parent="HUD"]
+offset_left = 420.0
+offset_top = 20.0
+offset_right = 700.0
+offset_bottom = 56.0
+theme = SubResource("Theme_hud")
+text = ""
 
 [node name="EnemyLabel" type="Label" parent="HUD"]
 offset_left = 30.0
@@ -194,3 +208,5 @@ offset_bottom = 900.0
 [node name="RealmLabel" type="Label" parent="Lobby/SidePanel"]
 theme = SubResource("Theme_hud")
 text = "未修炼任何体系"
+
+[connection signal="timeout" from="GameManager/WaveSpawner/SpawnTimer" to="GameManager/WaveSpawner" method="_on_spawn_timer_timeout"]
