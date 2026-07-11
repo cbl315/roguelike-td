@@ -28,15 +28,41 @@ func _ready() -> void:
 	_char_btn.pressed.connect(_on_char_btn)
 
 
+## 暴力点击检测：绕过 Godot GUI 系统，手动判断点击是否落在按钮区域内。
+## 用 _input（最高优先级）直接拦截，确保按钮一定响应。
+func _input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton) or not event.pressed:
+		return
+	if event.button_index != MOUSE_BUTTON_LEFT:
+		return
+	var pos: Vector2 = event.position
+	# 检测三个按钮的屏幕区域（与 main.tscn SideButtons offset 一致）
+	# SideButtons: offset_left=40 top=880, 每个 280×60 + separation
+	var btn_rects: Array = [
+		{"name": "skill", "rect": Rect2(40, 880, 280, 60), "fn": _on_skill_btn},
+		{"name": "bond", "rect": Rect2(40, 940, 280, 60), "fn": _on_bond_btn},
+		{"name": "char", "rect": Rect2(40, 1000, 280, 60), "fn": _on_char_btn},
+	]
+	for btn in btn_rects:
+		if btn["rect"].has_point(pos):
+			print("[HUD] manual click hit: %s at %s" % [btn["name"], pos])
+			btn["fn"].call()
+			get_viewport().set_input_as_handled()
+			return
+
+
 func _on_skill_btn() -> void:
+	print("[HUD] _on_skill_btn → emit skill_picker_requested")
 	skill_picker_requested.emit()
 
 
 func _on_bond_btn() -> void:
+	print("[HUD] _on_bond_btn → emit bond_picker_requested")
 	bond_picker_requested.emit()
 
 
 func _on_char_btn() -> void:
+	print("[HUD] _on_char_btn → emit char_panel_toggled")
 	char_panel_toggled.emit()
 
 
