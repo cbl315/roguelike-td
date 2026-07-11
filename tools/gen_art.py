@@ -4,6 +4,7 @@
 # dependencies = [
 #     "pyyaml>=6.0",
 #     "zhipuai>=2.1",
+#     "sniffio",      # zhipuai 实际依赖但未在 its metadata 中声明
 # ]
 # ///
 """AI 批量生图脚本 —— 读 art_prompts.yaml，调 CogView-3-Flash 生成图片并入库。
@@ -38,8 +39,11 @@ from typing import Any
 
 try:
     import yaml
-except ImportError:
-    sys.exit("缺少 pyyaml，请安装：pip install pyyaml")
+except ImportError as e:
+    sys.exit(
+        f"导入 pyyaml 失败：{e}\n"
+        "请用 uv run tools/gen_art.py ...（直接运行脚本，自动装依赖）。"
+    )
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent
@@ -123,8 +127,12 @@ def call_cogview(prompt: str, size: str, api_key: str) -> str:
     """调用智谱 CogView，返回图片 URL。带指数退避重试。"""
     try:
         from zhipuai import ZhipuAI
-    except ImportError:
-        sys.exit("缺少 zhipuai SDK，请安装：pip install zhipuai")
+    except ImportError as e:
+        sys.exit(
+            f"导入 zhipuai 失败：{e}\n"
+            "可能原因：zhipuai 漏声明了 sniffio 等依赖。\n"
+            "修复：uv run --with zhipuai --with sniffio tools/gen_art.py gen ..."
+        )
 
     client = ZhipuAI(api_key=api_key)
 
