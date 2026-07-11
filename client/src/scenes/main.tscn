@@ -1,16 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://main_scene_m1"]
+[gd_scene load_steps=6 format=3 uid="uid://main_scene_m1"]
 
 [ext_resource type="Script" path="res://src/systems/game_manager.gd" id="1_gm"]
 [ext_resource type="Script" path="res://src/systems/wave_spawner.gd" id="2_spawner"]
 [ext_resource type="Script" path="res://src/scenes/entities/hero.gd" id="4_hero"]
 [ext_resource type="Script" path="res://src/scenes/hud/hud.gd" id="5_hud"]
 [ext_resource type="Script" path="res://src/scenes/lobby/lobby.gd" id="6_lobby"]
-
-[sub_resource type="Curve2D" id="Curve2D_path"]
-_data = {
-"points": PackedVector2Array(0, 0, 0, 0, 80, 540, 0, 0, 0, 0, 80, 200, 0, 0, 0, 0, 600, 200, 0, 0, 0, 0, 600, 880, 0, 0, 0, 0, 1100, 880, 0, 0, 0, 0, 1100, 300, 0, 0, 0, 0, 1300, 300, 0, 0, 0, 0, 960, 540)
-}
-point_count = 8
 
 [sub_resource type="Theme" id="Theme_hud"]
 default_font_size = 24
@@ -22,11 +16,13 @@ offset_right = 1920.0
 offset_bottom = 1080.0
 color = Color(0.08, 0.085, 0.12, 1)
 
+[node name="RoomBorder" type="Line2D" parent="."]
+points = PackedVector2Array(60, 60, 1860, 60, 1860, 1020, 60, 1020, 60, 60)
+width = 4.0
+default_color = Color(0.3, 0.35, 0.5, 0.8)
+
 [node name="GameManager" type="Node2D" parent="."]
 script = ExtResource("1_gm")
-
-[node name="Path2D" type="Path2D" parent="GameManager"]
-curve = SubResource("Curve2D_path")
 
 [node name="WaveSpawner" type="Node" parent="GameManager"]
 script = ExtResource("2_spawner")

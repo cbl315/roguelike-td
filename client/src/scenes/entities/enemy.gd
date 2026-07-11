@@ -1,5 +1,5 @@
-## enemy.gd — 敌人：沿路径移动，有 HP，到终点扣核心血。
-## 用 progress_ratio (0..1) 移动，避免 bake 长度异常导致瞬间到终点。
+## enemy.gd — 敌人：房间内自主移动，追击英雄，有 HP。
+## 土豆兄弟式：不再沿固定 Path2D，而是直接朝英雄移动 + 房间边界约束。
 extends Node2D
 class_name Enemy
 
@@ -7,21 +7,29 @@ signal reached_core(enemy, leak_damage: float)
 signal died(enemy)
 
 @export var max_hp: float = 100.0
-@export var progress_per_sec: float = 0.06   # 每秒沿路径前进的比例（0.06 = ~17秒走完）
 @export var is_boss: bool = false
 @export var is_elite: bool = false
 @export var radius: float = 18.0
-## 击杀奖励金币（数据驱动，参考 quiver-td enemy.kill_reward）
+## 击杀奖励金币（数据驱动）
 @export var kill_reward: float = 2.0
-## 漏到核心造成的伤害（数据驱动）
+## 接触英雄造成的伤害（数据驱动）
 @export var leak_damage: float = 30.0
+## 移动速度（像素/秒）
+@export var move_speed: float = 120.0
+## 接触英雄的距离（触发 leak_damage）
+@export var contact_dist: float = 40.0
+## 接触后重新攻击的冷却（秒）
+@export var contact_cooldown: float = 1.0
 
 var current_hp: float = 100.0:
 	set = set_current_hp
 var armor: float = 20.0
-var _path: Path2D
-var _progress: float = 0.0    # 0..1 沿路径进度
+var _hero: Node2D = null
 var _dead: bool = false
+var _contact_cd: float = 0.0   # 接触冷却剩余
+
+## 房间边界（由 spawner 设置）
+var _room_rect: Rect2 = Rect2(80, 80, 1760, 920)
 
 
 func _ready() -> void:
@@ -39,47 +47,44 @@ func set_current_hp(value: float) -> void:
 		queue_free()
 
 
-func setup(hp: float, boss: bool, elite: bool, path: Path2D) -> void:
-	# 直接用 B 路线校准曲线（base 100, growth 1.05），不再 ×4。
-	# 早先 ×4 是 M1 band-aid，反而让前波怪太耐打、手感发滞。
+func setup(hp: float, boss: bool, elite: bool, hero: Node2D, room_rect: Rect2) -> void:
 	max_hp = hp
 	current_hp = max_hp
 	is_boss = boss
 	is_elite = elite
-	_path = path
+	_hero = hero
+	_room_rect = room_rect
 	armor = 20.0
 	radius = 30.0 if boss else (24.0 if elite else 18.0)
-	# 移动速度：progress/sec。baked_length≈3236，0.10 ≈ 10 秒走完全程（~324px/s）。
-	progress_per_sec = 0.05 if boss else (0.07 if elite else 0.10)
-	# 击杀奖励/漏怪伤害随类型递增（数据驱动，避免 game_manager 硬编码）
+	# 移动速度：boss 慢、精英中、普通快（像素/秒）
+	move_speed = 60.0 if boss else (90.0 if elite else 120.0)
+	# 击杀奖励/接触伤害随类型递增
 	kill_reward = 8.0 if boss else (4.0 if elite else 2.0)
 	leak_damage = (60.0 + 10.0 * WaveCurves._current_wave) if boss else (40.0 + 5.0 * WaveCurves._current_wave) if elite else (30.0 + 5.0 * WaveCurves._current_wave)
-	_progress = 0.0
-	_update_pos()
+	contact_dist = 36.0 if boss else (32.0 if elite else 28.0)
 
 
 func _process(delta: float) -> void:
-	if _path == null:
+	if _hero == null or not is_instance_valid(_hero):
 		return
-	_progress += progress_per_sec * delta
-	if _progress >= 1.0:
+	# 朝英雄移动
+	var dir: Vector2 = (_hero.global_position - global_position)
+	var dist: float = dir.length()
+	if dist > contact_dist:
+		var step: float = move_speed * delta
+		if dist > step:
+			global_position += dir.normalized() * step
+		else:
+			global_position = _hero.global_position
+	# 接触英雄：造成伤害 + 进冷却
+	_contact_cd -= delta
+	if dist <= contact_dist and _contact_cd <= 0.0:
+		_contact_cd = contact_cooldown
 		reached_core.emit(self, leak_damage)
-		queue_free()
-		return
-	_update_pos()
+	# 房间边界约束
+	global_position.x = clampf(global_position.x, _room_rect.position.x, _room_rect.position.x + _room_rect.size.x)
+	global_position.y = clampf(global_position.y, _room_rect.position.y, _room_rect.position.y + _room_rect.size.y)
 	queue_redraw()
-
-
-func _update_pos() -> void:
-	if _path == null or _path.curve == null:
-		return
-	# 用 progress(0..1) 映射到曲线长度
-	var baked_len: float = _path.curve.get_baked_length()
-	if baked_len <= 0.1:
-		return   # 曲线异常，不动（避免位置错乱）
-	var dist: float = _progress * baked_len
-	var local: Vector2 = _path.curve.sample_baked(dist)
-	global_position = _path.to_global(local)
 
 
 func take_damage(amount: float) -> void:

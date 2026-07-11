@@ -27,8 +27,10 @@ func _ready() -> void:
 	_hero = $Hero
 	_hud = get_node("../HUD")
 	_lobby = get_node("../Lobby")
-	var path: Path2D = $Path2D
-	_spawner.setup(path)
+	# 房间边界（与 main.tscn RoomBorder 一致）
+	var room_rect := Rect2(80, 80, 1760, 920)
+	_spawner.setup(_hero, room_rect)
+	_hero.room_rect = room_rect
 	_hero.max_hp = hero_hp
 	_hero.current_hp = hero_hp
 	# M2: build 系统

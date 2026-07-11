@@ -1,5 +1,5 @@
-## hero.gd — 英雄 = 核心（M2 改：英雄就是防守目标，怪朝英雄走，打英雄=扣血）。
-## 自动攻击全屏范围内的敌人。点击切换目标优先级。
+## hero.gd — 英雄 = 核心：玩家操控移动（WASD/方向键），自动攻击范围内敌人。
+## 房间生存式（土豆兄弟）：英雄可自由移动，怪追击英雄，英雄自动开火。
 extends Node2D
 class_name Hero
 
@@ -10,13 +10,20 @@ signal destroyed()
 
 @export var max_hp: float = 1000.0
 @export var radius: float = 32.0
+## 玩家移动速度（像素/秒）
+@export var move_speed: float = 320.0
+## 攻击范围（像素半径）
+@export var attack_range: float = 450.0
 
 var current_hp: float = 1000.0
 var target_priority: int = 0   # TargetPriority.Mode
 var _fire_timer: float = 0.0
-var _enemies_in_range: Array = []
+var _all_enemies: Array = []   # 当前波全部敌人（由 game_manager 每帧推送）
 var build: BuildState = null
 var _stats: CombatStats = null
+
+## 房间边界（由 game_manager 设置）
+var room_rect: Rect2 = Rect2(80, 80, 1760, 920)
 
 @onready var _priority_label: Label = $PriorityLabel
 
@@ -28,7 +35,7 @@ func _ready() -> void:
 
 
 func set_enemies(enemies: Array) -> void:
-	_enemies_in_range = enemies
+	_all_enemies = enemies
 
 
 func take_damage(amount: float) -> void:
@@ -48,12 +55,13 @@ func refresh_stats() -> void:
 
 
 func _process(delta: float) -> void:
+	_handle_movement(delta)
 	if _stats == null:
 		refresh_stats()
-	# 全屏范围：所有有效敌人都在射程内
+	# 筛选攻击范围内的敌人
 	var in_range: Array = []
-	for e in _enemies_in_range:
-		if is_instance_valid(e):
+	for e in _all_enemies:
+		if is_instance_valid(e) and global_position.distance_to(e.global_position) <= attack_range:
 			in_range.append(e)
 	if in_range.is_empty():
 		return
@@ -67,12 +75,31 @@ func _process(delta: float) -> void:
 		_fire(target)
 
 
+## 玩家操控移动：WASD / 方向键，房间边界约束
+func _handle_movement(delta: float) -> void:
+	var dir: Vector2 = Vector2.ZERO
+	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
+		dir.x += 1.0
+	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
+		dir.x -= 1.0
+	if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN):
+		dir.y += 1.0
+	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
+		dir.y -= 1.0
+	if dir != Vector2.ZERO:
+		global_position += dir.normalized() * move_speed * delta
+		# 房间边界约束
+		global_position.x = clampf(global_position.x, room_rect.position.x, room_rect.position.x + room_rect.size.x)
+		global_position.y = clampf(global_position.y, room_rect.position.y, room_rect.position.y + room_rect.size.y)
+		queue_redraw()
+
+
 func _fire(target: Node2D) -> void:
 	var enemy: Enemy = target as Enemy
 	if enemy == null:
 		return
 	var dmg: float = _stats.expected_hit_dmg(enemy.armor)
-	# 伤害改由弹道到达目标时结算（锁定式，不会误伤途中敌人）
+	# 伤害由弹道到达目标时结算（锁定式，不会误伤途中敌人）
 	fired_projectile.emit(target, dmg)
 
 
@@ -96,6 +123,9 @@ func _update_priority_label() -> void:
 
 func _draw() -> void:
 	var hp_ratio := clampf(current_hp / max_hp, 1e-05, 1.0)
+	# 攻击范围圈（半透明）
+	draw_circle(Vector2.ZERO, attack_range, Color(0.3, 0.4, 0.6, 0.06))
+	draw_arc(Vector2.ZERO, attack_range, 0, TAU, 64, Color(0.3, 0.4, 0.6, 0.2), 1.5)
 	# 外发光
 	draw_circle(Vector2.ZERO, radius + 8, Color(0.4, 0.6, 1.0, 0.25))
 	# 本体（蓝，hp 越低越偏红）
