@@ -45,24 +45,20 @@ func _input(event: InputEvent) -> void:
 	]
 	for btn in btn_rects:
 		if btn["rect"].has_point(pos):
-			print("[HUD] manual click hit: %s at %s" % [btn["name"], pos])
 			btn["fn"].call()
 			get_viewport().set_input_as_handled()
 			return
 
 
 func _on_skill_btn() -> void:
-	print("[HUD] _on_skill_btn → emit skill_picker_requested")
 	skill_picker_requested.emit()
 
 
 func _on_bond_btn() -> void:
-	print("[HUD] _on_bond_btn → emit bond_picker_requested")
 	bond_picker_requested.emit()
 
 
 func _on_char_btn() -> void:
-	print("[HUD] _on_char_btn → emit char_panel_toggled")
 	char_panel_toggled.emit()
 
 

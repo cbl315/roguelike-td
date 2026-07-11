@@ -190,17 +190,16 @@ def remove_watermark(path: Path, box: tuple[float, float, float, float] = WATERM
     sample_x1 = max(sample_x0 + 1, x0 - 4)
     sample = img.crop((sample_x0, y0, sample_x1, y1 + 1))
 
-    # 中位数色（对渐变更稳：逐列取中位数，再横向插值）
+    # 中位数色（对渐变更稳：逐行取中位数，得到 y 方向的渐变背景）
     try:
         import numpy as np
         arr = np.array(sample)
-        # 每行取中位数，得到 y 方向的渐变背景
         row_median = np.median(arr, axis=1).astype("uint8")
         fill = Image.fromarray(row_median.reshape(-1, 1, 3), "RGB").resize((x1 - x0, y1 - y0 + 1))
     except ImportError:
         # 没 numpy 就用纯中位数色填一块
-        pixels = list(sample.getdata())
-        med = tuple(sorted(p)[len(p) // 2])
+        pixels = sorted(sample.getdata())
+        med = pixels[len(pixels) // 2]
         fill = Image.new("RGB", (x1 - x0, y1 - y0 + 1), med)
 
     img.paste(fill, (x0, y0))
