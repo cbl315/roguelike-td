@@ -101,6 +101,8 @@ offset_bottom = 1050.0
 [node name="SkillButton" type="Button" parent="UILayer/HUD/SideButtons"]
 custom_minimum_size = Vector2(280, 60)
 theme = SubResource("Theme_hud")
+focus_mode = 0
+mouse_filter = 0
 text = "技能 (0)"
 
 [node name="SkillCount" type="Label" parent="UILayer/HUD/SideButtons/SkillButton"]
@@ -113,6 +115,8 @@ text = "(0)"
 [node name="BondButton" type="Button" parent="UILayer/HUD/SideButtons"]
 custom_minimum_size = Vector2(280, 60)
 theme = SubResource("Theme_hud")
+focus_mode = 0
+mouse_filter = 0
 text = "羁绊 (30金)"
 
 [node name="CoreHPBar" type="ProgressBar" parent="UILayer/HUD"]

@@ -22,18 +22,29 @@ var _char_panel: Control = null   # #6: Tab 角色面板（动态创建）
 
 func _ready() -> void:
 	_result_label.visible = false
-	_skill_btn.pressed.connect(func(): skill_picker_requested.emit())
-	_bond_btn.pressed.connect(func(): bond_picker_requested.emit())
+	_skill_btn.pressed.connect(_on_skill_btn)
+	_bond_btn.pressed.connect(_on_bond_btn)
+
+
+func _on_skill_btn() -> void:
+	print("[HUD] skill button pressed → emit skill_picker_requested")
+	skill_picker_requested.emit()
+
+
+func _on_bond_btn() -> void:
+	print("[HUD] bond button pressed → emit bond_picker_requested")
+	bond_picker_requested.emit()
 
 
 ## #6: Tab/ESC 处理角色面板（process_mode=ALWAYS 保证暂停时也能响应）
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
-		if event.keycode == KEY_TAB or event.keycode == KEY_ESCAPE:
+		if event.keycode == KEY_TAB:
+			print("[HUD] TAB pressed, panel open=%s" % is_char_panel_open())
+			char_panel_toggled.emit()
+			get_viewport().set_input_as_handled()
+		elif event.keycode == KEY_ESCAPE:
 			if is_char_panel_open():
-				char_panel_toggled.emit()
-				get_viewport().set_input_as_handled()
-			elif event.keycode == KEY_TAB:
 				char_panel_toggled.emit()
 				get_viewport().set_input_as_handled()
 
