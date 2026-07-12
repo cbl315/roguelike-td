@@ -1,0 +1,189 @@
+# AI 生图 prompt 配置 —— gen_art.py 读取此文件批量出图。
+# 管线设计见 docs/ART_PIPELINE.md：CogView 出草图，Seedream/GLM-Image 精修。
+#
+# 结构：
+#   style_prefix   : 全局风格前缀（每条 prompt 都会前置它）
+#   categories[]   : 素材分类，每类有 items[]
+#     id           : 分类名（= client/src/assets/ 子目录名）
+#     style_suffix : 该类素材的风格后缀
+#     size         : 默认尺寸（可被 item 级覆盖）
+#     items[].id         : 全局唯一 id（也是默认文件名）
+#     items[].filename   : 入库文件名（省略则用 {id}.png）
+#     items[].prompt     : 生图正文（不含风格前缀）
+#     items[].size       : 覆盖分类级尺寸
+#
+# ──────────────────────────────────────────────────────────────────────
+style_prefix: |-
+  移动端2D游戏美术，半写实二次元画风，东方修仙玄幻主题，
+  浓郁宝石色调，金色镶边点缀，干净剪影，柔和轮廓光，
+  竖屏卡牌手游质感（类似阴阳师/明日方舟），高细节，无文字，无水印，
+  居中构图，适合抠图的纯色背景。
+
+categories:
+  # ═══ 羁绊卡面（8 套系，每套代表性条目；Seedream 精修重点）═══
+  - id: bonds
+    size: "1024x1024"
+    style_suffix: |-
+      竖版3:4 卡面构图，器物/意象居中，纯黑渐变背景便于抠图，无文字。
+    items:
+      # ── 遮天（金/紫 · 爆发）──
+      - id: bond_zhutian_mortal
+        prompt: 一张修仙器物卡面，"凡体"——一块蒙尘的璞玉，微弱金光，古朴石台，暗示帝王血脉未觉醒。
+      - id: bond_zhutian_sage_fruit
+        prompt: 一张修仙器物卡面，"圣人果位"——一颗悬浮的金色道果，散发紫色灵光，符文环绕，仙人气息。
+      - id: bond_zhutian_emperor_cauldron
+        prompt: 一张修仙器物卡面，"天帝鼎"——一尊散发金色神焰的上古青铜三足圆鼎，悬浮符文，帝王威压。色彩主调金色与紫色。
+      - id: bond_zhutian_heaven_emperor
+        prompt: 一张修仙器物卡面，"天帝"——一道模糊的天帝王座剪影，紫金双重光环，万道金光，至高威严。
+
+      # ── 风云（青/风 · 攻速连击）──
+      - id: bond_fengyun_wind_legs
+        prompt: 一张修仙器物卡面，"风神腿"——一道青色旋风环绕的虚影腿印，流风符文，飘逸。色彩主调青色与银白。
+      - id: bond_fengyun_cloud_palm
+        prompt: 一张修仙器物卡面，"排云掌"——一只掌印被青白云气包裹，云纹流转，连击之意。色彩主调青色。
+      - id: bond_fengyun_storm_combo
+        prompt: 一张修仙器物卡面，"风云合击"——风暴与闪电交织的漩涡，青银双龙盘旋，极速连击意象。
+
+      # ── 黑神话（黑/红 · 生存变身）──
+      - id: bond_blackmyth_destiny
+        prompt: 一张修仙器物卡面，"天命人"——一枚暗金色命盘，中心红光微闪，宿命之意，禁欲气质。色彩主调黑色与暗红。
+      - id: bond_blackmyth_great_sage
+        prompt: 一张修仙器物卡面，"大圣"——一根模糊的暗金棍影，红色飘带，威严变身前兆，不出现具体版权形象。色彩主调黑与赤红。
+      - id: bond_blackmyth_qitian
+        prompt: 一张修仙器物卡面，"齐天"——云海翻涌之上的剪影，赤红雷电环绕，至高变身意象，不出现版权形象。
+
+      # ── 星陨（紫/星 · 暴击赌狗）──
+      - id: bond_xingyun_eye
+        prompt: 一张修仙器物卡面，"星之眼"——一只由星光组成的紫色竖瞳，星屑飘散，洞察暴击之意。色彩主调紫色与星白。
+      - id: bond_xingyun_meteor_hit
+        prompt: 一张修仙器物卡面，"流星击"——一颗拖尾坠落的紫色流星击中地面，爆裂星尘，暴击意象。
+      - id: bond_xingyun_starfall
+        prompt: 一张修仙器物卡面，"星陨"——漫天紫色流星雨倾泻，星辰归墟，至高暴击祝福意象。
+
+      # ── 苍焰（蓝/火 · 法术元素）──
+      - id: bond_cangyan_flame_heart
+        prompt: 一张修仙器物卡面，"苍焰之心"——一颗燃烧的苍蓝色火焰核心，冰火交融，法术能量。色彩主调蓝与青焰。
+      - id: bond_cangyan_thunder_talon
+        prompt: 一张修仙器物卡面，"雷霆之爪"——三道蓝紫色闪电聚成爪形，电弧噼啪，元素之力。
+      - id: bond_cangyan_cangyan
+        prompt: 一张修仙器物卡面，"苍焰"——蓝青紫三色元素风暴的中心，凤凰虚影，元素精通至高意象。
+
+      # ── 铁壁（灰/钢 · 生存反伤）──
+      - id: bond_tiebi_bulwark
+        prompt: 一张修仙器物卡面，"铁壁"——一面布满符文的灰色巨盾，寒铁光泽，坚不可摧。色彩主调钢灰与暗银。
+      - id: bond_tiebi_thorns
+        prompt: 一张修仙器物卡面，"荆棘反伤"——盾面生长的金属荆棘，反射红光，反伤之意。
+      - id: bond_tiebi_unbreakable
+        prompt: 一张修仙器物卡面，"不破"——一座灰钢堡垒的核心，金色护盾纹路全开，至高防御意象。
+
+      # ── 淘金（金/币 · 经济）──
+      - id: bond_taojin_midas
+        prompt: 一张修仙器物卡面，"点金手"——一只手掌触碰之物化为金光，金币飞溅，财富之意。色彩主调金色。
+      - id: bond_taojin_hoarder
+        prompt: 一张修仙器物卡面，"囤积者"——一座金山顶端的宝箱，金币溢流，滚雪球意象。
+      - id: bond_taojin_golden_age
+        prompt: 一张修仙器物卡面，"黄金时代"——金币瀑布与丰收之角，纯金圣光，至高经济意象。
+
+      # ── 兽魂（绿/兽 · 召唤持续）──
+      - id: bond_shouhun_pack_alpha
+        prompt: 一张修仙器物卡面，"狼王之魂"——一头幽绿色的狼形兽魂虚影，獠牙发光，统率之意。色彩主调墨绿。
+      - id: bond_shouhun_primal_roar
+        prompt: 一张修仙器物卡面，"原始咆哮"——绿色音波冲击的兽口虚影，野性符文，威慑之意。
+      - id: bond_shouhun_pack_hunt
+        prompt: 一张修仙器物卡面，"群猎"——多头幽绿兽魂协同扑击的剪影，至高召唤意象。
+
+  # ═══ Boss Debuff 图标（17 个）═══
+  - id: debuffs
+    size: "768x768"
+    style_suffix: |-
+      扁平矢量游戏图标，粗金描边，深蓝背景(#0F1420)，移动端UI图标风，居中，256x256目标尺寸，无文字。
+    items:
+      - { id: debuff_blind_eye,        prompt: "图标'致盲之眼'——一只被裂痕划过的眼睛，灰白失焦。" }
+      - { id: debuff_crit_shatter,     prompt: "图标'暴击瓦解'——一颗碎裂的紫色暴击星。" }
+      - { id: debuff_armor_break,      prompt: "图标'破甲之兆'——一面裂开的灰色盾牌。" }
+      - { id: debuff_single_shot,      prompt: "图标'单发之咒'——一支孤箭，其余箭矢虚化消散。" }
+      - { id: debuff_immovable,        prompt: "图标'不动如山'——一座灰山，控制符文被锁链缠绕。" }
+      - { id: debuff_gold_phage,       prompt: "图标'贪婪之噬'——一枚被虫蛀的金币。" }
+      - { id: debuff_bond_suppress,    prompt: "图标'羁绊压制'——三条断裂的彩色羁绊锁链。" }
+      - { id: debuff_sealed_hand,      prompt: "图标'封印之手'——一只被符咒封印的手掌。" }
+      - { id: debuff_magic_resist,     prompt: "图标'法术抗性'——蓝色法阵弹开紫色法术光弹。" }
+      - { id: debuff_phys_resist,      prompt: "图标'物理抗性'——灰色钢板弹开金色箭矢。" }
+      - { id: debuff_haste_order,      prompt: "图标'急行之令'——一双带速度线的疾行靴。" }
+      - { id: debuff_mirror_armor,     prompt: "图标'镜面之甲'——一面反射光线的银色镜盾。" }
+      - { id: debuff_ult_seal,         prompt: "图标'大招禁制'——一颗暗淡的大招能量核心，被锁链封锁。" }
+      - { id: debuff_counter_force,    prompt: "图标'反噬之力'——红色反伤冲击波从胸口扩散。" }
+      - { id: debuff_immortal_body,    prompt: "图标'不灭之躯'——一具发着红光的巨大Boss轮廓。" }
+      - { id: debuff_regen_core,       prompt: "图标'回春之核'——一颗搏动的绿色生命水晶，藤蔓环绕。" }
+      - { id: debuff_healing_seal,     prompt: "图标'禁疗之印'——一个红色禁止符号覆盖绿色十字。" }
+
+  # ═══ 技能词条图标 ═══
+  - id: skills
+    size: "768x768"
+    style_suffix: |-
+      扁平矢量游戏图标，粗金描边，深蓝背景(#0F1420)，移动端UI图标风，居中，无文字。
+    items:
+      - { id: skill_multishot,    prompt: "图标'多重射'——三支金色箭矢扇形展开发光。" }
+      - { id: skill_crit_rate,    prompt: "图标'暴击率'——一颗闪耀的紫色暴击星。" }
+      - { id: skill_crit_dmg,     prompt: "图标'暴击伤害'——一颗爆裂的紫色星，冲击线。" }
+      - { id: skill_phys_dmg,     prompt: "图标'物伤加成'——一柄发光的金色刀刃，力量纹路。" }
+      - { id: skill_magic_dmg,    prompt: "图标'法伤加成'——一颗旋转的蓝色法术漩涡。" }
+      - { id: skill_final_dmg,    prompt: "图标'最终伤害'——一道金色圣光从天降，传说质感。" }
+      - { id: skill_attack_speed, prompt: "图标'攻速'——三道银色速度残影的刀光。" }
+      - { id: skill_stun,         prompt: "图标'眩晕'——一颗旋转的金色眩晕星，环绕符文。" }
+      - { id: skill_armor_pen,    prompt: "图标'穿甲'——一支贯穿灰色盾牌的金色长矛。" }
+      - { id: skill_true_dmg,     prompt: "图标'真伤'——一道纯白光刃无视一切屏障。" }
+      - { id: skill_lifesteal,    prompt: "图标'吸血'——红色血滴汇入绿色生命之泉。" }
+      - { id: skill_dmg_reduce,   prompt: "图标'减伤'——一面发金光的灰色护盾。" }
+      - { id: skill_fire,         prompt: "图标'火属性'——一朵橙红色妖火，火星迸溅。" }
+      - { id: skill_ice,          prompt: "图标'冰属性'——一朵冰蓝色冰晶花，寒气凝结。" }
+      - { id: skill_thunder,      prompt: "图标'雷属性'——一道蓝紫色闪电，电弧四射。" }
+
+  # ═══ 敌人立绘（小怪 + Boss）═══
+  - id: enemies
+    size: "1024x1024"
+    style_suffix: |-
+      2D游戏敌人立绘，侧视角，全身，单一站姿，可爱又带威胁感的移动端手游风（参考土豆兄弟/Survivor.io），
+      纯绿色背景(#00FF00)便于抠图，居中，无地面阴影，无文字。
+    items:
+      - { id: enemy_grunt,          prompt: "敌人'喽啰'——矮小的灰皮魔物，手持木棒，獠牙，憨傻表情。" }
+      - { id: enemy_runner,         prompt: "敌人'疾奔者'——瘦长的绿色风魔，流线身形，无武器靠冲撞。" }
+      - { id: enemy_brute,          prompt: "敌人'蛮兵'——巨大的红皮巨魔，手持石锤，肌肉虬结，凶悍。" }
+      - { id: enemy_shaman,         prompt: "敌人'巫祝'——戴骨面具的紫袍施法者，手持法杖，悬浮符文。" }
+      - { id: enemy_frost_wraith,   prompt: "敌人'霜骸'——佝偻亡灵武士，破烂蓝袍，双眼冰蓝，手持碎裂寒冰刀。" }
+      - { id: boss_blind_eye,       prompt: "Boss'致盲之眼'——独眼巨人，巨眼被黑色裂纹覆盖，手持石柱，暴怒。" }
+      - { id: boss_regen_core,      prompt: "Boss'回春之核守卫'——巨大石巨人，胸腔嵌搏动绿色生命水晶，藤蔓缠绕，再生光环。" }
+      - { id: boss_immortal_body,   prompt: "Boss'不灭之躯'——熔岩红金属泰坦，浑身裂纹流红光，双拳，无法摧毁之感。" }
+
+  # ═══ 英雄立绘 ═══
+  - id: characters
+    size: "1024x1024"
+    style_suffix: |-
+      修仙主角角色设定图，手游抽卡立绘质感，纯白背景便于抠图，居中，无文字。（后续用 Seedream 主体锁定做多角度）
+    items:
+      - id: hero_sword_cultivator
+        prompt: 修仙主角"剑修少年"——白袍银绣，黑色长发束起，手持青色灵剑，坚毅表情，正视角全身。
+
+  # ═══ 特效（弹道/暴击/元素）═══
+  - id: effects
+    size: "512x512"
+    style_suffix: |-
+      2D游戏特效贴图，半透明，发光，纯黑背景便于叠加，居中，无文字。
+    items:
+      - { id: fx_projectile_physical, prompt: "特效'物理弹道'——一颗拖金色尾迹的光球。" }
+      - { id: fx_projectile_fire,      prompt: "特效'火弹道'——一颗拖橙红火焰尾迹的火球。" }
+      - { id: fx_projectile_ice,       prompt: "特效'冰弹道'——一颗拖冰蓝冰晶尾迹的冰锥。" }
+      - { id: fx_projectile_thunder,   prompt: "特效'雷弹道'——一道蓝紫色闪电矢。" }
+      - { id: fx_hit_crit,             prompt: "特效'暴击命中'——爆裂的紫色星形冲击，火星四射。" }
+      - { id: fx_hit_normal,           prompt: "特效'普通命中'——白色小爆点，简洁。" }
+      - { id: fx_transform_great_sage, prompt: "特效'大圣变身'——赤红雷电环绕的爆发表圈。" }
+      - { id: fx_aoe_blast,            prompt: "特效'AOE爆发'——金色冲击波环形扩散。" }
+
+  # ═══ 场景背景 ═══
+  - id: bg
+    size: "1440x720"
+    style_suffix: |-
+      2D游戏场景背景，横屏，无角色，可平铺感，氛围光，无文字。
+    items:
+      - { id: bg_battle_arena, prompt: "战斗场景背景——东方修仙演武场，石质地面，古朴立柱，紫雾远景，黄昏天光。" }
+      - { id: bg_dungeon,      prompt: "战斗场景背景——幽暗地牢，苔藓石墙，绿色幽火提灯，深邃远景。" }
+      - { id: bg_heaven_realm, prompt: "战斗场景背景——天界云海，金色宫阙剪影，紫金霞光，恢弘壮阔。" }
