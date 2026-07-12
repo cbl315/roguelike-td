@@ -1,0 +1,294 @@
+{
+  "rarity_weights": {
+    "common": 60,
+    "rare": 30,
+    "epic": 8,
+    "legendary": 2
+  },
+  "affixes": [
+    {
+      "id": "multishot",
+      "name": "多重射",
+      "rarity": "rare",
+      "stacking": "replace",
+      "effect": {
+        "projectile_count_delta": 1,
+        "per_projectile_dmg_mult": 0.85
+      },
+      "note": "每多 1 根弹 = 整段伤害再复制（吃散射递减）"
+    },
+    {
+      "id": "physical_dmg",
+      "name": "物伤加成",
+      "rarity": "common",
+      "stacking": "add",
+      "effect": {
+        "physical_dmg_pct_delta": 0.3
+      }
+    },
+    {
+      "id": "magic_dmg",
+      "name": "法伤加成",
+      "rarity": "common",
+      "stacking": "add",
+      "effect": {
+        "magic_dmg_pct_delta": 0.3
+      }
+    },
+    {
+      "id": "final_dmg",
+      "name": "最终伤害",
+      "rarity": "legendary",
+      "stacking": "mult",
+      "effect": {
+        "final_dmg_mult": 0.15
+      },
+      "note": "乘区，每条乘法，滚雪球核心"
+    },
+    {
+      "id": "elemental_dmg",
+      "name": "属性伤害",
+      "rarity": "rare",
+      "stacking": "independent",
+      "effect": {
+        "elemental_dmg_mult": 0.2,
+        "element": "fire"
+      }
+    },
+    {
+      "id": "true_dmg",
+      "name": "真伤",
+      "rarity": "epic",
+      "stacking": "add",
+      "effect": {
+        "true_dmg_pct_delta": 0.1
+      }
+    },
+    {
+      "id": "atk_flat",
+      "name": "攻击力",
+      "rarity": "common",
+      "stacking": "add",
+      "effect": {
+        "atk_pct_delta": 0.2
+      },
+      "note": "直接加 ATK%（区别于物伤/法伤乘区）"
+    },
+    {
+      "id": "crit_rate",
+      "name": "暴击率",
+      "rarity": "common",
+      "stacking": "add",
+      "effect": {
+        "crit_rate_delta": 0.15
+      }
+    },
+    {
+      "id": "crit_dmg",
+      "name": "暴击伤害",
+      "rarity": "common",
+      "stacking": "add",
+      "effect": {
+        "crit_dmg_delta": 0.5
+      }
+    },
+    {
+      "id": "crit_mastery",
+      "name": "暴击精通",
+      "rarity": "epic",
+      "stacking": "add",
+      "effect": {
+        "crit_rate_delta": 0.1,
+        "crit_dmg_delta": 0.3
+      },
+      "note": "率+伤双加"
+    },
+    {
+      "id": "attack_speed",
+      "name": "攻速",
+      "rarity": "common",
+      "stacking": "add",
+      "effect": {
+        "attack_speed_delta": 0.2
+      }
+    },
+    {
+      "id": "frenzy",
+      "name": "狂热",
+      "rarity": "rare",
+      "stacking": "add",
+      "effect": {
+        "attack_speed_delta": 0.35,
+        "atk_pct_delta": -0.05
+      },
+      "note": "高攻速但小幅降攻（速攻流）"
+    },
+    {
+      "id": "armor_pen",
+      "name": "无视护甲",
+      "rarity": "rare",
+      "stacking": "add",
+      "effect": {
+        "armor_pen_delta": 0.3
+      }
+    },
+    {
+      "id": "resist_pen",
+      "name": "抗性穿透",
+      "rarity": "rare",
+      "stacking": "add",
+      "effect": {
+        "resist_pen_delta": 0.3
+      }
+    },
+    {
+      "id": "damage_reduction",
+      "name": "减伤",
+      "rarity": "rare",
+      "stacking": "add",
+      "effect": {
+        "damage_reduction_delta": 0.15
+      }
+    },
+    {
+      "id": "reflect",
+      "name": "反伤",
+      "rarity": "rare",
+      "stacking": "add",
+      "effect": {
+        "reflect_pct": 0.25
+      }
+    },
+    {
+      "id": "lifesteal",
+      "name": "吸血",
+      "rarity": "rare",
+      "stacking": "add",
+      "effect": {
+        "lifesteal_pct": 0.03
+      }
+    },
+    {
+      "id": "stun",
+      "name": "眩晕",
+      "rarity": "rare",
+      "stacking": "chance",
+      "effect": {
+        "stun_chance": 0.2,
+        "stun_duration": 1.0
+      }
+    },
+    {
+      "id": "freeze_chance",
+      "name": "冰冻",
+      "rarity": "rare",
+      "stacking": "chance",
+      "effect": {
+        "stun_chance": 0.15,
+        "stun_duration": 1.5,
+        "element": "ice"
+      }
+    },
+    {
+      "id": "poison_stack",
+      "name": "剧毒",
+      "rarity": "rare",
+      "stacking": "chance",
+      "effect": {
+        "poison_chance": 0.3,
+        "poison_dmg_mult": 0.1
+      },
+      "note": "叠加毒伤（DOT 流）"
+    },
+    {
+      "id": "execute",
+      "name": "斩杀",
+      "rarity": "epic",
+      "stacking": "chance",
+      "effect": {
+        "execute_threshold": 0.2,
+        "execute_dmg_mult": 3.0
+      },
+      "note": "低于 20% 血量时造成 3 倍伤害（斩杀流核心）"
+    },
+    {
+      "id": "chain_hit",
+      "name": "连锁",
+      "rarity": "epic",
+      "stacking": "chance",
+      "effect": {
+        "chain_chance": 0.25,
+        "chain_bounces": 2
+      },
+      "note": "命中概率弹射到附近敌人"
+    },
+    {
+      "id": "hp_boost",
+      "name": "生命",
+      "rarity": "common",
+      "stacking": "add",
+      "effect": {
+        "hp_pct_delta": 0.2
+      }
+    },
+    {
+      "id": "regen",
+      "name": "回复",
+      "rarity": "rare",
+      "stacking": "add",
+      "effect": {
+        "hp_regen_pct_per_5s": 0.015
+      }
+    },
+    {
+      "id": "shield",
+      "name": "护盾",
+      "rarity": "rare",
+      "stacking": "add",
+      "effect": {
+        "shield_pct": 0.15
+      },
+      "note": "受击前先扣护盾"
+    },
+    {
+      "id": "gold_on_hit",
+      "name": "命中得金",
+      "rarity": "rare",
+      "stacking": "add",
+      "effect": {
+        "gold_on_hit": 0.5
+      },
+      "note": "每次命中 +0.5 金（高频流的经济来源）"
+    },
+    {
+      "id": "cdr",
+      "name": "冷却缩减",
+      "rarity": "epic",
+      "stacking": "add",
+      "effect": {
+        "cdr_pct": 0.15
+      },
+      "note": "技能冷却 -15%（大招/长 CD 技能受益）"
+    },
+    {
+      "id": "double_strike",
+      "name": "连击",
+      "rarity": "legendary",
+      "stacking": "chance",
+      "effect": {
+        "double_strike_chance": 0.3
+      },
+      "note": "30% 概率额外打一次（独立于多重射，可叠加）"
+    },
+    {
+      "id": "empower",
+      "name": "赋能",
+      "rarity": "legendary",
+      "stacking": "mult",
+      "effect": {
+        "final_dmg_mult": 0.25
+      },
+      "note": "另一条 final 乘区（与 final_dmg 同类，乘法叠加）"
+    }
+  ]
+}

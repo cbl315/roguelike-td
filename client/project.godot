@@ -1,0 +1,36 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
+[application]
+
+config/name="Roguelike-TD"
+config/description="横屏移动端、英雄为核心、带强 Rogue 构筑的波次防守游戏"
+run/main_scene="res://src/scenes/main.tscn"
+config/features=PackedStringArray("4.6", "Forward Plus")
+
+[autoload]
+
+EventBus="*res://src/systems/event_bus.gd"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0
+renderer/rendering_method="gl_compatibility"

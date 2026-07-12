@@ -1,0 +1,32 @@
+{
+  "income": {
+    "base_passive": 3,
+    "per_kill": 1.5,
+    "per_wave_clear": 45,
+    "elite_bonus": 30,
+    "boss_bonus": 120
+  },
+  "costs": {
+    "draw_bond": 30,
+    "bond_draw_increment": 10,
+    "bond_draw_cap": 60,
+    "equipment_upgrade_base": 15,
+    "equipment_upgrade_per_level": 4,
+    "skill_skip_reward": 20,
+    "devour": 80
+  },
+  "shop_reroll": {
+    "skill_reroll_base": 20,
+    "skill_reroll_increment": 5,
+    "bond_reroll_base": 15,
+    "bond_reroll_increment": 5,
+    "reroll_cap_per_wave": 3,
+    "lock_cost": 5
+  },
+  "target": {
+    "rogue_ops_per_wave": [
+      1.5,
+      2.0
+    ]
+  }
+}

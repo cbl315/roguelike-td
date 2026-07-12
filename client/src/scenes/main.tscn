@@ -1,0 +1,231 @@
+[gd_scene load_steps=6 format=3 uid="uid://main_scene_m1"]
+
+[ext_resource type="Script" path="res://src/systems/game_manager.gd" id="1_gm"]
+[ext_resource type="Script" path="res://src/systems/wave_spawner.gd" id="2_spawner"]
+[ext_resource type="Script" path="res://src/scenes/entities/hero.gd" id="4_hero"]
+[ext_resource type="Script" path="res://src/scenes/hud/hud.gd" id="5_hud"]
+[ext_resource type="Script" path="res://src/scenes/lobby/lobby.gd" id="6_lobby"]
+
+[sub_resource type="Theme" id="Theme_hud"]
+default_font_size = 24
+
+[node name="GameRoot" type="Node2D"]
+
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 3000.0
+offset_bottom = 2000.0
+color = Color(0.08, 0.085, 0.12, 1)
+
+[node name="RoomBorder" type="Line2D" parent="."]
+points = PackedVector2Array(80, 80, 2920, 80, 2920, 1920, 80, 1920, 80, 80)
+width = 4.0
+default_color = Color(0.3, 0.35, 0.5, 0.8)
+
+[node name="GridLines" type="Node2D" parent="."]
+
+[node name="GameManager" type="Node2D" parent="."]
+script = ExtResource("1_gm")
+
+[node name="WaveSpawner" type="Node" parent="GameManager"]
+script = ExtResource("2_spawner")
+
+[node name="SpawnTimer" type="Timer" parent="GameManager/WaveSpawner"]
+one_shot = true
+
+[node name="Hero" type="Node2D" parent="GameManager"]
+position = Vector2(1500, 1000)
+script = ExtResource("4_hero")
+
+[node name="Camera2D" type="Camera2D" parent="GameManager/Hero"]
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+zoom = Vector2(1.0, 1.0)
+
+[node name="PriorityLabel" type="Label" parent="GameManager/Hero"]
+offset_left = -60.0
+offset_top = 44.0
+offset_right = 60.0
+offset_bottom = 74.0
+horizontal_alignment = 1
+text = "目标:最近"
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="HUD" type="Control" parent="UILayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+process_mode = 2
+script = ExtResource("5_hud")
+
+[node name="WaveLabel" type="Label" parent="UILayer/HUD"]
+offset_left = 30.0
+offset_top = 20.0
+offset_right = 400.0
+offset_bottom = 56.0
+theme = SubResource("Theme_hud")
+text = "第 0 波"
+
+[node name="TimerLabel" type="Label" parent="UILayer/HUD"]
+offset_left = 420.0
+offset_top = 20.0
+offset_right = 700.0
+offset_bottom = 56.0
+theme = SubResource("Theme_hud")
+text = ""
+
+[node name="EnemyLabel" type="Label" parent="UILayer/HUD"]
+offset_left = 30.0
+offset_top = 58.0
+offset_right = 400.0
+offset_bottom = 94.0
+theme = SubResource("Theme_hud")
+text = "敌人: 0"
+
+[node name="GoldLabel" type="Label" parent="UILayer/HUD"]
+offset_left = 30.0
+offset_top = 96.0
+offset_right = 400.0
+offset_bottom = 132.0
+theme = SubResource("Theme_hud")
+text = "金币: 0"
+
+[node name="SideButtons" type="VBoxContainer" parent="UILayer/HUD"]
+offset_left = 40.0
+offset_top = 820.0
+offset_right = 360.0
+offset_bottom = 1130.0
+
+[node name="SkillButton" type="Button" parent="UILayer/HUD/SideButtons"]
+custom_minimum_size = Vector2(280, 60)
+theme = SubResource("Theme_hud")
+focus_mode = 0
+mouse_filter = 0
+text = "技能 (0)"
+
+[node name="SkillCount" type="Label" parent="UILayer/HUD/SideButtons/SkillButton"]
+offset_left = 220.0
+offset_top = 18.0
+offset_right = 280.0
+offset_bottom = 50.0
+text = "(0)"
+
+[node name="BondButton" type="Button" parent="UILayer/HUD/SideButtons"]
+custom_minimum_size = Vector2(280, 60)
+theme = SubResource("Theme_hud")
+focus_mode = 0
+mouse_filter = 0
+text = "羁绊 (30金)"
+
+[node name="EquipButton" type="Button" parent="UILayer/HUD/SideButtons"]
+custom_minimum_size = Vector2(280, 60)
+theme = SubResource("Theme_hud")
+focus_mode = 0
+mouse_filter = 0
+text = "装备 (+0, 15金)"
+
+[node name="CharButton" type="Button" parent="UILayer/HUD/SideButtons"]
+custom_minimum_size = Vector2(280, 60)
+theme = SubResource("Theme_hud")
+focus_mode = 0
+mouse_filter = 0
+text = "角色面板"
+
+[node name="CoreHPBar" type="ProgressBar" parent="UILayer/HUD"]
+offset_left = 1500.0
+offset_top = 30.0
+offset_right = 1890.0
+offset_bottom = 60.0
+max_value = 1000.0
+value = 1000.0
+
+[node name="CoreHPLabel" type="Label" parent="UILayer/HUD"]
+offset_left = 1500.0
+offset_top = 62.0
+offset_right = 1890.0
+offset_bottom = 95.0
+theme = SubResource("Theme_hud")
+text = "英雄 1000 / 1000"
+
+[node name="ResultLabel" type="Label" parent="UILayer/HUD"]
+offset_left = 600.0
+offset_top = 480.0
+offset_right = 1320.0
+offset_bottom = 600.0
+theme = SubResource("Theme_hud")
+horizontal_alignment = 1
+vertical_alignment = 1
+text = ""
+
+[node name="Lobby" type="Control" parent="UILayer"]
+visible = false
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("6_lobby")
+
+[node name="Dim" type="ColorRect" parent="UILayer/Lobby"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.7)
+
+[node name="TopBar" type="HBoxContainer" parent="UILayer/Lobby"]
+offset_left = 40.0
+offset_top = 30.0
+offset_right = 1880.0
+offset_bottom = 80.0
+
+[node name="GoldLabel" type="Label" parent="UILayer/Lobby/TopBar"]
+custom_minimum_size = Vector2(200, 0)
+theme = SubResource("Theme_hud")
+text = "金币: 0"
+
+[node name="InfoLabel" type="Label" parent="UILayer/Lobby/TopBar"]
+custom_minimum_size = Vector2(700, 0)
+theme = SubResource("Theme_hud")
+text = ""
+
+[node name="DPSLabel" type="Label" parent="UILayer/Lobby/TopBar"]
+custom_minimum_size = Vector2(200, 0)
+theme = SubResource("Theme_hud")
+text = "DPS: 0"
+
+[node name="BuildLabel" type="Label" parent="UILayer/Lobby/TopBar"]
+custom_minimum_size = Vector2(400, 0)
+theme = SubResource("Theme_hud")
+text = ""
+
+[node name="CardsContainer" type="HBoxContainer" parent="UILayer/Lobby"]
+offset_left = 200.0
+offset_top = 130.0
+offset_right = 1720.0
+offset_bottom = 520.0
+theme = SubResource("Theme_hud")
+alignment = 1
+
+[node name="Actions" type="VBoxContainer" parent="UILayer/Lobby"]
+offset_left = 760.0
+offset_top = 560.0
+offset_right = 1160.0
+offset_bottom = 980.0
+theme = SubResource("Theme_hud")
+alignment = 1
+
+[node name="SidePanel" type="VBoxContainer" parent="UILayer/Lobby"]
+offset_left = 40.0
+offset_top = 130.0
+offset_right = 190.0
+offset_bottom = 900.0
+
+[node name="RealmLabel" type="Label" parent="UILayer/Lobby/SidePanel"]
+theme = SubResource("Theme_hud")
+text = "未修炼任何体系"
+
+[connection signal="timeout" from="GameManager/WaveSpawner/SpawnTimer" to="GameManager/WaveSpawner" method="_on_spawn_timer_timeout"]

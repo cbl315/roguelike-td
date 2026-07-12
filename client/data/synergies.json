@@ -1,0 +1,213 @@
+{
+  "synergies": [
+    {
+      "id": "zhutian_emperor_fist",
+      "name": "天帝之拳",
+      "trigger": {
+        "all": [
+          {
+            "bond_devoured_set": "zhutian"
+          },
+          {
+            "skill_owned": "emperor_fist"
+          }
+        ]
+      },
+      "effect": {
+        "final_dmg_mult": 1.0
+      },
+      "note": "GDD §7 首例联动"
+    },
+    {
+      "id": "storm_thunder_combo",
+      "name": "风雷合击",
+      "trigger": {
+        "all": [
+          {
+            "bond_devoured_set": "fengyun"
+          },
+          {
+            "skill_tag": "thunder"
+          }
+        ]
+      },
+      "effect": {
+        "chain_extra_bounces": 3
+      }
+    },
+    {
+      "id": "great_sage_rampage",
+      "name": "大圣闹天",
+      "trigger": {
+        "all": [
+          {
+            "bond_devoured_set": "blackmyth"
+          },
+          {
+            "equipment_affix": "gold_multiplier"
+          }
+        ]
+      },
+      "effect": {
+        "transform_gold_mult": 2.0
+      }
+    },
+    {
+      "id": "saint_true_dmg",
+      "name": "圣体真伤",
+      "trigger": {
+        "all": [
+          {
+            "bond_devoured_set": "zhutian"
+          },
+          {
+            "affix_owned": "true_dmg"
+          }
+        ]
+      },
+      "effect": {
+        "true_dmg_pct_delta": 0.15
+      }
+    },
+    {
+      "id": "star_crit_nova",
+      "name": "星陨爆击",
+      "trigger": {
+        "all": [
+          {
+            "bond_devoured_set": "xingyun"
+          },
+          {
+            "affix_owned": "crit_mastery"
+          }
+        ]
+      },
+      "effect": {
+        "crit_dmg_delta": 0.5
+      },
+      "note": "暴击流终极 combo"
+    },
+    {
+      "id": "elemental_overload",
+      "name": "元素过载",
+      "trigger": {
+        "all": [
+          {
+            "bond_devoured_set": "cangyan"
+          },
+          {
+            "skill_tag": "thunder"
+          }
+        ]
+      },
+      "effect": {
+        "elemental_dmg_mult": 0.3,
+        "chain_extra_bounces": 2
+      },
+      "note": "法系终极 combo，雷/火/冰联动"
+    },
+    {
+      "id": "unbreakable_thorns",
+      "name": "铁壁荆棘",
+      "trigger": {
+        "all": [
+          {
+            "bond_devoured_set": "tiebi"
+          },
+          {
+            "equipment_affix": "reflect_pct"
+          }
+        ]
+      },
+      "effect": {
+        "reflect_pct": 0.5,
+        "damage_reduction_delta": 0.1
+      },
+      "note": "反伤坦克流，挨打即输出"
+    },
+    {
+      "id": "golden_empire",
+      "name": "黄金帝国",
+      "trigger": {
+        "all": [
+          {
+            "bond_devoured_set": "taojin"
+          },
+          {
+            "equipment_affix": "gold_multiplier"
+          }
+        ]
+      },
+      "effect": {
+        "gold_mult": 0.5,
+        "atk_pct_delta": 0.15
+      },
+      "note": "经济滚雪球终极 combo——钱多到买穿全场"
+    },
+    {
+      "id": "pack_frenzy",
+      "name": "兽群狂猎",
+      "trigger": {
+        "all": [
+          {
+            "bond_devoured_set": "shouhun"
+          },
+          {
+            "skill_owned": "bloodlust"
+          }
+        ]
+      },
+      "effect": {
+        "attack_speed_delta": 0.3,
+        "lifesteal_pct": 0.03
+      },
+      "note": "召唤/近战续航终极 combo"
+    },
+    {
+      "id": "emperor_thunder_judgment",
+      "name": "天帝雷罚",
+      "tier": "SS",
+      "trigger": {
+        "all": [
+          {
+            "bond_devoured_set": "zhutian"
+          },
+          {
+            "skill_owned": "emperor_fist"
+          },
+          {
+            "equipment_affix": "synergy_amp"
+          }
+        ]
+      },
+      "effect": {
+        "final_dmg_mult": 2.0,
+        "atk_pct_delta": 0.3
+      },
+      "note": "三重终极 combo——遮天+天帝拳+联动增幅，物理输出天花板"
+    },
+    {
+      "id": "thunder_gold_storm",
+      "name": "雷暴黄金",
+      "tier": "SS",
+      "trigger": {
+        "all": [
+          {
+            "bond_devoured_set": "fengyun"
+          },
+          {
+            "skill_owned": "chain_lightning"
+          },
+          {
+            "equipment_affix": "gold_multiplier"
+          }
+        ]
+      },
+      "effect": {
+        "chain_extra_bounces": 5,
+        "gold_mult": 1.0
+      },
+      "note": "三重终极 combo——风云+雷链+金币倍增，法系经济双修天花板"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+# Godot 编辑器产物（每机不同，不提交）
+.godot/
+*.import
+export.cfg
+export_presets.cfg
+._*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 数据 JSON 由 balance/export_json.py 生成（源是 balance/data/*.yaml）
+# 注：M0 阶段先提交 JSON 让 Godot 能直接打开；后续可改为 CI 生成不提交。
+# data/*.json
