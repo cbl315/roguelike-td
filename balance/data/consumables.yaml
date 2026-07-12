@@ -1,0 +1,21 @@
+# Debuff 应对（GDD §13）—— 极简两档：换 / 删
+# 决策 10：不做道具池、不做消耗品库存。Boss 波前大厅面板上两个按钮。
+# 换 = 少量资源重新随机一个 debuff（赌博）；删 = 大量资源直接移除（破财消灾）。
+# 金币和抽取/升装备/刷新同池，构成真实取舍。
+
+# 「换」：从全池随机抽一个新 debuff 替换当前 Boss 的 debuff（可换回原的或更糟）
+reroll:
+  cost: 40          # 少量资源（约 1.3 次抽羁绊）
+  repeatable: true  # 可多次换，每次都全新随机
+  acceptance_target: [0.30, 0.50]   # 使用率验收（B-3）
+
+# 「删」：该 Boss 波 debuff 完全失效
+remove:
+  cost: 120         # 大量资源（约 4 次抽羁绊）
+  repeatable: false # 一次性
+  acceptance_target: [0.15, 0.30]   # 使用率验收（贵→少用）
+
+# 整体验收（B-3）：带 debuff vs 不带 debuff 的 Boss 通关率差距 <15%；
+#                 "硬刚 / 换 / 删" 三路径都成立、无必选。
+overall_acceptance:
+  boss_clear_rate_gap: 0.15

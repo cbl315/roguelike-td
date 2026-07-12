@@ -1,0 +1,134 @@
+# 联动规则 (GDD §7) —— 联动的数据驱动定义
+# trigger.all 全部满足才触发。effect 走 final_dmg_mult 等乘区（统一走 final 乘区，超模组合的成本=凑齐条件）。
+# 联动引擎在"羁绊吞噬 / 技能获取 / 词条变化"时重算 active 规则。
+#
+# 触发条件语义（2026-07-11 修订）：
+#   bond_devoured_set 该体系已修满顶级境界（吞噬完成）。
+#   skill_owned       拥有该技能。
+#   skill_tag         拥有带该标签的技能。
+#   equipment_affix   装备了该词条（M3 后；当前简化=affix_owned）。
+#   affix_owned       拥有该词条（来自技能 base_affixes）。
+# 注：bond_owned 已取消——所有联动统一走 bond_devoured_set（门槛=修满体系）。
+#
+# 三重联动（Tier-SS）：羁绊 + 技能 + 装备，门槛最高、回报最大。
+synergies:
+  - id: zhutian_emperor_fist
+    name: 天帝之拳
+    trigger:
+      all:
+        - bond_devoured_set: zhutian        # 已吞噬"遮天"套
+        - skill_owned: emperor_fist         # 拥有"天帝拳"技能
+    effect:
+      final_dmg_mult: 1.0                   # 天帝拳最终伤害 +100%（乘区）
+    note: GDD §7 首例联动
+
+  - id: storm_thunder_combo
+    name: 风雷合击
+    trigger:
+      all:
+        - bond_devoured_set: fengyun
+        - skill_tag: thunder
+    effect:
+      chain_extra_bounces: 3                # 雷属性额外弹射 3 次
+
+  - id: great_sage_rampage
+    name: 大圣闹天
+    trigger:
+      all:
+        - bond_devoured_set: blackmyth
+        - equipment_affix: gold_multiplier  # 装备"金币倍增"词条
+    effect:
+      transform_gold_mult: 2.0              # 变身期间金币 ×3（基础×1.15 × 此）
+
+  - id: saint_true_dmg
+    name: 圣体真伤
+    trigger:
+      all:
+        - bond_devoured_set: zhutian     # 吞噬遮天体系（修满境界）
+        - affix_owned: true_dmg          # 拥有真伤词条
+    effect:
+      true_dmg_pct_delta: 0.15           # 真伤比例 +15%
+
+  # ══ 新套系联动（星陨/苍焰/铁壁/淘金/兽魂）══
+
+  - id: star_crit_nova
+    name: 星陨爆击
+    trigger:
+      all:
+        - bond_devoured_set: xingyun        # 吞噬星陨套
+        - affix_owned: crit_mastery         # 拥有暴击精通词条
+    effect:
+      crit_dmg_delta: 0.50                  # 暴伤 +50%（乘区）
+    note: 暴击流终极 combo
+
+  - id: elemental_overload
+    name: 元素过载
+    trigger:
+      all:
+        - bond_devoured_set: cangyan        # 吞噬苍焰套
+        - skill_tag: thunder                # 技能带雷标签（或火/冰）
+    effect:
+      elemental_dmg_mult: 0.30              # 属性伤害独立乘区 +30%
+      chain_extra_bounces: 2
+    note: 法系终极 combo，雷/火/冰联动
+
+  - id: unbreakable_thorns
+    name: 铁壁荆棘
+    trigger:
+      all:
+        - bond_devoured_set: tiebi          # 吞噬铁壁套
+        - equipment_affix: reflect_pct      # 拥有反伤来源
+    effect:
+      reflect_pct: 0.50                     # 反伤 +50%
+      damage_reduction_delta: 0.10          # 额外减伤
+    note: 反伤坦克流，挨打即输出
+
+  - id: golden_empire
+    name: 黄金帝国
+    trigger:
+      all:
+        - bond_devoured_set: taojin         # 吞噬淘金套
+        - equipment_affix: gold_multiplier  # 拥有金币倍增词条
+    effect:
+      gold_mult: 0.50                       # 金币 +50%
+      atk_pct_delta: 0.15                   # 经济转战力
+    note: 经济滚雪球终极 combo——钱多到买穿全场
+
+  - id: pack_frenzy
+    name: 兽群狂猎
+    trigger:
+      all:
+        - bond_devoured_set: shouhun        # 吞噬兽魂套
+        - skill_owned: bloodlust            # 拥有嗜血技能
+    effect:
+      attack_speed_delta: 0.30              # 攻速 +30%
+      lifesteal_pct: 0.03                   # 吸血 +3%
+    note: 召唤/近战续航终极 combo
+
+  # ══ 三重联动（Tier-SS）：羁绊 + 技能 + 装备 ══
+
+  - id: emperor_thunder_judgment
+    name: 天帝雷罚
+    tier: SS
+    trigger:
+      all:
+        - bond_devoured_set: zhutian        # 吞噬遮天体系
+        - skill_owned: emperor_fist         # 拥有天帝拳
+        - equipment_affix: synergy_amp      # 装备"联动增幅"词条
+    effect:
+      final_dmg_mult: 2.0                   # 最终伤害 +200%（乘区）
+      atk_pct_delta: 0.30                   # ATK +30%
+    note: 三重终极 combo——遮天+天帝拳+联动增幅，物理输出天花板
+
+  - id: thunder_gold_storm
+    name: 雷暴黄金
+    tier: SS
+    trigger:
+      all:
+        - bond_devoured_set: fengyun        # 吞噬风云体系
+        - skill_owned: chain_lightning      # 拥有雷链技能
+        - equipment_affix: gold_multiplier  # 装备"金币倍增"词条
+    effect:
+      chain_extra_bounces: 5                # 连锁弹射 +5
+      gold_mult: 1.0                        # 金币 +100%
+    note: 三重终极 combo——风云+雷链+金币倍增，法系经济双修天花板
