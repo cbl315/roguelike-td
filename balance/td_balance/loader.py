@@ -107,7 +107,7 @@ def load_affixes() -> list[AffixDef]:
     ]
 
 
-def load_rarity_weights() -> dict[str, int]:
+def load_rarity_weights() -> dict[str, float]:
     return _load("affixes")["rarity_weights"]
 
 
@@ -139,6 +139,7 @@ def load_bonds() -> list[BondDef]:
             name=b["name"],
             set=b["set"],
             effect=b.get("effect", {}),
+            rarity=b.get("rarity", "N"),
         )
         for b in d["bonds"]
     ]
@@ -179,7 +180,7 @@ def load_synergies() -> list[SynergyDef]:
             trigger=s.get("trigger", {}),
             effect=s.get("effect", {}),
             note=s.get("note", ""),
-            tier=s.get("tier", ""),
+            rarity=s.get("rarity", s.get("tier", "N")),  # 兼容旧 tier 字段
         )
         for s in d["synergies"]
     ]

@@ -1,23 +1,21 @@
 ## lobby.gd — 按需触发的选择器面板（M2 重构：不自动弹，玩家点 HUD 按钮打开）
-## 技能选择器（需免费机会）/ 羁绊选择器（需 build.bond_draw_cost() 金，递增 30→60）。
+## 羁绊选择器（需 build.bond_draw_cost() 金，递增 30→60）/ 装备升级。
+## （技能选择器已移除：技能改为每体系 1 个起点技能。）
 extends Control
 class_name Lobby
 
 signal confirmed()
 
-const REROLL_BASE := 20.0
-const REROLL_INC := 5.0
 const REROLL_CAP := 3
 
 var build: BuildState
 var pools: RoguePools
 
-var _skill_offers: Array = []
 var _bond_offers: Array = []
-var _skill_upgrades_left: int = 0
-var _banked: int = 0
 var _rerolls_this_wave: int = 0
-var _current_tab: String = "skill"   # "skill" or "bond"
+var _current_tab: String = "bond"   # "bond" or "equipment"
+var _replace_mode: bool = false       # 池满替换模式：显示池子让玩家选扔哪个
+var _pending_offer: Dictionary = {}   # 替换模式下待入池的新羁绊
 
 @onready var _gold_label: Label = $TopBar/GoldLabel
 @onready var _info_label: Label = $TopBar/InfoLabel
@@ -40,26 +38,11 @@ func set_build_ref(p_build: BuildState, p_pools: RoguePools) -> void:
 		build.changed.connect(_render)
 
 
-func update_banked(n: int) -> void:
-	_banked = n
-
-
-## HUD 按钮"技能"触发：需有免费机会
-func open_skill(banked: int) -> void:
-	_banked = banked
-	if _banked <= 0:
-		return
-	_current_tab = "skill"
-	_skill_upgrades_left = _banked
-	_rerolls_this_wave = 0
-	_refresh_skill_offers()
-	visible = true
-
-
-## HUD 按钮"羁绊"触发：需 build.bond_draw_cost() 金
+## HUD 按钮"羁绊"触发：打开即扣 bond_draw_cost() 金，之后 3 选 1 和刷新都免费。
 func open_bond() -> void:
-	if build == null or build.gold < build.bond_draw_cost():
-		return
+	if build == null or not build.spend(build.bond_draw_cost()):
+		return   # 金币不足
+	build.bonds_drawn += 1   # 递增下一次抽羁绊成本
 	_current_tab = "bond"
 	_rerolls_this_wave = 0
 	_refresh_bond_offers()
@@ -74,34 +57,26 @@ func open_equipment() -> void:
 
 
 func close() -> void:
+	_replace_mode = false
+	_pending_offer = {}
 	visible = false
 	get_tree().paused = false
 	confirmed.emit()
 
 
-func _refresh_skill_offers() -> void:
-	_skill_offers = pools.draw_skill_offers(build.owned_skills)
-	_render()
-
-
 func _refresh_bond_offers() -> void:
-	# 优先抽主修炼路径当前境界的羁绊（50% 概率），其余全池
+	# 阶梯抽取：引擎只给当前境界的羁绊 + generic（硬限制，不会越级出 EX）
+	# prefer：当前境界还缺的羁绊（加权，加快凑齐突破）
 	var prefer: Array = []
 	var prog: Dictionary = pools.cultivation_progress(build.bond_pool, build.path_realm)
 	if not prog.is_empty():
 		prefer = prog.get("needed", [])
-	# 排除：已拥有 + 已吞噬 + 已修满路径的全部羁绊
+	# 排除：已拥有 + 已吞噬（引擎内部也排已拥有，这里补已吞噬）
 	var excluded: Array = build.bond_pool.duplicate()
 	for b in build.devoured_bonds:
 		if not excluded.has(b):
 			excluded.append(b)
-	# 已修满的路径：整个路径的羁绊都不再出现
-	for pid in build.path_realm.keys():
-		if pools.path_max_realm(pid) > 0 and build.path_realm[pid] >= pools.path_max_realm(pid) - 1:
-			for b in pools.all_bonds_in_path(pid):
-				if not excluded.has(b):
-					excluded.append(b)
-	_bond_offers = pools.draw_bond_offers(3, prefer, excluded)
+	_bond_offers = pools.draw_bond_offers(3, prefer, excluded, build.path_realm)
 	_render()
 
 
@@ -117,36 +92,32 @@ func _render() -> void:
 		var stats := build.assemble_stats()
 		_dps_label.text = "DPS: %.0f" % stats.expected_dps(20.0)
 		_realm_label.text = _realm_text()
-	var offers: Array = _skill_offers if _current_tab == "skill" else _bond_offers
+	# 替换模式：池满了，让玩家选一个羁绊扔掉换新的
+	if _replace_mode:
+		_render_replace_mode()
+		return
 	if _current_tab == "equipment":
 		_render_equipment_tab()
 		return
-	if _current_tab == "bond":
-		var prog: Dictionary = pools.cultivation_progress(build.bond_pool, build.path_realm)
-		if not prog.is_empty():
-			_info_label.text = "【%s·%s】境界进度: %d/%d  缺: %s" % [
-				prog.get("path_name", ""), prog.get("realm_name", ""),
-				prog.get("owned_count", 0), prog.get("total_count", 0),
-				", ".join(prog.get("missing_names", []))
-			]
-		else:
-			_info_label.text = "[羁绊] 未修炼任何体系（凑齐同体系羁绊自动吞噬升境）"
+	# 默认/羁绊 tab
+	var offers: Array = _bond_offers
+	var prog: Dictionary = pools.cultivation_progress(build.bond_pool, build.path_realm)
+	if not prog.is_empty():
+		_info_label.text = "【%s·%s】境界进度: %d/%d  缺: %s" % [
+			prog.get("path_name", ""), prog.get("realm_name", ""),
+			prog.get("owned_count", 0), prog.get("total_count", 0),
+			", ".join(prog.get("missing_names", []))
+		]
 	else:
-		_info_label.text = "[%s] 剩余机会:%d  (Tab切换)" % [_current_tab, _skill_upgrades_left]
+		_info_label.text = "[羁绊] 未修炼任何体系（凑齐同体系羁绊自动吞噬升境）"
 	# 清空卡片
 	for c in _cards_container.get_children():
 		c.queue_free()
-	# 渲染卡片：技能模式只在有剩余机会时显示卡片；羁绊模式在有钱抽时显示
+	# 渲染卡片：羁绊模式在有钱抽时显示
 	var show_cards := true
-	if _current_tab == "skill" and _skill_upgrades_left <= 0:
+	if offers.is_empty():
 		var empty := Label.new()
-		empty.text = "技能机会已用完（每波清完自动+1）\n可切到羁绊页，或关闭继续战斗"
-		empty.horizontal_alignment = 1   # CENTER
-		_cards_container.add_child(empty)
-		show_cards = false
-	elif _current_tab == "bond" and build.gold < build.bond_draw_cost() and offers.is_empty():
-		var empty := Label.new()
-		empty.text = "金币不足 %d 抽羁绊\n关闭继续战斗攒钱" % int(build.bond_draw_cost())
+		empty.text = "当前可抽羁绊已全拥有\n请先突破境界解锁更多，或关闭继续战斗"
 		empty.horizontal_alignment = 1   # CENTER
 		_cards_container.add_child(empty)
 		show_cards = false
@@ -157,6 +128,62 @@ func _render() -> void:
 			_cards_container.add_child(card)
 			# 记录卡片屏幕区域供手动点击检测（延迟一帧等布局完成）
 			call_deferred("_record_card_rect", card, i)
+
+
+## 替换模式渲染：羁绊池满了，显示当前池中所有羁绊，玩家点一个 = 扔掉它换 pending_offer。
+## pending_offer 显示在最右侧（不可点，只展示将要获得的）。
+func _render_replace_mode() -> void:
+	card_click_rects.clear()
+	# 新羁绊名
+	var new_name: String = _pending_offer.get("name", "?")
+	_info_label.text = "⚠️ 羁绊池已满！选一个【丢弃】来换取【%s】" % new_name
+	# 清空卡片容器
+	for c in _cards_container.get_children():
+		c.queue_free()
+	# 渲染池中现有羁绊（可点 = 丢弃它）
+	for i in build.bond_pool.size():
+		var bid: String = build.bond_pool[i]
+		var b: Dictionary = pools._find_bond(bid)
+		var fake_offer: Dictionary = {
+			"id": bid, "name": b.get("name", bid), "rarity": b.get("rarity", "N"),
+			"effect": b.get("effect", {})
+		}
+		var card: Control = _make_card(fake_offer, i)
+		# 标记为丢弃卡片（红框）
+		card.modulate = Color(1.0, 0.7, 0.7)
+		_cards_container.add_child(card)
+		call_deferred("_record_card_rect", card, i)
+	# 最右侧显示将要获得的新羁绊（不可点，展示用）
+	var new_card: Control = _make_card(_pending_offer, -1)
+	new_card.modulate = Color(0.7, 1.0, 0.7)
+	_cards_container.add_child(new_card)
+	# actions 区只留"取消"
+	for c in _actions.get_children():
+		c.queue_free()
+	var cancel_btn := Button.new()
+	cancel_btn.text = "取消（不替换）"
+	cancel_btn.pressed.connect(_on_replace_cancel)
+	_actions.add_child(cancel_btn)
+
+
+## 替换模式：点了某张池中羁绊卡片 = 丢弃它换 pending_offer。
+func _on_replace_pick(idx: int) -> void:
+	if idx < 0 or idx >= build.bond_pool.size():
+		return
+	var discard_id: String = build.bond_pool[idx]
+	build.replace_bond(discard_id, _pending_offer)
+	# 退出替换模式
+	_replace_mode = false
+	_pending_offer = {}
+	close()
+
+
+## 替换模式：取消（退回 open 时扣的钱，因为没真正获得羁绊）。
+func _on_replace_cancel() -> void:
+	_replace_mode = false
+	_pending_offer = {}
+	build.refund_bond_draw()
+	_refresh_bond_offers()
 
 
 ## M3: 装备 tab 渲染（升级界面，非 3 选 1）
@@ -234,7 +261,7 @@ func _render_equipment_tab() -> void:
 	call_deferred("_record_card_rect", panel, 0)
 	# 动作按钮
 	_clear_actions()
-	_add_action("切换 技能/羁绊/装备 (Tab)", "_on_toggle_tab", true)
+	_add_action("切换 羁绊/装备 (Tab)", "_on_toggle_tab", true)
 	_add_action("稍后再选", "_on_confirm", true)
 
 
@@ -266,14 +293,11 @@ func _record_card_rect(card: Control, idx: int) -> void:
 		card_click_rects.append({"rect": card.get_global_rect(), "idx": idx})
 	# 动作按钮
 	_clear_actions()
-	if _current_tab == "skill":
-		_add_action("刷新技能 (扣%d金)" % _reroll_cost(), "_on_reroll",
-			_skill_upgrades_left > 0 and _rerolls_this_wave < REROLL_CAP and build.gold >= _reroll_cost())
-		_add_action("跳过得 %d金" % 20, "_on_skip", _skill_upgrades_left > 0)
-	else:
-		_add_action("刷新羁绊 (扣%d金)" % _reroll_cost(), "_on_reroll_bond",
-			_rerolls_this_wave < REROLL_CAP and build.gold >= _reroll_cost())
-	_add_action("切换 技能/羁绊 (Tab)", "_on_toggle_tab", true)
+	if _current_tab == "bond":
+		var reroll_lbl := "刷新羁绊 (免费 %d/%d)" % [_rerolls_this_wave, REROLL_CAP]
+		_add_action(reroll_lbl, "_on_reroll_bond",
+			_rerolls_this_wave < REROLL_CAP)
+	_add_action("切换 羁绊/装备 (Tab)", "_on_toggle_tab", true)
 	_add_action("稍后再选", "_on_confirm", true)
 
 
@@ -282,9 +306,11 @@ func _make_card(offer: Dictionary, idx: int) -> Control:
 	panel.custom_minimum_size = Vector2(280, 360)
 	var color := Color(0.2, 0.25, 0.35)
 	match offer.get("rarity"):
-		"legendary": color = Color(0.5, 0.35, 0.1)
-		"epic": color = Color(0.35, 0.2, 0.45)
-		"rare": color = Color(0.15, 0.25, 0.45)
+		"EX": color = Color(0.6, 0.4, 0.1)
+		"UR": color = Color(0.5, 0.35, 0.1)
+		"SSR": color = Color(0.35, 0.2, 0.45)
+		"SR": color = Color(0.15, 0.25, 0.45)
+		"N": color = Color(0.2, 0.25, 0.35)
 	# #2: 高亮——三层：当前境界需求（金）> 同体系（青）> 无关
 	var highlight_level := 0   # 0=普通, 1=同体系, 2=当前境界
 	var will_trigger_devour := false
@@ -361,9 +387,16 @@ func _make_card(offer: Dictionary, idx: int) -> Control:
 		desc_label.custom_minimum_size = Vector2(240, 0)
 		vbox.add_child(desc_label)
 	var btn := Button.new()
-	btn.text = "选择"
+	if idx < 0:
+		btn.text = "（待获得）"
+		btn.disabled = true
+	elif _replace_mode:
+		btn.text = "丢弃换新"
+	else:
+		btn.text = "选择"
 	btn.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	btn.pressed.connect(_on_pick.bind(idx))
+	if idx >= 0:
+		btn.pressed.connect(_on_pick.bind(idx))
 	vbox.add_child(btn)
 	return panel
 
@@ -381,10 +414,6 @@ func _add_action(text: String, method: String, enabled: bool) -> void:
 	_actions.add_child(btn)
 
 
-func _reroll_cost() -> float:
-	return REROLL_BASE + REROLL_INC * _rerolls_this_wave
-
-
 func _realm_text() -> String:
 	if build.path_realm.is_empty():
 		return "未修炼任何体系"
@@ -399,59 +428,42 @@ func _realm_text() -> String:
 
 # ── 动作 ──
 func _on_pick(idx: int) -> void:
-	var offers: Array = _skill_offers if _current_tab == "skill" else _bond_offers
+	# 替换模式：点击池中卡片 = 丢弃它换 pending_offer
+	if _replace_mode:
+		_on_replace_pick(idx)
+		return
+	# 羁绊：open_bond 时已扣钱，这里直接选（免费）
+	var offers: Array = _bond_offers
 	if idx >= offers.size():
 		return
 	var offer: Dictionary = offers[idx]
-	if _current_tab == "skill":
-		if _skill_upgrades_left <= 0:
-			return
-		build.take_skill_offer(offer)
-		_skill_upgrades_left -= 1
-		_banked = _skill_upgrades_left   # 同步回 game_manager 的 banked
-		# 选一次即关闭面板（点击一次选一次）。下次想选再点 HUD 按钮。
-		close()
-	else:
-		# 羁绊：扣 build.bond_draw_cost() 金，不够则不选
-		if not build.spend(build.bond_draw_cost()):
-			return
-		build.take_bond_offer(offer)
-		# 选一次即关闭面板
-		close()
-
-
-func _on_reroll() -> void:
-	if build.spend(_reroll_cost()):
-		_rerolls_this_wave += 1
-		_refresh_skill_offers()
+	var ok: bool = build.take_bond_offer(offer)
+	if not ok:
+		# 池满 → 进替换模式：让玩家选一个扔掉换新的
+		_pending_offer = offer
+		_replace_mode = true
+		_render()
+		return
+	# 选一次即关闭面板
+	close()
 
 
 func _on_reroll_bond() -> void:
-	if build.spend(_reroll_cost()):
+	# 刷新免费（open_bond 时已付 bond_draw_cost）
+	if _rerolls_this_wave < REROLL_CAP:
 		_rerolls_this_wave += 1
 		_refresh_bond_offers()
 
 
-func _on_skip() -> void:
-	if _skill_upgrades_left > 0:
-		build.add_gold(20.0)
-		_skill_upgrades_left -= 1
-		_banked = _skill_upgrades_left
-		close()   # 跳过也算一次操作，关闭面板
-
-
 func _on_toggle_tab() -> void:
-	# 三路循环: skill → bond → equipment → skill
+	# 两路循环: bond ↔ equipment
 	match _current_tab:
-		"skill":
-			_current_tab = "bond"
-			_refresh_bond_offers()
 		"bond":
 			_current_tab = "equipment"
 			_render()
 		_:
-			_current_tab = "skill"
-			_refresh_skill_offers()
+			_current_tab = "bond"
+			_refresh_bond_offers()
 
 
 func _on_confirm() -> void:

@@ -1,5 +1,6 @@
 ## build_state.gd — 玩家 build 状态（M2 核心）
-## 跟踪：金币、拥有的技能、累积的 effect、羁绊池、修炼境界进度。
+## 跟踪：金币、累积的 effect、羁绊池、修炼境界进度。
+## （技能抽取/九秘解锁字段已移除：技能改为每体系 1 个起点技能；九秘改为羁绊。）
 ## hero 每波从这里 assemble CombatStats（完整管线）。
 extends RefCounted
 class_name BuildState
@@ -7,8 +8,7 @@ class_name BuildState
 signal changed
 
 var gold: float = 0.0
-var owned_skills: Array = []           # Array[String] 技能 id
-var accumulated_effects: Array = []    # Array[Dictionary] 累积的 effect（技能词条+羁绊）
+var accumulated_effects: Array = []    # Array[Dictionary] 累积的 effect（境界 reward + 装备词条）
 var bond_pool: Array = []              # Array[String] 当前羁绊 id（上限 10）
 var bond_pool_capacity: int = 10
 var devoured_bonds: Array = []         # Array[String] 已吞噬的羁绊 id（仍算 owned，联动不丢失）
@@ -32,6 +32,14 @@ func bond_draw_cost() -> float:
 	return minf(BOND_DRAW_CAP, BOND_DRAW_BASE + BOND_DRAW_INC * bonds_drawn)
 
 
+## 退回上一次抽羁绊的扣款（取消选择时用）：退款 + 回退 bonds_drawn。
+func refund_bond_draw() -> void:
+	if bonds_drawn > 0:
+		bonds_drawn -= 1
+		# 退回当时实际扣的金额 = 回退后的 bond_draw_cost()
+		add_gold(minf(BOND_DRAW_CAP, BOND_DRAW_BASE + BOND_DRAW_INC * bonds_drawn))
+
+
 func setup(p_pools: Variant, p_rng: RandomNumberGenerator) -> void:
 	pools = p_pools
 	rng = p_rng
@@ -51,36 +59,27 @@ func spend(amount: float) -> bool:
 	return true
 
 
-## 选了一个技能 offer（新技能 or 词条）。
-func take_skill_offer(offer: Dictionary) -> void:
-	if offer.get("kind") == "new_skill":
-		if not owned_skills.has(offer.get("id")):
-			owned_skills.append(offer.get("id"))
-			# 新技能：应用其 atk_ratio（作为 atk_ratio_delta effect）
-			var eff: Dictionary = offer.get("effect", {})
-			if not eff.is_empty():
-				accumulated_effects.append(eff)
-			changed.emit()
-	else:
-		# 词条：累积真实 effect（来自 affixes.json）
-		var aeff: Dictionary = offer.get("effect", {})
-		if not aeff.is_empty():
-			accumulated_effects.append(aeff)
-		changed.emit()
-
-
-## 选了一个羁绊 offer。
-func take_bond_offer(offer: Dictionary) -> void:
+## 选了一个羁绊 offer。池满时返回 false（调用方应进替换流程）。
+## 羁绊 effect 不存 accumulated_effects——assemble_stats 时从 bond_pool 实时查，
+## 这样丢弃/替换羁绊自动更新属性（无需反向撤销）。
+func take_bond_offer(offer: Dictionary) -> bool:
 	if bond_pool.size() >= bond_pool_capacity:
-		return   # 池满
+		return false   # 池满——调用方应弹替换 UI
 	var bid: String = offer.get("id")
 	bond_pool.append(bid)
-	bonds_drawn += 1   # 递增抽羁绊成本
-	# 累积羁绊 effect
-	var eff: Dictionary = offer.get("effect", {})
-	if not eff.is_empty():
-		accumulated_effects.append(eff)
+	# bonds_drawn 在 open_bond 时已递增（扣款时机 = 打开面板）
 	# 检查境界吞噬
+	_try_devour()
+	changed.emit()
+	return true
+
+
+## 替换羁绊：丢掉 discard_id，加入 offer（池满时用）。
+func replace_bond(discard_id: String, offer: Dictionary) -> void:
+	bond_pool.erase(discard_id)
+	var bid: String = offer.get("id")
+	bond_pool.append(bid)
+	# bonds_drawn 在 open_bond 时已递增
 	_try_devour()
 	changed.emit()
 
@@ -107,14 +106,22 @@ func _try_devour() -> void:
 		var reward: Dictionary = pools.realm_reward(pid, idx)
 		if not reward.is_empty():
 			accumulated_effects.append(reward)
-		EventBus.bond_devoured.emit(pid, idx + 1)
+		EventBus.bond_devoured.emit(pid, idx + 1, pools.realm_name(pid, idx))
 
 
 ## 组装当前 CombatStats（完整管线 + 联动重算）。
 func assemble_stats() -> CombatStats:
 	var stats := CombatStats.new()
-	# 累加所有 effect（技能词条 + 羁绊 effect + 境界 reward + 装备词条）
+	# 累加所有 effect（技能词条 + 境界 reward + 装备词条）
 	EffectResolver.accumulate_all(stats, accumulated_effects)
+	# 羁绊 effect 从 bond_pool 实时查（丢弃/替换自动更新，无需反向撤销）
+	if pools != null:
+		for bid in bond_pool:
+			var b: Dictionary = pools._find_bond(bid)
+			if not b.is_empty():
+				var eff: Dictionary = b.get("effect", {})
+				if not eff.is_empty():
+					EffectResolver.accumulate_all(stats, [eff])
 	# 联动重算：检查当前状态触发了哪些联动，追加其 effect
 	if synergy_engine != null and pools != null:
 		var active: Array = synergy_engine.active(self, pools)
@@ -198,4 +205,4 @@ func _sum_effect(key: String) -> float:
 
 ## 概要字符串（HUD 用）。
 func summary() -> String:
-	return "技能%d 羁绊%d 境界%d 金%d" % [owned_skills.size(), bond_pool.size(), path_realm.size(), int(gold)]
+	return "羁绊%d 境界%d 金%d" % [bond_pool.size(), path_realm.size(), int(gold)]

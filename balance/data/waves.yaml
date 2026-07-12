@@ -9,7 +9,7 @@
 
 enemy_hp:
   base: 100.0
-  growth: 1.05        # B-3 校准：1.18→1.05（原曲线增长太快，任何 build 都打不过；1.05 让 build 可达）
+  growth: 1.07        # 平衡调参：1.05(100%)→1.08(20%)→1.07 试
 
 enemy_count:
   base: 8

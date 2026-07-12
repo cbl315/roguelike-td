@@ -1,10 +1,12 @@
-"""抽取池 — 技能/羁绊 3 选 1，稀有度加权 + 重投/锁定 (GDD §4.3 / §6.1)。
+"""抽取池 — 羁绊 3 选 1，稀有度加权 + 重投/锁定 (GDD §4.3 / §6.1)。
 
 设计：
-  - draw_skill_offers  生成 3 个技能选项（50% 新技能/50% 已有词条，按稀有度加权）
-  - draw_bond_offers   生成 3 个羁绊选项（按稀有度/均匀加权）
+  - draw_bond_offers   生成 3 个羁绊选项（按稀有度/均匀加权，阶梯抽取）
   - 重投：新 3 个选项，成本递增（见 economy.reroll_cost）
   - 锁定：B-2 留接口（locked_ids 不随重投消失）
+
+技能已重构为"每体系 1 个起点技能"（选了体系自动获得，随境界突破自动升级），
+不再走抽取消费，故本模块不再生成技能选项。
 
 复用 rng（weighted_choice/sample）+ loader（affixes/skills/bonds）。
 
@@ -18,8 +20,6 @@ from .loader import load_affixes, load_bonds, load_paths, load_rarity_weights, l
 from .rng import RNG
 
 # 抽取的"选项"种类
-KIND_NEW_SKILL = "new_skill"
-KIND_SKILL_AFFIX = "skill_affix"
 KIND_BOND = "bond"
 
 
@@ -29,7 +29,7 @@ class Offer:
     kind: str
     id: str
     name: str
-    rarity: str            # common/rare/epic/legendary
+    rarity: str            # N/SR/SSR/UR/EX
 
 
 class RoguePools:
@@ -42,7 +42,7 @@ class RoguePools:
         self.bonds = load_bonds()
         self.paths = load_paths()          # 修炼路径（境界树）
         self.rarity_weights = load_rarity_weights()
-        self.rarities = ["common", "rare", "epic", "legendary"]
+        self.rarities = ["N", "SR", "SSR", "UR", "EX"]
         # 羁绊 id → 所属套系/路径
         self._bond_to_set = {b.id: b.set for b in self.bonds}
         # 全部羁绊 id（含 generic）用于抽取池
@@ -60,50 +60,63 @@ class RoguePools:
         weights = [self.rarity_weights[r] for r in self.rarities]
         return self.rng.weighted_choice(self.rarities, weights)
 
-    def draw_skill_offers(self, owned_skill_ids: set[str], n: int = 3) -> list[Offer]:
-        """生成 n 个技能选项（GDD §4.3：50% 新技能/50% 已有词条）。
+    def draw_bond_offers(
+        self,
+        n: int = 3,
+        path_realm: dict | None = None,
+        owned_bond_ids: list[str] | None = None,
+        prefer_ids: list[str] | None = None,
+    ) -> list[Offer]:
+        """生成 n 个羁绊选项（严格阶梯抽取）。
 
-        新技能：从玩家未拥有的技能池按稀有度过滤后抽。
-        已有词条：从词条池按稀有度抽（模拟"给已有技能加词条"）。
-        """
-        offers: list[Offer] = []
-        unowned = [s for s in self.skills if s.id not in owned_skill_ids]
-        for _ in range(n):
-            roll = self.rng.float()
-            if roll < 0.5 and unowned:
-                # 新技能：先定稀有度，再在该稀有度的未拥有技能里抽
-                rarity = self._weighted_rarity()
-                pool = [s for s in unowned if s.rarity == rarity] or unowned
-                s = self.rng.choice(pool)
-                offers.append(Offer(KIND_NEW_SKILL, s.id, s.name, s.rarity))
-            else:
-                # 已有技能的词条（或无新技能时也走这条）
-                rarity = self._weighted_rarity()
-                pool = [a for a in self.affixes if a.rarity == rarity] or self.affixes
-                a = self.rng.choice(pool)
-                offers.append(Offer(KIND_SKILL_AFFIX, a.id, a.name, a.rarity))
-        return offers
+        阶梯规则（GDD §6.1，2026-07-12 修订）：
+          - 只能抽 generic 通用符文 + 当前境界（path_realm[id]）的羁绊。
+          - 已拥有的羁绊不重复出现（owned_bond_ids 排除）。
+          - 突破（吞噬升境）后 path_realm[id] +1，自动解锁下一境界。
+          - 修满所有境界后，只能抽 generic。
 
-    def draw_bond_offers(self, n: int = 3, prefer_ids: list[str] | None = None) -> list[Offer]:
-        """生成 n 个羁绊选项。
-
-        prefer_ids: 优先抽这些羁绊（如当前修炼境界的羁绊），其余从全池补。
-        模拟"玩家专注某条修炼路径"的抽取偏好。
+        path_realm: {path_id: 当前境界索引}；None 表示未修任何路径（只抽 generic）。
+        owned_bond_ids: 玩家已拥有的羁绊 id（不重复抽）。
+        prefer_ids: 兼容旧接口——若提供，作为加权偏好叠加在合法池上（不再绕过阶梯限制）。
         """
         offers: list[Offer] = []
         bond_map = {b.id: b for b in self.bonds}
-        pool = prefer_ids if prefer_ids else self._all_bond_ids
-        pool = [bid for bid in pool if bid in bond_map] or self._all_bond_ids
+        owned = set(owned_bond_ids or [])
+
+        # 构建合法池 = generic + 各 path 当前境界的羁绊
+        # path_realm 为空/None 时，视为所有 path 从境0开始（初始状态）
+        pr = path_realm or {}
+        legal: list[str] = [b.id for b in self.bonds if b.set == "generic"]
+        for p in self.paths:
+            idx = pr.get(p.id, 0)
+            if idx < len(p.realms):
+                legal.extend(p.realms[idx].bonds)
+        # 去重 + 排除已拥有
+        legal = [bid for bid in dict.fromkeys(legal) if bid not in owned and bid in bond_map]
+
+        # 无可抽羁绊时（当前境界全凑齐但未突破）→ 只剩 generic 兜底
+        pool = legal or [b.id for b in self.bonds if b.set == "generic" and b.id not in owned]
+        if not pool:
+            # 极端：generic 也全拥有了且当前境界全凑齐——返回空（玩家应去突破）
+            return []
+
+        # prefer_ids 作为加权（仅放大合法池内条目的权重，不引入非法羁绊）
+        if prefer_ids:
+            prefer_set = set(prefer_ids) & set(pool)
+            weighted_pool = [bid for bid in pool if bid in prefer_set] * 3 + pool
+        else:
+            weighted_pool = pool
+
         for _ in range(n):
-            bid = self.rng.choice(pool)
+            bid = self.rng.choice(weighted_pool)
             b = bond_map[bid]
-            offers.append(Offer(KIND_BOND, b.id, b.name, "common"))
+            offers.append(Offer(KIND_BOND, b.id, b.name, b.rarity))
         return offers
 
     def reroll(self, offers: list[Offer], draw_fn, locked_idx: set[int] | None = None) -> list[Offer]:
         """重投：保留 locked 的，其余重新生成。
 
-        draw_fn: draw_skill_offers / draw_bond_offers 的无参绑定。
+        draw_fn: draw_bond_offers 的无参绑定。
         B-2: locked 留接口，默认不锁（重投全部）。
         """
         if not locked_idx:

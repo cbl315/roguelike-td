@@ -54,9 +54,10 @@ def test_transform_uptime_capped_at_1():
     assert sp.transform_uptime(30.0) == 1.0
 
 
-def test_resolve_player_picks_up_transform():
-    """resolve_player 应把境界 reward 的 transform_* 解析进 Special。
+def test_resolve_player_picks_up_realm_reward():
+    """resolve_player 应把境界 reward 的属性累加进 PlayerCombat。
     path_realm[id] = 已完成的境界数；修满 = len(realms)（全部完成）。
+    当前仅遮天体系：修满后应拾取帝体 reward（final_dmg_mult + status: heaven_emperor）。
     """
     from td_balance.combat_stats import resolve_player
     from td_balance.player import PlayerState
@@ -64,13 +65,13 @@ def test_resolve_player_picks_up_transform():
     from td_balance.rogue_pools import RoguePools
     pools = RoguePools(RNG(seed=1))
     state = PlayerState()
-    # 找 blackmyth path，设为全部完成（path_realm = len(realms)）
+    # 找 zhutian path，设为全部完成（path_realm = len(realms)）
     for p in pools.paths:
-        if p.id == "blackmyth":
-            state.path_realm = {"blackmyth": len(p.realms)}   # 全部境界完成
+        if p.id == "zhutian":
+            state.path_realm = {"zhutian": len(p.realms)}   # 全部境界完成
             break
     pc = resolve_player(state, pools)
-    assert pc.special.transform_mult == 2.0
-    assert pc.special.transform_duration == 8
-    assert pc.special.transform_cooldown == 60
-    assert pc.special.transform_aoe is True
+    # 遮天各境界 reward 累加进 offense.final_dmg_mults（王体 0.35 + 皇体 0.7 + 帝体 1.75 …）
+    assert len(pc.offense.final_dmg_mults) > 0
+    # status heaven_emperor 应被拾取（帝体 reward）
+    assert "heaven_emperor" in pc.special.statuses

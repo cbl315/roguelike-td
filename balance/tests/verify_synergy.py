@@ -26,16 +26,15 @@ print("=" * 60)
 # 列出所有联动
 print(f"\n📊 共 {len(engine.synergies)} 条联动规则:")
 for syn in engine.synergies:
-    tier = getattr(syn, 'tier', '') or ''
+    tier = getattr(syn, 'rarity', '') or ''
     conditions = syn.trigger.get("all", [])
     cond_str = " + ".join(list(c.keys())[0].replace("bond_devoured_set", "吞噬")
-                          .replace("skill_owned", "技能")
                           .replace("skill_tag", "标签")
                           .replace("equipment_affix", "装备")
                           .replace("affix_owned", "词条") for c in conditions)
     n_cond = len(conditions)
     label = "三重" if n_cond >= 3 else "两重"
-    star = "★ " if tier == "SS" else ""
+    star = "★ " if tier == "EX" else ""
     print(f"  {star}{syn.name:8s} [{label}] {cond_str}")
 
 # 模拟各种玩家状态
@@ -46,7 +45,7 @@ test_cases = [
     ("天帝雷罚(三重, 需装备)", {"emperor_fist": 1}, {"zhutian": 4}),
     ("雷暴黄金(三重, 需装备)", {"chain_lightning": 1}, {"fengyun": 4}),
     ("无联动(没修满)", {"emperor_fist": 1}, {"zhutian": 3}),
-    ("无联动(没技能)", {"basic_strike": 1}, {"zhutian": 4}),
+    ("无联动(没技能)", {"some_other_skill": 1}, {"zhutian": 4}),
 ]
 
 print("\n" + "=" * 60)

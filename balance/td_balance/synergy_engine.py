@@ -1,11 +1,12 @@
 """联动引擎 (B-3) — 根据玩家状态重算 active 联动规则。
 
 触发条件（GDD §7，对齐境界树）：
-  - bond_devoured_set: <path_id>  → 该体系修满顶级境界（path_realm[id] == len(realms)-1）
-  - skill_owned: <skill_id>       → 拥有该技能
-  - skill_tag: <tag>              → 拥有带该标签的技能
+  - bond_devoured_set: <path_id>  → 该体系修满所有境界（path_realm[id] >= len(realms)）
   - affix_owned: <affix_id>       → 拥有该词条（技能/装备；B-3 简化：检查技能 base_affixes）
   - equipment_affix: <affix_id>   → 装备该词条（B-3 简化：同 affix_owned）
+
+技能已重构为"每体系 1 个起点技能"：选了体系自动获得，修满体系即触发对应联动，
+故不再需要 skill_owned / skill_tag 条件（修满体系 = 自动拥有其起点技能）。
 
 效果：返回 active 联动的 effect dict 列表，供 resolve_player 累加。
 
@@ -47,11 +48,7 @@ class SynergyEngine:
                 realms = self._path_realms(val, pools)
                 if realms is None:
                     return False
-                return state.path_realm.get(val, 0) >= len(realms) - 1
-            elif key == "skill_owned":
-                return val in state.skills
-            elif key == "skill_tag":
-                return self._has_skill_tag(val, state, pools)
+                return state.path_realm.get(val, 0) >= len(realms)
             elif key == "affix_owned":
                 return self._has_affix(val, state, pools)
             elif key == "equipment_affix":
@@ -67,14 +64,6 @@ class SynergyEngine:
             if p.id == path_id:
                 return p.realms
         return None
-
-    def _has_skill_tag(self, tag: str, state, pools) -> bool:
-        skill_map = {s.id: s for s in pools.skills}
-        for sid in state.skills:
-            s = skill_map.get(sid)
-            if s and tag in s.tags:
-                return True
-        return False
 
     def _has_affix(self, affix_id: str, state, pools) -> bool:
         """检查玩家是否拥有某词条（来自技能的 base_affixes）。

@@ -10,7 +10,6 @@ enum State { READY, WAVE_IN_PROGRESS, WAVE_CLEARED, RUN_WON, RUN_LOST }
 
 var state: int = State.READY
 var current_wave: int = 0
-var skill_upgrades_banked: int = 0
 
 var _spawner: WaveSpawner
 var _hero: Hero
@@ -51,7 +50,6 @@ func _ready() -> void:
 	EventBus.enemy_killed.connect(_on_enemy_killed)
 	_hero.fired_projectile.connect(_on_hero_fired)
 	_lobby.confirmed.connect(_on_lobby_confirmed)
-	_hud.skill_picker_requested.connect(open_skill_picker)
 	_hud.bond_picker_requested.connect(open_bond_picker)
 	_hud.char_panel_toggled.connect(toggle_char_panel)
 	_hud.equipment_picker_requested.connect(open_equipment_picker)
@@ -96,11 +94,7 @@ func _start_next_wave() -> void:
 	if _hud: _hud.update_wave(current_wave)
 	# #2: 设置波次倒计时
 	_wave_timer = WaveCurves.wave_duration(current_wave)
-	skill_upgrades_banked += 2 if WaveCurves.is_boss_wave(current_wave) else 1
-	EventBus.skill_upgrade_available = skill_upgrades_banked
 	_lobby.set_build_ref(_build, _pools)
-	_lobby.update_banked(skill_upgrades_banked)
-	_hud.update_skill_count(skill_upgrades_banked)
 	_hud.update_gold(_build.gold)
 	_hud.update_bond_cost(_build.bond_draw_cost())
 	_hud.update_equip_state(_build.equip_level, _pools.equip_upgrade_cost(_build.equip_level))
@@ -127,21 +121,10 @@ func _on_wave_finished() -> void:
 
 
 func _on_lobby_confirmed() -> void:
-	skill_upgrades_banked = _lobby._banked
-	EventBus.skill_upgrade_available = skill_upgrades_banked
-	_hud.update_skill_count(skill_upgrades_banked)
 	_hud.update_gold(_build.gold)
 	_hud.update_bond_cost(_build.bond_draw_cost())
 	_hud.update_equip_state(_build.equip_level, _pools.equip_upgrade_cost(_build.equip_level))
 	_hero.refresh_stats()
-
-
-func open_skill_picker() -> void:
-	if skill_upgrades_banked <= 0:
-		return
-	get_tree().paused = true
-	_lobby.set_build_ref(_build, _pools)
-	_lobby.open_skill(skill_upgrades_banked)
 
 
 func open_bond_picker() -> void:
@@ -221,19 +204,16 @@ func _input(event: InputEvent) -> void:
 		return
 	var pos: Vector2 = event.position
 	# 左下角固定按钮（SideButtons: offset_top=820, 每个 280×60）
+	# 顺序：羁绊(820) / 装备(880) / 角色面板(940)
 	if Rect2(40, 820, 280, 60).has_point(pos):
-		open_skill_picker()
-		get_viewport().set_input_as_handled()
-		return
-	if Rect2(40, 880, 280, 60).has_point(pos):
 		open_bond_picker()
 		get_viewport().set_input_as_handled()
 		return
-	if Rect2(40, 940, 280, 60).has_point(pos):
+	if Rect2(40, 880, 280, 60).has_point(pos):
 		open_equipment_picker()
 		get_viewport().set_input_as_handled()
 		return
-	if Rect2(40, 1000, 280, 60).has_point(pos):
+	if Rect2(40, 940, 280, 60).has_point(pos):
 		toggle_char_panel()
 		get_viewport().set_input_as_handled()
 		return

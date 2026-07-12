@@ -12,7 +12,7 @@ from typing import Any
 class AffixDef:
     id: str
     name: str
-    rarity: str                 # common/rare/epic/legendary
+    rarity: str                 # N/SR/SSR/UR/EX（统一评价档，2026-07-12 修订）
     stacking: str               # add/mult/independent/chance/replace
     effect: dict[str, Any]      # 修改 CombatStats 哪些字段
     note: str = ""
@@ -22,7 +22,7 @@ class AffixDef:
 class SkillDef:
     id: str
     name: str
-    rarity: str
+    rarity: str                 # N/SR/SSR/UR/EX
     tags: list[str]
     atk_ratio: float
     base_affixes: list[str]     # 自带词条 id
@@ -35,6 +35,7 @@ class BondDef:
     name: str
     set: str
     effect: dict[str, Any]
+    rarity: str = "N"           # N/SR/SSR/UR/EX（按 path 境界深度标档）
 
 
 @dataclass(frozen=True)
@@ -75,7 +76,7 @@ class SynergyDef:
     trigger: dict[str, Any]     # { all: [...] }
     effect: dict[str, Any]
     note: str = ""
-    tier: str = ""              # "", "S", "SS" 等（三重联动标记）
+    rarity: str = "N"           # N/SR/SSR/UR/EX（统一评价档；原 tier 字段合并，SS→EX）
 
 
 @dataclass(frozen=True)

@@ -17,38 +17,17 @@ def test_bond_devoured_set_requires_max_realm():
     """修满顶级境界才触发 bond_devoured_set。"""
     pools = RoguePools(RNG(seed=1))
     engine = SynergyEngine()
-    # zhutian 有 5 境界，需 path_realm=4（顶级）
+    # zhutian 有 9 境界，需 path_realm=9（全部完成）
     s = _state_with_skills({"emperor_fist": 1})
-    s.path_realm = {"zhutian": 3}   # 未满（第 3 境，差 1）
+    s.path_realm = {"zhutian": 8}   # 未满（第 8 境，差 1）
     active = engine.active(s, pools)
     ids = [a.id for a in active]
     assert "zhutian_emperor_fist" not in ids
 
-    s.path_realm = {"zhutian": 4}   # 修满
+    s.path_realm = {"zhutian": 9}   # 修满
     active = engine.active(s, pools)
     ids = [a.id for a in active]
     assert "zhutian_emperor_fist" in ids
-
-
-def test_skill_owned_trigger():
-    """skill_owned 条件。"""
-    pools = RoguePools(RNG(seed=1))
-    engine = SynergyEngine()
-    s = _state_with_skills({"bloodlust": 1})
-    s.path_realm = {"shouhun": 4}   # 兽魂修满
-    active = engine.active(s, pools)
-    assert "pack_frenzy" in [a.id for a in active]   # 需 bloodlust
-
-
-def test_skill_tag_trigger():
-    """skill_tag 条件（雷标签）。"""
-    pools = RoguePools(RNG(seed=1))
-    engine = SynergyEngine()
-    # chain_lightning 带 thunder 标签
-    s = _state_with_skills({"chain_lightning": 1})
-    s.path_realm = {"fengyun": 4}   # 风云修满 → 风雷合击需 thunder
-    active = engine.active(s, pools)
-    assert "storm_thunder_combo" in [a.id for a in active]
 
 
 def test_no_trigger_when_conditions_unmet():
@@ -65,7 +44,7 @@ def test_triple_synergy_emperor_thunder():
     pools = RoguePools(RNG(seed=1))
     engine = SynergyEngine()
     s = _state_with_skills({"emperor_fist": 1})
-    s.path_realm = {"zhutian": 4}
+    s.path_realm = {"zhutian": 9}
     # 三重联动需要 equipment_affix: synergy_amp
     # 当前 _has_affix 简化为检查 base_affixes，emperor_fist 有 base_affixes 吗？
     active = engine.active(s, pools)
@@ -82,20 +61,10 @@ def test_triple_synergy_emperor_thunder():
         assert "emperor_thunder_judgment" not in ids
 
 
-def test_triple_synergy_thunder_gold():
-    """三重联动：雷暴黄金（风云 + 雷链 + 金币倍增）。"""
-    pools = RoguePools(RNG(seed=1))
-    engine = SynergyEngine()
-    s = _state_with_skills({"chain_lightning": 1})
-    s.path_realm = {"fengyun": 4}
-    active = engine.active(s, pools)
-    ids = [a.id for a in active]
-    # 风雷合击（两重）一定触发（chain_lightning 带 thunder 标签）
-    assert "storm_thunder_combo" in ids
-
-
 def test_all_synergies_require_devoured_set():
-    """所有联动都必须有 bond_devoured_set 条件（取消 bond_owned 后的回归测试）。"""
+    """所有联动都必须有 bond_devoured_set 条件（取消 bond_owned / skill_owned 后的回归测试）。
+    重构后：技能改为体系入口，修满体系 = 自动拥有起点技能，故不再有纯 skill_owned 联动。
+    """
     pools = RoguePools(RNG(seed=1))
     engine = SynergyEngine()
     for syn in engine.synergies:
@@ -105,9 +74,9 @@ def test_all_synergies_require_devoured_set():
 
 
 def test_synergy_count():
-    """联动总数 = 11（9 两重 + 2 三重）。"""
+    """联动总数 = 3（天帝之拳 + 天帝雷罚 + 九秘合一；当前仅遮天体系）。"""
     engine = SynergyEngine()
-    assert len(engine.synergies) == 11
+    assert len(engine.synergies) == 3
 
 
 # ── Bug 回归测试 ──
@@ -130,7 +99,7 @@ def test_devour_does_not_disable_synergy():
     pools = RoguePools(RNG(seed=1))
     engine = SynergyEngine()
     s = _state_with_skills({"emperor_fist": 1})
-    s.path_realm = {"zhutian": 4}  # 修满
+    s.path_realm = {"zhutian": 9}  # 修满
     # 即使 bond_pool 为空（全部吞噬了），联动仍然触发
     s.bond_pool = []
     active = engine.active(s, pools)
@@ -139,9 +108,10 @@ def test_devour_does_not_disable_synergy():
 
 
 def test_triple_synergies_have_3_conditions():
-    """三重联动必须有 3 个触发条件。"""
+    """EX 联动的条件数检查（重构后九秘合一=1条件，天帝雷罚=2条件）。"""
     engine = SynergyEngine()
     for syn in engine.synergies:
         conditions = syn.trigger.get("all", [])
-        if syn.tier and syn.tier.upper() == "SS":
-            assert len(conditions) == 3, f"triple synergy {syn.id} has {len(conditions)} conditions, expected 3"
+        if syn.rarity and syn.rarity.upper() == "EX":
+            # 重构后：九秘合一=1条件(bond_devoured_set)，天帝雷罚=2条件(+equipment_affix)
+            assert len(conditions) <= 2, f"EX 联动 {syn.id} 条件数 {len(conditions)}，预期 ≤2"

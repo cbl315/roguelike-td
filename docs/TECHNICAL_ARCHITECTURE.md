@@ -39,7 +39,7 @@
 ```mermaid
 flowchart TB
     subgraph 表现层 Presentation
-        UI[UI: 战斗HUD/3选1/羁绊池] 
+        UI[UI: 战斗HUD/羁绊3选1/体系面板]
         R[渲染: 精灵/粒子/特效]
         A[音频/震屏/手感]
     end
@@ -51,7 +51,7 @@ flowchart TB
     subgraph 核心层 Core 纯逻辑可单测
         CM[战斗数学<br/>Master Damage Pipeline]
         EC[经济系统]
-        RG[Rogue 抽取池<br/>技能/装备/羁绊]
+        RG[Rogue 抽取池<br/>羁绊抽取]
         SY[联动规则引擎]
         WV[波次/敌人曲线]
     end
@@ -102,24 +102,26 @@ flowchart TB
 
 ```
 # res://data/skills/emperor_fist.tres  (SkillDefinition)
+# 注：重构后技能 = 体系入口（每体系 1 个起点技能），不再有 base_affixes/affix_pool
+# 强化改由境界 reward 的 skill_upgrade 提供
 name = "天帝拳"
-rarity = Legendary
+rarity = "SR"
 tags = ["physical", "single_target"]
-atk_ratio = 2.0
-base_affixes = ["物理伤害+30%"]
-affix_pool = ["res://data/affixes/最终伤害.tres", ...]
+atk_ratio = 1.5
+note = "遮天体系入口——随境界突破自动升级"
 ```
 
 ```
 # res://data/synergies/zhutian_emperor_fist.tres  (SynergyRule)
+# 注：重构后触发条件用 bond_devoured_set / path_realm，不再用 SkillOwned
 id = "zhutian_emperor_fist"
-trigger = { all = [ BondDevouredSet("zhutian"), SkillOwned("emperor_fist") ] }
-effect = { final_damage_mult = 1.0 }
+trigger = { all = [ BondDevouredSet("zhutian") ] }
+effect = { final_dmg_mult = 1.0 }
 ```
 
 ### 3.2 联动规则引擎（实现"1+2+3 联动"）
 
-- `SynergyEngine` 在关键事件（羁绊吞噬、技能获取、词条变化）时**重算 active 规则**。
+- `SynergyEngine` 在关键事件（羁绊吞噬、境界突破、词条变化）时**重算 active 规则**。
 - 战斗结算时，`DamagePipeline` 向 `SynergyEngine` 查询当前生效的 `final_mult` 等修饰。
 - 新增联动 = 加一个 `.tres` 文件，**零代码**。这是本作可扩展性的基石。
 
@@ -141,7 +143,7 @@ res://
   systems/              # 系统层
     run_manager/ wave_spawner/ combat_system/ inventory/
   scenes/               # 场景：battle/menu/choice_ui/run_end
-  ui/                   # UI 组件（HUD、3选1卡牌、羁绊池面板）
+  ui/                   # UI 组件（HUD、羁绊3选1卡牌、羁绊池面板）
   entities/             # hero/enemy/projectile 场景+组件
   art/ audio/ fonts/ shaders/
   platform/             # 平台服务实现（ios/android/web/linux）
@@ -225,14 +227,14 @@ res://
 |---|---|---|
 | **M0 引擎与骨架** ✅ | Godot 项目、分层架构、EventBus autoload、数据 JSON 接入、debug 面板 | `client/` 能打开运行，显示数据加载校验（20技能/71羁绊/8路径/29词条/9联动） |
 | **M1 核心战斗循环** ✅ | 英雄自动战斗 + 波次刷怪 + 基础敌人曲线 + Master Pipeline | 能"打怪、清波、看血条" |
-| **M2 技能 3 选 1** ✅ | 抽取池、词条、3 选 1 UI、羁绊抽取、英雄=核心、弹道锁定、卡片加成显示 | **第一个可玩 vertical slice** |
+| **M2 技能 3 选 1** ✅ | 抽取池、词条、3 选 1 UI、羁绊抽取、英雄=核心、弹道锁定、卡片加成显示 | **第一个可玩 vertical slice**（注：技能抽取已在后续重构中改为"体系入口"，见 [`archive/skill_refactor_design.md`](archive/skill_refactor_design.md)；此处为里程碑历史记录） |
 | **M3 装备经济** ✅ | 升级/里程碑词条（+3/+6/+9 抽词条 70%正面30%诅咒）、诅咒（代价换收益）、经济循环（gold_per_sec/per_kill/gold_mult/double_gold） | 经济滚雪球 |
-| **M4 联动引擎** ✅ | SynergyEngine 11 条联动（9 两重 + 2 三重 SS）、连锁弹射、规则匹配引擎 | 1+2+3 缝合完成 |
+| **M4 联动引擎** ✅ | SynergyEngine 11 条联动（9 两重 + 2 三重 EX）、连锁弹射、规则匹配引擎 | 1+2+3 缝合完成 |
 | **M5 内容与平衡**（持续） | 多套系、多技能、曲线调参 | 可玩性达标 |
 | **M5.5 美术替换**（1 周） | AI 批量出图 → 逐类替换占位色块 → 精灵接入 + 图集合并 → 移动端性能验证 | 占位素材全部替换为正式美术 |
 | **M6 跨端与发布**（2–3 周） | iOS/Android/Web 导出、IAP/广告、云存档 | 上架/itch.io |
 
-> 建议 **M2 结束就做第一次 playtest**，验证"3 选 1 + 自动战斗"是否好玩，再决定后续投入。
+> 建议 **M2 结束就做第一次 playtest**，验证"羁绊 3 选 1 + 自动战斗"是否好玩，再决定后续投入。
 
 ### 8.1 客户端实现现状（M0–M2 + 房间生存重构，截至 2026-07-11）
 
@@ -248,18 +250,18 @@ res://
 |---|---|---|
 | Core | `combat_stats.gd` | Master Damage Pipeline（移植自 Python，常量一致：ATK=50/暴击5%/暴伤1.5/攻速1.0/护甲K=100） |
 | Core | `effect_resolver.gd` | ~25 个 effect key → CombatStats（atk_pct/crit/攻速/物法伤/元素/最终/真伤/穿甲/弹数 + atk_ratio_delta） |
-| Core | `rogue_pools.gd` | 技能 3 选 1（50% 新技能/50% 词条，权重 60/30/8/2）+ 羁绊抽取（71 池，排除已拥有，50% prefer 境界/50% 全池）+ 境界吞噬；加载 skills/affixes/bonds JSON |
+| Core | `rogue_pools.gd` | 羁绊抽取（74 池，排除已拥有，50% prefer 境界/50% 全池）+ 境界吞噬；加载 skills/affixes/bonds JSON。技能改为选体系自动获得（不再抽取） |
 | Core | `wave_curves.gd` | 读 waves.json，算 hp/count/duration（曲线 1.05^wave） |
 | Systems | `game_manager.gd` | 波次状态机（WAVE_IN_PROGRESS→WAVE_CLEARED→WON/LOST），连接 spawner/hero/hud/lobby；传 room_rect |
 | Systems | `wave_spawner.gd` | Timer 节点驱动刷怪；房间边缘随机出生（离英雄≥300px）；setup(hero, room_rect) |
-| Systems | `build_state.gd` | 金币/技能/羁绊池/境界/累积 effect；bond_draw_cost()=min(60, 30+10n)；assemble_stats()→CombatStats |
+| Systems | `build_state.gd` | 金币/已选体系(chosen_paths)/羁绊池/境界/累积 effect；bond_draw_cost()=min(60, 30+10n)；assemble_stats()→CombatStats。起点技能随选体系自动赋予 |
 | Systems | `event_bus.gd` | autoload 全局信号总线（enemy_killed/reached_core/gold_changed/...） |
 | Systems | `target_priority.gd` | 目标选择（最近/最远/最高血/最低血） |
 | Scenes | `hero.gd` | 英雄=核心：max_hp/take_damage、WASD/方向键移动（320px/s）、450px 圆形攻击范围自动开火、HP 环显示、点击切换目标优先级、房间边界约束 |
 | Scenes | `enemy.gd` | Node2D 自主追击英雄（120/90/60 px/s）；set_current_hp setter；数据驱动 kill_reward/leak_damage；接触英雄伤害+冷却；房间边界约束 |
 | Scenes | `projectile.gd` | **追踪锁定**：持有 target 引用，飞到目标当前位置才结算伤害（不会误伤途中敌人） |
 | Scenes | `hud.gd` | 波次/敌人数/金币/英雄血条 + 技能/羁绊触发按钮（按需打开 lobby） |
-| Scenes | `lobby.gd` | 按需选择器：3 选 1 卡片显示加成数值（黄色 desc）、刷新/跳过/Tab 切换、z_index=100 不被怪遮挡 |
+| Scenes | `lobby.gd` | 按需选择器：羁绊 3 选 1 卡片显示加成数值（黄色 desc）、刷新/Tab 切换、z_index=100 不被怪遮挡。注：原技能 tab/技能抽取 UI 已删除 |
 
 **数据管线**：`balance/data/*.yaml`（Python SSOT）→ `export_json.py` → `client/data/*.json`（Godot 原生读取，零依赖）。
 
@@ -318,32 +320,29 @@ res://
 
 #### 数据层（已有，无需改动）
 
-`synergies.json` 有 9 条联动规则，每条 = `trigger`（条件组合）+ `effect`（效果）：
+`synergies.json` 有联动规则，每条 = `trigger`（条件组合）+ `effect`（效果）。触发条件统一用 `bond_devoured_set` / `path_realm`（境界触发）。
 
-| 联动 | Tier | 触发（跨系统） | 效果 |
+| 联动 | Rarity | 触发（跨系统） | 效果 |
 |------|------|---------------|------|
-| 天帝之拳 | S | 羁绊(吞噬遮天) × 技能(天帝拳) | 最终伤害 +100% |
-| 风雷合击 | S | 羁绊(吞噬风云) × 技能(雷标签) | 连锁弹射 +3 |
+| 天帝之拳 | S | 修满遮天 | 最终伤害 +100% |
+| 风雷合击 | S | 羁绊(吞噬风云) × 路径境界 | 连锁弹射 +3 |
 | 大圣闹天 | S | 羁绊(吞噬黑神话) × 装备(金币倍增) | 变身金币 ×2 |
 | 圣体真伤 | A | 羁绊(吞噬遮天) × 词条(真伤) | 真伤占比 +15% |
 | 星陨爆击 | A | 羁绊(吞噬星陨) × 词条(暴击精通) | 暴击伤害 +50% |
-| 元素过载 | A | 羁绊(吞噬苍炎) × 技能(雷标签) | 元素伤害 +30% + 连锁 +2 |
+| 元素过载 | A | 羁绊(吞噬苍炎) × 路径境界 | 元素伤害 +30% + 连锁 +2 |
 | 铁壁荆棘 | B | 羁绊(吞噬铁壁) × 装备(反伤) | 反伤 50% + 减伤 10% |
 | 黄金帝国 | B | 羁绊(吞噬淘金) × 装备(金币倍增) | 金币 +50% + ATK +15% |
-| 兽群狂猎 | B | 羁绊(吞噬兽魂) × 技能(嗜血) | 攻速 +30% + 吸血 3% |
+| 兽群狂猎 | B | 羁绊(吞噬兽魂) × 路径境界 | 攻速 +30% + 吸血 3% |
 
-#### 触发条件类型（5 种）
+#### 触发条件类型
 
 | 条件 key | 语义 | 客户端检查方式 |
 |----------|------|---------------|
-| `bond_devoured_set` | 该体系已修满顶级境界 | `build.path_realm[id] >= max_realm - 1` |
-| `skill_owned` | 拥有该技能 | `build.owned_skills.has(id)` |
-| `skill_tag` | 拥有带该标签的技能 | 遍历 owned_skills 查 tags |
-| `equipment_affix` | 装备了该词条（M3 装备系统后；当前简化=affix_owned） | 查 affix ids |
+| `bond_devoured_set` | 该体系已修满顶级境界（所有联动统一走此条件） | `build.path_realm[id] >= max_realm - 1` |
+| `path_realm` | `{path_id: ">=N"}` 某体系修到第 N 境（0-indexed） | `build.path_realm[id] >= N` |
+| `equipment_affix` | 装备了该词条（M3 装备系统后） | 查 affix ids |
 
-> **设计决策（2026-07-11）：取消 `bond_owned`，所有联动统一走 `bond_devoured_set`。** 原设计 bond_owned 门槛太低（一个羁绊+一个词条就触发），不合理。联动 = 修炼到顶的终极奖励，门槛高、回报大。build_state 仍记录 devoured_bonds（供未来扩展）。
-
-> 所有条件用 `trigger.all` 组合（AND 逻辑）。
+> 所有条件用 `trigger.all` 组合（AND 逻辑）。联动 = 修炼到顶的终极奖励，门槛高、回报大。build_state 仍记录 devoured_bonds（供未来扩展）。
 
 #### 效果类型（3 类）
 
@@ -374,12 +373,11 @@ class_name SynergyEngine
 
 | 文件 | 改动 |
 |------|------|
-| `synergy_engine.gd`（新） | 加载 synergies.json；`active()` 检查 5 种触发条件；返回 active effect 列表 |
+| `synergy_engine.gd`（新） | 加载 synergies.json；`active()` 检查 3 种触发条件（`bond_devoured_set`/`path_realm`/`equipment_affix`）；返回 active effect 列表 |
 | `build_state.gd` | `assemble_stats()` 前先 `synergy_engine.active()` → 把联动 effect 追加到 accumulated_effects |
 | `combat_stats.gd` | 新增 `chain_extra_bounces: int` 字段 |
 | `effect_resolver.gd` | 处理 `chain_extra_bounces` key |
 | `hero.gd` | `_fire()` 命中后，如果 `chain_extra_bounces > 0`，找最近 N 个敌人弹射（每弹 0.7× 递减） |
-| `rogue_pools.gd` | 新增 `_has_skill_tag()` / `_find_skill_tags()` 辅助方法 |
 | `hud.gd` | 角色面板显示 "已触发联动" 列表（联动名 + 效果摘要） |
 
 #### 不做的（M4 首版简化）

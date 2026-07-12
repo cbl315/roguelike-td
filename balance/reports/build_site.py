@@ -69,10 +69,9 @@ pre{background:var(--card);border:1px solid var(--border);border-radius:8px;padd
 .badge.boss{background:#f7768e33;color:#f7768e}
 .badge.elite{background:#e0af6833;color:#e0af68}
 .step{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed var(--border)}
-.rarity-common{color:var(--mut)}.rarity-rare{color:var(--accent)}.rarity-epic{color:#bb9af7}
-.rarity-legendary{color:var(--warn);font-weight:700}
-.rarity-SS{color:var(--warn);font-weight:700;background:#e0af6833;padding:2px 6px;border-radius:4px}
-.rarity-S{color:#bb9af7;font-weight:700}.rarity-A{color:var(--accent)}
+.rarity-N{color:var(--mut)}.rarity-SR{color:var(--accent)}.rarity-SSR{color:#bb9af7}
+.rarity-UR{color:var(--warn);font-weight:700}
+.rarity-EX{color:var(--warn);font-weight:700;background:#e0af6833;padding:2px 6px;border-radius:4px}
 .data-table td code{background:#00000022;padding:1px 4px;border-radius:3px}
 .step .v{color:var(--accent);font-family:monospace}
 footer{color:var(--mut);font-size:.8rem;text-align:center;margin-top:40px;padding-top:16px;border-top:1px solid var(--border)}
@@ -192,7 +191,7 @@ def render_index() -> str:
     <tr><td>M1 核心战斗</td><td class="good">✅</td><td>英雄自动战斗、波次刷怪、伤害管线</td></tr>
     <tr><td>M2 技能 3 选 1</td><td class="good">✅</td><td>技能/羁绊抽取、英雄=核心、弹道锁定、卡片加成</td></tr>
     <tr><td>M2.5 手感打磨</td><td class="good">✅</td><td>大地图+相机、波次倒计时、渐进刷怪、角色面板、击杀特效</td></tr>
-    <tr><td>M4 联动引擎</td><td class="good">✅</td><td>11 条联动（9 两重+2 三重 SS）、连锁弹射、规则匹配引擎</td></tr>
+    <tr><td>M4 联动引擎</td><td class="good">✅</td><td>11 条联动（9 两重+2 三重 EX）、连锁弹射、规则匹配引擎</td></tr>
     <tr><td>M3 装备经济</td><td class="good">✅</td><td>升级+1→+9、里程碑词条（70%正面/30%诅咒）、诅咒代价换收益、经济循环（gold_per_sec/per_kill/gold_mult/double_gold）</td></tr>
     <tr><td>M5 内容平衡</td><td class="warn">⏳ 待做</td><td>数值调参（当前数值偏强）、更多套系/技能</td></tr>
     <tr><td>M6 跨端发布</td><td class="warn">⏳ 待做</td><td>iOS/Android/Web 导出、服务端、IAP/云存档</td></tr>
@@ -203,7 +202,7 @@ def render_index() -> str:
   <div class="grid">
     <div class="stat"><div class="num good">11</div><div class="lbl">联动规则</div></div>
     <div class="stat"><div class="num">9</div><div class="lbl">两重联动</div></div>
-    <div class="stat"><div class="num warn">2</div><div class="lbl">三重(Tier-SS)</div></div>
+    <div class="stat"><div class="num warn">2</div><div class="lbl">三重(EX)</div></div>
     <div class="stat"><div class="num good">90%</div><div class="lbl">触发局通关率</div></div>
   </div>
   <p>联动 = 羁绊×技能×装备的交叉触发奖励。所有联动统一走 <code>bond_devoured_set</code>（修满体系）。
@@ -222,10 +221,12 @@ def render_index() -> str:
 def render_curves() -> str:
     rows = _load_json("curves")
     img = '<img src="assets/curves_dps.png" alt="所需DPS曲线"><img src="assets/curves_hp.png" alt="血量曲线">'
+    boss_badge = '<span class="badge boss">Boss</span>'
+    elite_badge = '<span class="badge elite">精英</span>'
     table_rows = "".join(
         f"<tr><td>{r['wave']}</td><td>{r['enemy_hp']:,.1f}</td><td>{r['enemy_count']}</td>"
         f"<td>{r['total_hp']:,.0f}</td><td>{r['duration']:.0f}s</td><td>{r['required_dps']:,.0f}</td>"
-        f"<td>{('<span class=\"badge boss\">Boss</span>' if r['boss'] else '<span class=\"badge elite\">精英</span>' if r['elite'] else '')}</td></tr>"
+        f"<td>{boss_badge if r['boss'] else elite_badge if r['elite'] else ''}</td></tr>"
         for r in rows
     )
     body = f"""
@@ -324,7 +325,7 @@ def _render_skills_table(data) -> str:
     skills = data.get("skills", [])
     rows = "".join(
         f"<tr><td>{s.get('id','')}</td><td>{s.get('name','')}</td>"
-        f"<td><span class='rarity-{s.get('rarity','common')}'>{s.get('rarity','')}</span></td>"
+        f"<td><span class='rarity-{s.get('rarity','N')}'>{s.get('rarity','')}</span></td>"
         f"<td>{', '.join(s.get('tags',[]))}</td>"
         f"<td>{s.get('atk_ratio','')}</td>"
         f"<td>{', '.join(s.get('base_affixes',[]))}</td></tr>"
@@ -390,13 +391,13 @@ def _render_synergies_table(data) -> str:
     syns = data.get("synergies", [])
     rows = "".join(
         f"<tr><td>{s.get('name','')}</td>"
-        f"<td><span class='rarity-{s.get('tier','') or 'A'}'>{s.get('tier','') or 'A'}</span></td>"
+        f"<td><span class='rarity-{s.get('rarity','') or 'N'}'>{s.get('rarity','') or 'N'}</span></td>"
         f"<td>{_fmt_trigger(s.get('trigger',{}))}</td>"
         f"<td>{_fmt_effect(s.get('effect',{}))}</td></tr>"
         for s in syns
     )
     return f"""<div class="card"><table class="data-table">
-<tr><th>联动</th><th>Tier</th><th>触发条件</th><th>效果</th></tr>
+<tr><th>联动</th><th>Rarity</th><th>触发条件</th><th>效果</th></tr>
 {rows}</table></div>"""
 
 
@@ -404,7 +405,7 @@ def _render_affixes_table(data) -> str:
     affixes = data.get("affixes", [])
     rows = "".join(
         f"<tr><td>{a.get('id','')}</td><td>{a.get('name','')}</td>"
-        f"<td><span class='rarity-{a.get('rarity','common')}'>{a.get('rarity','')}</span></td>"
+        f"<td><span class='rarity-{a.get('rarity','N')}'>{a.get('rarity','')}</span></td>"
         f"<td>{a.get('stacking','')}</td>"
         f"<td>{_fmt_effect(a.get('effect',{}))}</td></tr>"
         for a in affixes
@@ -443,7 +444,7 @@ def _fmt_trigger(trigger: dict) -> str:
     parts = []
     for c in conds:
         for k, v in c.items():
-            label = {"bond_devoured_set": "吞噬", "skill_owned": "技能", "skill_tag": "标签",
+            label = {"bond_devoured_set": "吞噬", "skill_tag": "标签",
                      "equipment_affix": "装备", "affix_owned": "词条"}.get(k, k)
             parts.append(f"{label}: {v}")
     return " + ".join(parts)
@@ -465,7 +466,6 @@ def render_economy() -> str:
         for w in [1, 2, 3, 5, 10, 15, 20, 25, 30]
     )
     reroll_avg = sum(d["reroll_rate_per_wave"]) / len(d["reroll_rate_per_wave"]) * 100
-    rd = d["rarity_distribution"]
     body = f"""
 <h2>B6 经济校准结论</h2>
 <div class="card">
@@ -481,9 +481,6 @@ def render_economy() -> str:
     <div class="stat"><div class="num">{d['final_gold']['median']:,.0f}</div><div class="lbl">终局金币(不应囤积)</div></div>
   </div>
 </div>
-<h2>技能抽取稀有度分布</h2>
-<img src="assets/economy_rarity.png" alt="稀有度分布">
-<p class="subtitle">实际 {rd['common']:.0%}/{rd['rare']:.0%}/{rd['epic']:.0%}/{rd['legendary']:.0%} vs 权重目标 60/30/8/2（{d['total_skill_draws']:,} 次抽取）</p>
 <h2>关键波次明细</h2>
 <table><thead><tr><th>波次</th><th>收入(金)</th><th>操作数中位</th><th>重投率</th></tr></thead>
 <tbody>{inc_rows}</tbody></table>"""

@@ -1,15 +1,11 @@
 ## rogue_pools.gd — 抽取引擎（移植自 balance/td_balance/rogue_pools.py）
-## 技能 3 选 1（50% 新技能/50% 已有词条，加权 60/30/8/2）+ 羁绊抽取 + 境界吞噬。
+## 羁绊抽取 + 境界吞噬 + 装备系统。
+## （技能抽取已移除：技能改为每体系 1 个起点技能；九秘改为羁绊 zt_jm_*。）
 ## 数据来自 data/*.json（balance/data 是 SSOT）。
 extends RefCounted
 class_name RoguePools
 
-const RARITIES := ["common", "rare", "epic", "legendary"]
-const RARITY_WEIGHTS := {"common": 60, "rare": 30, "epic": 8, "legendary": 2}
-
-var _skills: Array = []          # Array[Dictionary]（skills.json 的 skills 列表）
 var _bonds: Array = []           # Array[Dictionary]（bonds.json 的 bonds 列表）
-var _affixes: Array = []         # Array[Dictionary]（affixes.json 的 affixes 列表）
 var _paths: Array = []           # Array[Dictionary]（bonds.json 的 paths，境界树）
 var _bond_to_set: Dictionary = {}  # bond_id → set_id
 var _path_bond_ids: Dictionary = {}  # path_id → Array[bond_id]
@@ -28,13 +24,9 @@ func _init(rng: RandomNumberGenerator = null) -> void:
 
 
 func _load_data() -> void:
-	var skills_d := _read_json("skills.json")
-	_skills = skills_d.get("skills", [])
 	var bonds_d := _read_json("bonds.json")
 	_bonds = bonds_d.get("bonds", [])
 	_paths = bonds_d.get("paths", [])
-	var affixes_d := _read_json("affixes.json")
-	_affixes = affixes_d.get("affixes", [])
 	# M3: 加载装备数据
 	var equip_d := _read_json("equipment.json")
 	_equip_affixes = equip_d.get("affixes", [])
@@ -66,81 +58,66 @@ func _read_json(filename: String) -> Dictionary:
 	return {}
 
 
-# ── 技能 3 选 1 ──
-## 返回 3 个 offer（Dictionary：kind/id/name/rarity）。
-## kind: "new_skill" 或 "skill_affix"。owned_skill_ids: 已拥有技能 id 集合。
-func draw_skill_offers(owned_skill_ids: Array, n: int = 3) -> Array:
-	var offers: Array = []
-	var unowned: Array = []
-	for s in _skills:
-		if not owned_skill_ids.has(s.get("id")):
-			unowned.append(s)
-	for i in n:
-		var roll: float = _rng.randf()
-		if roll < 0.5 and not unowned.is_empty():
-			# 新技能：带 atk_ratio + 效果（atk_ratio 转成 atk_ratio_delta 供显示/结算）
-			var rarity := _weighted_rarity()
-			var pool := _filter_by_rarity(unowned, rarity)
-			if pool.is_empty():
-				pool = unowned
-			var s: Dictionary = pool[_rng.randi() % pool.size()]
-			var ratio: float = float(s.get("atk_ratio", 1.0))
-			var eff: Dictionary = {}
-			# atk_ratio 是技能伤害倍率（默认1.0）。转成 delta = ratio-1，累加到 CombatStats.atk_ratio。
-			if ratio != 1.0:
-				eff["atk_ratio_delta"] = ratio - 1.0
-			offers.append({
-				"kind": "new_skill", "id": s.get("id"), "name": s.get("name"),
-				"rarity": s.get("rarity", "common"), "effect": eff,
-				"desc": "倍率 ×%.2f" % ratio
-			})
-		else:
-			# 词条：从真实 affixes.json 池按稀有度抽，带 effect
-			var rarity := _weighted_rarity()
-			var apool := _filter_by_rarity(_affixes, rarity)
-			if apool.is_empty():
-				apool = _affixes
-			if apool.is_empty():
-				# 无词条数据兜底
-				offers.append({"kind": "skill_affix", "id": "affix_" + rarity, "name": rarity + " 词条", "rarity": rarity, "effect": {}, "desc": ""})
-			else:
-				var a: Dictionary = apool[_rng.randi() % apool.size()]
-				offers.append({
-					"kind": "skill_affix", "id": a.get("id"), "name": a.get("name"),
-					"rarity": a.get("rarity", rarity), "effect": a.get("effect", {}),
-					"desc": _effect_to_text(a.get("effect", {}))
-				})
-	return offers
-
-
 # ── 羁绊抽取 ──
 ## 返回 n 个羁绊 offer。
 ## owned_ids: 玩家已拥有的羁绊（不重复抽取）。
 ## prefer_ids: 当前境界需要的羁绊（有 50% 概率从中抽，保证修炼推进；其余从全池抽，保证多样性）。
-func draw_bond_offers(n: int = 3, prefer_ids: Array = [], owned_ids: Array = []) -> Array:
+## 生成 n 个羁绊选项（严格阶梯抽取，对齐 balance/td_balance/rogue_pools.py）。
+## path_realm: {path_id: 已完成境界数}；初始为空 = 所有 path 从境0开始。
+## 只能抽 generic 通用符文 + 各 path 当前境界的羁绊；已拥有不重复；突破后解锁下一境界。
+## prefer_ids: 兼容旧接口——作为加权偏好叠加在合法池上（不绕过阶梯限制）。
+func draw_bond_offers(n: int = 3, prefer_ids: Array = [], owned_ids: Array = [], path_realm: Dictionary = {}) -> Array:
 	var offers: Array = []
-	# 可用池 = 全部 - 已拥有
-	var avail: Array = []
-	for bid in _all_bond_ids:
-		if not owned_ids.has(bid):
-			avail.append(bid)
-	if avail.is_empty():
-		avail = _all_bond_ids.duplicate()   # 全拥有则放行（极少见）
-	# prefer 池 = 境界羁绊 - 已拥有
-	var prefer: Array = []
-	for bid in prefer_ids:
-		if avail.has(bid):
-			prefer.append(bid)
-	var picked: Dictionary = {}   # 本轮已抽中 id，避免 n 张里重复
-	for i in n:
+	var owned: Dictionary = {}
+	for bid in owned_ids:
+		owned[bid] = true
+
+	# 合法池 = generic + 各 path 当前境界的羁绊
+	var legal: Array = []
+	for b in _bonds:
+		if b.get("set") == "generic":
+			legal.append(b.get("id"))
+	for p in _paths:
+		var idx: int = int(path_realm.get(p.get("id"), 0))
+		var realms: Array = p.get("realms", [])
+		if idx < realms.size():
+			for bid in realms[idx].get("bonds", []):
+				if not legal.has(bid):
+					legal.append(bid)
+
+	# 去除已拥有
+	var pool: Array = []
+	for bid in legal:
+		if not owned.has(bid):
+			pool.append(bid)
+
+	# 无可抽（当前境界全凑齐未突破）→ fallback 到 generic
+	if pool.is_empty():
+		for b in _bonds:
+			if b.get("set") == "generic" and not owned.has(b.get("id")):
+				pool.append(b.get("id"))
+	if pool.is_empty():
+		return []   # 极端：全满，玩家该去突破
+
+	# prefer 加权（仅放大合法池内条目，不引入非法羁绊）
+	var weighted_pool: Array = pool.duplicate()
+	if not prefer_ids.is_empty():
+		var prefer_legal: Array = []
+		for bid in prefer_ids:
+			if pool.has(bid) and not prefer_legal.has(bid):
+				prefer_legal.append(bid)
+		for bid in prefer_legal:
+			for _i in range(3):
+				weighted_pool.append(bid)
+
+	var picked: Dictionary = {}
+	# 实际可选项数 = min(请求数 n, 可选池去重后的大小)
+	var max_offers: int = min(n, pool.size())
+	for i in max_offers:
 		var bid: String = ""
-		# 50% 走 prefer（修炼推进），50% 走全池（多样性）
 		var tries: int = 0
 		while tries < 8:
-			if not prefer.is_empty() and _rng.randf() < 0.5:
-				bid = prefer[_rng.randi() % prefer.size()]
-			else:
-				bid = avail[_rng.randi() % avail.size()]
+			bid = weighted_pool[_rng.randi() % weighted_pool.size()]
 			if not picked.has(bid):
 				break
 			tries += 1
@@ -151,7 +128,7 @@ func draw_bond_offers(n: int = 3, prefer_ids: Array = [], owned_ids: Array = [])
 		var eff: Dictionary = b.get("effect", {})
 		offers.append({
 			"kind": "bond", "id": b.get("id"), "name": b.get("name"),
-			"rarity": b.get("rarity", "common"), "effect": eff,
+			"rarity": b.get("rarity", "N"), "effect": eff,
 			"desc": _effect_to_text(eff)
 		})
 	return offers
@@ -400,27 +377,6 @@ func cultivation_progress(bond_pool: Array, path_realm: Dictionary) -> Dictionar
 
 
 # ── 内部 ──
-func _weighted_rarity() -> String:
-	var total := 0
-	for r in RARITIES:
-		total += int(RARITY_WEIGHTS[r])
-	var roll := _rng.randi() % total
-	var acc := 0
-	for r in RARITIES:
-		acc += int(RARITY_WEIGHTS[r])
-		if roll < acc:
-			return r
-	return "common"
-
-
-func _filter_by_rarity(items: Array, rarity: String) -> Array:
-	var out: Array = []
-	for s in items:
-		if s.get("rarity") == rarity:
-			out.append(s)
-	return out
-
-
 # effect key → 中文显示模板（% 为数值占位）。数值 >0 显示 +x%，<0 显示 x%。
 const _EFFECT_LABELS := {
 	"atk_pct_delta": "攻击力 %s%%",
@@ -513,19 +469,3 @@ func _find_bond_name(bid: String) -> String:
 	if b.is_empty():
 		return bid
 	return b.get("name", bid)
-
-
-## 查技能数据 by id
-func _find_skill(sid: String) -> Dictionary:
-	for s in _skills:
-		if s.get("id") == sid:
-			return s
-	return {}
-
-
-## 查技能名称（供 UI 显示）
-func _find_skill_name(sid: String) -> String:
-	var s: Dictionary = _find_skill(sid)
-	if s.is_empty():
-		return sid
-	return s.get("name", sid)

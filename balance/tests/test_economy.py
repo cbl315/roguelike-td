@@ -25,7 +25,6 @@ def test_load_params_from_yaml():
     assert e.draw_bond == 30
     assert e.bond_draw_cap == 60
     assert e.devour == 80
-    assert e.skill_reroll_base == 20
     assert e.reroll_cap_per_wave == 3
 
 

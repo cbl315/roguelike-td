@@ -32,8 +32,6 @@ class EconomyParams:
     skill_skip_reward: float
     devour: float                  # 吞噬消耗（金币 sink）
     # 商店刷新（GDD §4.4）
-    skill_reroll_base: float
-    skill_reroll_increment: float
     bond_reroll_base: float
     bond_reroll_increment: float
     reroll_cap_per_wave: int
@@ -58,8 +56,6 @@ def load_economy_params() -> EconomyParams:
         equip_upgrade_per_level=cost.equipment_upgrade_per_level,
         skill_skip_reward=cost.skill_skip_reward,
         devour=cost.devour,
-        skill_reroll_base=shop["skill_reroll_base"],
-        skill_reroll_increment=shop["skill_reroll_increment"],
         bond_reroll_base=shop["bond_reroll_base"],
         bond_reroll_increment=shop["bond_reroll_increment"],
         reroll_cap_per_wave=shop["reroll_cap_per_wave"],
@@ -130,10 +126,6 @@ def devour_cost(econ: EconomyParams) -> float:
 def reroll_cost(times_rerolled: int, base: float, increment: float) -> float:
     """重投成本（递增）：第 n 次重投 = base + increment×(已重投次数)。"""
     return base + increment * times_rerolled
-
-
-def skill_reroll_cost(times: int, econ: EconomyParams) -> float:
-    return reroll_cost(times, econ.skill_reroll_base, econ.skill_reroll_increment)
 
 
 def bond_reroll_cost(times: int, econ: EconomyParams) -> float:

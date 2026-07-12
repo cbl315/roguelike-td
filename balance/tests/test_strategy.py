@@ -14,7 +14,7 @@ def test_simple_strategy_spends_until_broke_or_full():
     state = PlayerState(gold=300.0)
     pools = RoguePools(RNG(seed=5))
     strat = SimpleStrategy()
-    actions = strat.spend_lobby(state, pools, e, skill_upgrades_available=1)
+    actions = strat.spend_lobby(state, pools, e)
     # 应至少做了几个操作
     assert len(actions) >= 2
     # 钱不该还能买 cheapest 的东西（抽羁绊 30）—— 否则策略没花光
@@ -40,8 +40,7 @@ def test_one_run_economy_loop():
         state.add_gold(income["total"])
         # 2) 大厅花金
         state.begin_wave()
-        skill_upgrades = 2 if income["is_boss"] else 1
-        strat.spend_lobby(state, pools, e, skill_upgrades_available=skill_upgrades)
+        strat.spend_lobby(state, pools, e)
 
     # 应有 30 波的历史
     assert len(state.history) == 30
@@ -65,7 +64,7 @@ def test_run_is_reproducible():
             income = wave_income(wave, e)
             state.add_gold(income["total"])
             state.begin_wave()
-            strat.spend_lobby(state, pools, e, skill_upgrades_available=2 if income["is_boss"] else 1)
+            strat.spend_lobby(state, pools, e)
         return [len(h) for h in state.history]
 
     seq1 = run_once(999)
@@ -86,7 +85,7 @@ def test_ops_per_wave_above_target_floor():
             income = wave_income(wave, e)
             state.add_gold(income["total"])
             state.begin_wave()
-            strat.spend_lobby(state, pools, e, skill_upgrades_available=2 if income["is_boss"] else 1)
+            strat.spend_lobby(state, pools, e)
             ops_counts.append(len(state.history[-1]))
     median = sorted(ops_counts)[len(ops_counts) // 2]
     # 预期会显著 > 2（B6 标注的收入偏高），但至少不会 < 1

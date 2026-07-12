@@ -1,7 +1,7 @@
 {
   "enemy_hp": {
     "base": 100.0,
-    "growth": 1.05
+    "growth": 1.07
   },
   "enemy_count": {
     "base": 8,

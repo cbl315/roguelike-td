@@ -42,17 +42,12 @@ def _run_one(seed: int) -> dict:
         income = wave_income(wave, e)
         state.add_gold(income["total"])
         state.begin_wave()
-        skill_upgrades = 2 if income["is_boss"] else 1
-        strat.spend_lobby(state, pools, e, skill_upgrades_available=skill_upgrades)
+        strat.spend_lobby(state, pools, e)
 
         actions = state.history[-1]
         ops_per_wave.append(len(actions))
-        rerolls_per_wave.append(sum(1 for a in actions if a.type in (ActionType.BOND_REROLL, ActionType.SKILL_REROLL)))
+        rerolls_per_wave.append(sum(1 for a in actions if a.type == ActionType.BOND_REROLL))
         gold_left_per_wave.append(round(state.gold, 1))
-        for a in actions:
-            # detail 格式 "rarity/kind" 或 "name" 等；技能操作含 rarity
-            if a.type == ActionType.SKILL_LEVEL and "/" in a.detail:
-                rarities_drawn.append(a.detail.split("/")[0])
 
     return {
         "ops_per_wave": ops_per_wave,
@@ -83,7 +78,7 @@ def simulate_runs(n_runs: int = N_RUNS) -> dict:
     for r in runs:
         rarity_counter.update(r["rarities_drawn"])
     total_draws = sum(rarity_counter.values()) or 1
-    rarity_dist = {r: round(rarity_counter.get(r, 0) / total_draws, 4) for r in ["common", "rare", "epic", "legendary"]}
+    rarity_dist = {r: round(rarity_counter.get(r, 0) / total_draws, 4) for r in ["N", "SR", "SSR", "UR", "EX"]}
 
     # 金币结余
     final_golds = [r["final_gold"] for r in runs]

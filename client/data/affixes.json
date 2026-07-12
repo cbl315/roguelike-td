@@ -1,15 +1,16 @@
 {
   "rarity_weights": {
-    "common": 60,
-    "rare": 30,
-    "epic": 8,
-    "legendary": 2
+    "N": 58,
+    "SR": 30,
+    "SSR": 9,
+    "UR": 2.5,
+    "EX": 0.5
   },
   "affixes": [
     {
       "id": "multishot",
       "name": "多重射",
-      "rarity": "rare",
+      "rarity": "SR",
       "stacking": "replace",
       "effect": {
         "projectile_count_delta": 1,
@@ -20,7 +21,7 @@
     {
       "id": "physical_dmg",
       "name": "物伤加成",
-      "rarity": "common",
+      "rarity": "N",
       "stacking": "add",
       "effect": {
         "physical_dmg_pct_delta": 0.3
@@ -29,7 +30,7 @@
     {
       "id": "magic_dmg",
       "name": "法伤加成",
-      "rarity": "common",
+      "rarity": "N",
       "stacking": "add",
       "effect": {
         "magic_dmg_pct_delta": 0.3
@@ -38,7 +39,7 @@
     {
       "id": "final_dmg",
       "name": "最终伤害",
-      "rarity": "legendary",
+      "rarity": "UR",
       "stacking": "mult",
       "effect": {
         "final_dmg_mult": 0.15
@@ -48,7 +49,7 @@
     {
       "id": "elemental_dmg",
       "name": "属性伤害",
-      "rarity": "rare",
+      "rarity": "SR",
       "stacking": "independent",
       "effect": {
         "elemental_dmg_mult": 0.2,
@@ -58,7 +59,7 @@
     {
       "id": "true_dmg",
       "name": "真伤",
-      "rarity": "epic",
+      "rarity": "SSR",
       "stacking": "add",
       "effect": {
         "true_dmg_pct_delta": 0.1
@@ -67,7 +68,7 @@
     {
       "id": "atk_flat",
       "name": "攻击力",
-      "rarity": "common",
+      "rarity": "N",
       "stacking": "add",
       "effect": {
         "atk_pct_delta": 0.2
@@ -77,7 +78,7 @@
     {
       "id": "crit_rate",
       "name": "暴击率",
-      "rarity": "common",
+      "rarity": "N",
       "stacking": "add",
       "effect": {
         "crit_rate_delta": 0.15
@@ -86,7 +87,7 @@
     {
       "id": "crit_dmg",
       "name": "暴击伤害",
-      "rarity": "common",
+      "rarity": "N",
       "stacking": "add",
       "effect": {
         "crit_dmg_delta": 0.5
@@ -95,7 +96,7 @@
     {
       "id": "crit_mastery",
       "name": "暴击精通",
-      "rarity": "epic",
+      "rarity": "SSR",
       "stacking": "add",
       "effect": {
         "crit_rate_delta": 0.1,
@@ -106,7 +107,7 @@
     {
       "id": "attack_speed",
       "name": "攻速",
-      "rarity": "common",
+      "rarity": "N",
       "stacking": "add",
       "effect": {
         "attack_speed_delta": 0.2
@@ -115,7 +116,7 @@
     {
       "id": "frenzy",
       "name": "狂热",
-      "rarity": "rare",
+      "rarity": "SR",
       "stacking": "add",
       "effect": {
         "attack_speed_delta": 0.35,
@@ -126,7 +127,7 @@
     {
       "id": "armor_pen",
       "name": "无视护甲",
-      "rarity": "rare",
+      "rarity": "SR",
       "stacking": "add",
       "effect": {
         "armor_pen_delta": 0.3
@@ -135,7 +136,7 @@
     {
       "id": "resist_pen",
       "name": "抗性穿透",
-      "rarity": "rare",
+      "rarity": "SR",
       "stacking": "add",
       "effect": {
         "resist_pen_delta": 0.3
@@ -144,7 +145,7 @@
     {
       "id": "damage_reduction",
       "name": "减伤",
-      "rarity": "rare",
+      "rarity": "SR",
       "stacking": "add",
       "effect": {
         "damage_reduction_delta": 0.15
@@ -153,7 +154,7 @@
     {
       "id": "reflect",
       "name": "反伤",
-      "rarity": "rare",
+      "rarity": "SR",
       "stacking": "add",
       "effect": {
         "reflect_pct": 0.25
@@ -162,7 +163,7 @@
     {
       "id": "lifesteal",
       "name": "吸血",
-      "rarity": "rare",
+      "rarity": "SR",
       "stacking": "add",
       "effect": {
         "lifesteal_pct": 0.03
@@ -171,7 +172,7 @@
     {
       "id": "stun",
       "name": "眩晕",
-      "rarity": "rare",
+      "rarity": "SR",
       "stacking": "chance",
       "effect": {
         "stun_chance": 0.2,
@@ -181,7 +182,7 @@
     {
       "id": "freeze_chance",
       "name": "冰冻",
-      "rarity": "rare",
+      "rarity": "SR",
       "stacking": "chance",
       "effect": {
         "stun_chance": 0.15,
@@ -192,7 +193,7 @@
     {
       "id": "poison_stack",
       "name": "剧毒",
-      "rarity": "rare",
+      "rarity": "SR",
       "stacking": "chance",
       "effect": {
         "poison_chance": 0.3,
@@ -203,7 +204,7 @@
     {
       "id": "execute",
       "name": "斩杀",
-      "rarity": "epic",
+      "rarity": "SSR",
       "stacking": "chance",
       "effect": {
         "execute_threshold": 0.2,
@@ -214,7 +215,7 @@
     {
       "id": "chain_hit",
       "name": "连锁",
-      "rarity": "epic",
+      "rarity": "SSR",
       "stacking": "chance",
       "effect": {
         "chain_chance": 0.25,
@@ -225,7 +226,7 @@
     {
       "id": "hp_boost",
       "name": "生命",
-      "rarity": "common",
+      "rarity": "N",
       "stacking": "add",
       "effect": {
         "hp_pct_delta": 0.2
@@ -234,7 +235,7 @@
     {
       "id": "regen",
       "name": "回复",
-      "rarity": "rare",
+      "rarity": "SR",
       "stacking": "add",
       "effect": {
         "hp_regen_pct_per_5s": 0.015
@@ -243,7 +244,7 @@
     {
       "id": "shield",
       "name": "护盾",
-      "rarity": "rare",
+      "rarity": "SR",
       "stacking": "add",
       "effect": {
         "shield_pct": 0.15
@@ -253,7 +254,7 @@
     {
       "id": "gold_on_hit",
       "name": "命中得金",
-      "rarity": "rare",
+      "rarity": "SR",
       "stacking": "add",
       "effect": {
         "gold_on_hit": 0.5
@@ -263,7 +264,7 @@
     {
       "id": "cdr",
       "name": "冷却缩减",
-      "rarity": "epic",
+      "rarity": "SSR",
       "stacking": "add",
       "effect": {
         "cdr_pct": 0.15
@@ -273,7 +274,7 @@
     {
       "id": "double_strike",
       "name": "连击",
-      "rarity": "legendary",
+      "rarity": "UR",
       "stacking": "chance",
       "effect": {
         "double_strike_chance": 0.3
@@ -283,7 +284,7 @@
     {
       "id": "empower",
       "name": "赋能",
-      "rarity": "legendary",
+      "rarity": "UR",
       "stacking": "mult",
       "effect": {
         "final_dmg_mult": 0.25

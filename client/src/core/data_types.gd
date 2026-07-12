@@ -9,7 +9,7 @@ class_name GameData
 class SkillData:
 	var id: String
 	var name: String
-	var rarity: String         # common/rare/epic/legendary
+	var rarity: String         # N/SR/SSR/UR/EX
 	var tags: PackedStringArray
 	var atk_ratio: float
 	var base_affixes: PackedStringArray
@@ -19,7 +19,7 @@ class SkillData:
 		var s := SkillData.new()
 		s.id = d.get("id", "")
 		s.name = d.get("name", "")
-		s.rarity = d.get("rarity", "common")
+		s.rarity = d.get("rarity", "N")
 		s.tags = PackedStringArray(d.get("tags", []))
 		s.atk_ratio = float(d.get("atk_ratio", 1.0))
 		s.base_affixes = PackedStringArray(d.get("base_affixes", []))
@@ -40,7 +40,7 @@ class AffixData:
 		var a := AffixData.new()
 		a.id = d.get("id", "")
 		a.name = d.get("name", "")
-		a.rarity = d.get("rarity", "common")
+		a.rarity = d.get("rarity", "N")
 		a.stacking = d.get("stacking", "add")
 		a.effect = d.get("effect", {})
 		a.note = d.get("note", "")
@@ -53,6 +53,7 @@ class BondData:
 	var name: String
 	var set: String
 	var effect: Dictionary
+	var rarity: String         # N/SR/SSR/UR/EX（按 path 境界深度标档）
 
 	static func from_dict(d: Dictionary) -> BondData:
 		var b := BondData.new()
@@ -60,6 +61,7 @@ class BondData:
 		b.name = d.get("name", "")
 		b.set = d.get("set", "")
 		b.effect = d.get("effect", {})
+		b.rarity = d.get("rarity", "N")
 		return b
 
 

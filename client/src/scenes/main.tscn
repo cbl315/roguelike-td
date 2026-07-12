@@ -99,20 +99,6 @@ offset_top = 820.0
 offset_right = 360.0
 offset_bottom = 1130.0
 
-[node name="SkillButton" type="Button" parent="UILayer/HUD/SideButtons"]
-custom_minimum_size = Vector2(280, 60)
-theme = SubResource("Theme_hud")
-focus_mode = 0
-mouse_filter = 0
-text = "技能 (0)"
-
-[node name="SkillCount" type="Label" parent="UILayer/HUD/SideButtons/SkillButton"]
-offset_left = 220.0
-offset_top = 18.0
-offset_right = 280.0
-offset_bottom = 50.0
-text = "(0)"
-
 [node name="BondButton" type="Button" parent="UILayer/HUD/SideButtons"]
 custom_minimum_size = Vector2(280, 60)
 theme = SubResource("Theme_hud")

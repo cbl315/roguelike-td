@@ -1,7 +1,7 @@
 """羁绊境界吞噬单测 — 验证 GDD §6.1 境界树（scalable sink）。
 
 境界模型：每路径由低→高境界组成；当前境界羁绊凑齐 → 吞噬 → 升境 → 清空 → 再抽下一境。
-这解决有限 sink 问题（每路径 5 境界 × 8 路径 = 40+ 次吞噬机会）。
+遮天 9 境界：轮海→道宫→四极→化龙→仙台→准帝→大帝→红尘仙→天帝。
 """
 from __future__ import annotations
 
@@ -11,21 +11,19 @@ from td_balance.rogue_pools import RoguePools
 
 
 def test_find_devourable_when_first_realm_complete():
-    """遮天第 0 境(凡体, 需 zt_mortal)凑齐 → 可吞噬。"""
+    """遮天第 0 境(轮海, 需 5 个羁绊含皆字秘)凑齐 → 可吞噬。"""
     pools = RoguePools(RNG(seed=1))
-    pool = ["zt_mortal"]
+    pool = ["zt_lunhai_daojing", "zt_lunhai_kuhai", "zt_lunhai_mingquan", "zt_lunhai_shenqiao", "zt_jm_jie"]
     dev = pools.find_devourable(pool, path_realm={})
     assert dev is not None
     assert dev[0] == "zhutian"
-    assert dev[1] == 0                       # 第 0 境
-    assert dev[2] == ["zt_mortal"]
+    assert dev[1] == 0                       # 第 0 境（轮海）
 
 
 def test_no_devourable_when_realm_incomplete():
-    """遮天第 1 境(圣体, 需 2 个)只凑 1 个 → 不可吞噬。"""
+    """遮天第 1 境(道宫, 需 6 个含斗字秘)只凑 1 个 → 不可吞噬。"""
     pools = RoguePools(RNG(seed=1))
-    # path_realm 指向第 1 境（圣体），需 zt_saint_body + zt_sage_fruit，只放 1 个
-    pool = ["zt_saint_body"]
+    pool = ["zt_daogong_heart"]
     dev = pools.find_devourable(pool, path_realm={"zhutian": 1})
     assert dev is None
 
@@ -33,12 +31,11 @@ def test_no_devourable_when_realm_incomplete():
 def test_devour_advances_realm():
     """吞噬后升境：第 0 境 → 第 1 境。"""
     pools = RoguePools(RNG(seed=1))
-    pool = ["zt_mortal", "common_atk"]
+    pool = ["zt_lunhai_daojing", "zt_lunhai_kuhai", "zt_lunhai_mingquan", "zt_lunhai_shenqiao", "zt_jm_jie", "common_atk"]
     dev = pools.find_devourable(pool, path_realm={})
     path_id, idx, needed = dev
     removed = pools.devour(pool, needed)
-    assert removed == ["zt_mortal"]
-    assert "zt_mortal" not in pool
+    assert set(removed) == {"zt_lunhai_daojing", "zt_lunhai_kuhai", "zt_lunhai_mingquan", "zt_lunhai_shenqiao", "zt_jm_jie"}
     assert "common_atk" in pool               # 通用羁绊不动
 
 
@@ -46,11 +43,11 @@ def test_multiple_realms_scalable():
     """一局里同一路径可多次吞噬（升多境）—— 这是 scalable sink 的关键。"""
     pools = RoguePools(RNG(seed=1))
     state = PlayerState(gold=10000.0)
-    # 模拟连续升 3 境：凡体→圣体→王体
+    # 模拟连续升 3 境：轮海(5)→道宫(6)→四极(5)，含九秘
     realm_bonds_seq = [
-        ["zt_mortal"],
-        ["zt_saint_body", "zt_sage_fruit"],
-        ["zt_king_blood", "zt_king_bone", "zt_king_soul"],
+        ["zt_lunhai_daojing", "zt_lunhai_kuhai", "zt_lunhai_mingquan", "zt_lunhai_shenqiao", "zt_jm_jie"],
+        ["zt_daogong_heart", "zt_daogong_liver", "zt_daogong_spleen", "zt_daogong_lung", "zt_daogong_kidney", "zt_jm_dou"],
+        ["zt_siji_left_arm", "zt_siji_right_arm", "zt_siji_left_leg", "zt_siji_right_leg", "zt_jm_xing"],
     ]
     devours = 0
     for needed in realm_bonds_seq:
@@ -69,9 +66,9 @@ def test_current_realm_bonds():
     """查路径某境界的羁绊列表。"""
     pools = RoguePools(RNG(seed=1))
     bonds0 = pools.current_realm_bonds("zhutian", 0)
-    assert bonds0 == ["zt_mortal"]
+    assert set(bonds0) == {"zt_lunhai_daojing", "zt_lunhai_kuhai", "zt_lunhai_mingquan", "zt_lunhai_shenqiao", "zt_jm_jie"}
     bonds1 = pools.current_realm_bonds("zhutian", 1)
-    assert set(bonds1) == {"zt_saint_body", "zt_sage_fruit"}
+    assert set(bonds1) == {"zt_daogong_heart", "zt_daogong_liver", "zt_daogong_spleen", "zt_daogong_lung", "zt_daogong_kidney", "zt_jm_dou"}
     # 越界返回空（已修满）
     assert pools.current_realm_bonds("zhutian", 99) == []
 
@@ -95,7 +92,7 @@ def test_devour_loop_runs_full_game():
             income = wave_income(wave, econ)
             state.add_gold(income["total"])
             state.begin_wave()
-            strat.spend_lobby(state, pools, econ, skill_upgrades_available=2 if income["is_boss"] else 1)
+            strat.spend_lobby(state, pools, econ)
         total_devours += sum(1 for h in state.history for a in h if a.type == "devour")
     # 10 局里应至少有一些吞噬发生（境界树生效）
     assert total_devours > 0, "境界树吞噬从未触发——逻辑可能有 bug"

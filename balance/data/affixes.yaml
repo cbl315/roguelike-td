@@ -9,17 +9,18 @@
 #
 # 机制优先：覆盖 攻击/暴击/速度/防御/资源/触发 六类。
 # effect 字段里 key 对应 td_balance.combat.damage.CombatStats 字段。
-rarity_weights:           # GDD §4.3 抽取权重
-  common: 60
-  rare: 30
-  epic: 8
-  legendary: 2
+rarity_weights:           # GDD §4.3 抽取权重（5 档统一，2026-07-12 修订）
+  N: 58
+  SR: 30
+  SSR: 9
+  UR: 2.5
+  EX: 0.5
 
 affixes:
   # ── 攻击力/倍率类 ──
   - id: multishot
     name: 多重射
-    rarity: rare
+    rarity: SR
     stacking: replace
     effect:
       projectile_count_delta: 1
@@ -28,38 +29,38 @@ affixes:
 
   - id: physical_dmg
     name: 物伤加成
-    rarity: common
+    rarity: N
     stacking: add
     effect: { physical_dmg_pct_delta: 0.30 }
 
   - id: magic_dmg
     name: 法伤加成
-    rarity: common
+    rarity: N
     stacking: add
     effect: { magic_dmg_pct_delta: 0.30 }
 
   - id: final_dmg
     name: 最终伤害
-    rarity: legendary
+    rarity: UR
     stacking: mult
     effect: { final_dmg_mult: 0.15 }
     note: 乘区，每条乘法，滚雪球核心
 
   - id: elemental_dmg
     name: 属性伤害
-    rarity: rare
+    rarity: SR
     stacking: independent
     effect: { elemental_dmg_mult: 0.20, element: fire }
 
   - id: true_dmg
     name: 真伤
-    rarity: epic
+    rarity: SSR
     stacking: add
     effect: { true_dmg_pct_delta: 0.10 }
 
   - id: atk_flat
     name: 攻击力
-    rarity: common
+    rarity: N
     stacking: add
     effect: { atk_pct_delta: 0.20 }
     note: 直接加 ATK%（区别于物伤/法伤乘区）
@@ -67,19 +68,19 @@ affixes:
   # ── 暴击类 ──
   - id: crit_rate
     name: 暴击率
-    rarity: common
+    rarity: N
     stacking: add
     effect: { crit_rate_delta: 0.15 }
 
   - id: crit_dmg
     name: 暴击伤害
-    rarity: common
+    rarity: N
     stacking: add
     effect: { crit_dmg_delta: 0.50 }
 
   - id: crit_mastery
     name: 暴击精通
-    rarity: epic
+    rarity: SSR
     stacking: add
     effect: { crit_rate_delta: 0.10, crit_dmg_delta: 0.30 }
     note: 率+伤双加
@@ -87,13 +88,13 @@ affixes:
   # ── 速度/频率类 ──
   - id: attack_speed
     name: 攻速
-    rarity: common
+    rarity: N
     stacking: add
     effect: { attack_speed_delta: 0.20 }
 
   - id: frenzy
     name: 狂热
-    rarity: rare
+    rarity: SR
     stacking: add
     effect: { attack_speed_delta: 0.35, atk_pct_delta: -0.05 }
     note: 高攻速但小幅降攻（速攻流）
@@ -101,64 +102,64 @@ affixes:
   # ── 防御交互类 ──
   - id: armor_pen
     name: 无视护甲
-    rarity: rare
+    rarity: SR
     stacking: add
     effect: { armor_pen_delta: 0.30 }
 
   - id: resist_pen
     name: 抗性穿透
-    rarity: rare
+    rarity: SR
     stacking: add
     effect: { resist_pen_delta: 0.30 }
 
   - id: damage_reduction
     name: 减伤
-    rarity: rare
+    rarity: SR
     stacking: add
     effect: { damage_reduction_delta: 0.15 }
 
   - id: reflect
     name: 反伤
-    rarity: rare
+    rarity: SR
     stacking: add
     effect: { reflect_pct: 0.25 }
 
   - id: lifesteal
     name: 吸血
-    rarity: rare
+    rarity: SR
     stacking: add
     effect: { lifesteal_pct: 0.03 }
 
   # ── 控制/触发类 ──
   - id: stun
     name: 眩晕
-    rarity: rare
+    rarity: SR
     stacking: chance
     effect: { stun_chance: 0.20, stun_duration: 1.0 }
 
   - id: freeze_chance
     name: 冰冻
-    rarity: rare
+    rarity: SR
     stacking: chance
     effect: { stun_chance: 0.15, stun_duration: 1.5, element: ice }
 
   - id: poison_stack
     name: 剧毒
-    rarity: rare
+    rarity: SR
     stacking: chance
     effect: { poison_chance: 0.30, poison_dmg_mult: 0.10 }
     note: 叠加毒伤（DOT 流）
 
   - id: execute
     name: 斩杀
-    rarity: epic
+    rarity: SSR
     stacking: chance
     effect: { execute_threshold: 0.20, execute_dmg_mult: 3.0 }
     note: 低于 20% 血量时造成 3 倍伤害（斩杀流核心）
 
   - id: chain_hit
     name: 连锁
-    rarity: epic
+    rarity: SSR
     stacking: chance
     effect: { chain_chance: 0.25, chain_bounces: 2 }
     note: 命中概率弹射到附近敌人
@@ -166,19 +167,19 @@ affixes:
   # ── 生存/续航类 ──
   - id: hp_boost
     name: 生命
-    rarity: common
+    rarity: N
     stacking: add
     effect: { hp_pct_delta: 0.20 }
 
   - id: regen
     name: 回复
-    rarity: rare
+    rarity: SR
     stacking: add
     effect: { hp_regen_pct_per_5s: 0.015 }
 
   - id: shield
     name: 护盾
-    rarity: rare
+    rarity: SR
     stacking: add
     effect: { shield_pct: 0.15 }
     note: 受击前先扣护盾
@@ -186,14 +187,14 @@ affixes:
   # ── 经济/资源向（技能词条里也有少量经济）──
   - id: gold_on_hit
     name: 命中得金
-    rarity: rare
+    rarity: SR
     stacking: add
     effect: { gold_on_hit: 0.5 }
     note: 每次命中 +0.5 金（高频流的经济来源）
 
   - id: cdr
     name: 冷却缩减
-    rarity: epic
+    rarity: SSR
     stacking: add
     effect: { cdr_pct: 0.15 }
     note: 技能冷却 -15%（大招/长 CD 技能受益）
@@ -201,14 +202,14 @@ affixes:
   # ── 高阶乘区类（传说，稀有且强）──
   - id: double_strike
     name: 连击
-    rarity: legendary
+    rarity: UR
     stacking: chance
     effect: { double_strike_chance: 0.30 }
     note: 30% 概率额外打一次（独立于多重射，可叠加）
 
   - id: empower
     name: 赋能
-    rarity: legendary
+    rarity: UR
     stacking: mult
     effect: { final_dmg_mult: 0.25 }
     note: 另一条 final 乘区（与 final_dmg 同类，乘法叠加）

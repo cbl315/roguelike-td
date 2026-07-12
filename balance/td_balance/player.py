@@ -13,8 +13,6 @@ class ActionType(str, Enum):
     """大厅里玩家可做的操作（GDD §4.4 / §5 / §6）。"""
     DRAW_BOND = "draw_bond"          # 抽羁绊（3 选 1）
     UPGRADE_EQUIP = "upgrade_equip"  # 升装备（保底轨）
-    SKILL_LEVEL = "skill_level"      # 用技能升级机会（每波免费 1 次，Boss 波 2 次）
-    SKILL_REROLL = "skill_reroll"    # 技能 3 选 1 重投
     BOND_REROLL = "bond_reroll"      # 羁绊 3 选 1 重投
     SKIP_SKILL = "skip_skill"        # 跳过 3 选 1 换金
     DEVOUR = "devour"                # 吞噬羁绊组合（金币 sink，GDD §6.1）

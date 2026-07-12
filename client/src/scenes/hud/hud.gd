@@ -1,13 +1,14 @@
-## hud.gd — 战斗 HUD：波次/核心血条/敌人数/结算 + 技能/羁绊触发按钮 + Tab 角色面板
+## hud.gd — 战斗 HUD：波次/核心血条/敌人数/结算 + 羁绊/装备触发按钮 + Tab 角色面板
 extends Control
 class_name HUD
 
-signal skill_picker_requested()
 signal bond_picker_requested()
 signal char_panel_toggled()
 signal equipment_picker_requested()   # M3: 装备升级
 
 var _char_panel: Control = null   # #6: Tab 角色面板（动态创建）
+var _toast_label: Label = null    # 居中临时提示（突破境界）
+var _toast_timer: float = 0.0     # Toast 剩余显示时间
 
 @onready var _wave_label: Label = $WaveLabel
 @onready var _timer_label: Label = $TimerLabel
@@ -16,23 +17,52 @@ var _char_panel: Control = null   # #6: Tab 角色面板（动态创建）
 @onready var _hp_bar: ProgressBar = $CoreHPBar
 @onready var _hp_label: Label = $CoreHPLabel
 @onready var _result_label: Label = $ResultLabel
-@onready var _skill_btn: Button = $SideButtons/SkillButton
 @onready var _bond_btn: Button = $SideButtons/BondButton
 @onready var _equip_btn: Button = $SideButtons/EquipButton
 @onready var _char_btn: Button = $SideButtons/CharButton
-@onready var _skill_count_label: Label = $SideButtons/SkillButton/SkillCount
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS   # 暂停（大厅）时 _process 也跑，Toast 能淡出
 	_result_label.visible = false
-	_skill_btn.pressed.connect(_on_skill_btn)
 	_bond_btn.pressed.connect(_on_bond_btn)
 	_equip_btn.pressed.connect(_on_equip_btn)
 	_char_btn.pressed.connect(_on_char_btn)
+	# 创建 Toast 提示（突破境界）
+	_toast_label = Label.new()
+	_toast_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_toast_label.offset_top = 120
+	_toast_label.add_theme_font_size_override("font_size", 32)
+	_toast_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_toast_label.visible = false
+	add_child(_toast_label)
+	# 连接信号
+	EventBus.bond_devoured.connect(_on_bond_devoured)
 
 
-func _on_skill_btn() -> void:
-	skill_picker_requested.emit()
+func _process(delta: float) -> void:
+	# Toast 倒计时 + 淡出（process_mode=ALWAYS 保证暂停时也运行）
+	if _toast_timer > 0:
+		_toast_timer -= delta
+		if _toast_timer <= 0:
+			_toast_label.visible = false
+		elif _toast_timer < 0.5:
+			_toast_label.modulate.a = _toast_timer / 0.5
+
+
+func _show_toast(text: String, color: Color, duration: float = 3.0) -> void:
+	_toast_label.text = text
+	_toast_label.add_theme_color_override("font_color", color)
+	_toast_label.modulate.a = 1.0
+	_toast_label.visible = true
+	_toast_timer = duration
+
+
+func _on_bond_devoured(path_id: String, realm_idx: int, realm_name: String) -> void:
+	# 突破境界提示：realm_name 是刚完成的境界（如轮海），idx 是已完成数
+	var name_map := {"zhutian": "遮天"}
+	var pname: String = name_map.get(path_id, path_id)
+	_show_toast("⚡ 突破！%s·%s 圆满（%d境）" % [pname, realm_name, realm_idx], Color(1.0, 0.85, 0.3))
 
 
 func _on_bond_btn() -> void:
@@ -83,12 +113,6 @@ func update_core_hp(hp: float, max_hp: float) -> void:
 
 func update_gold(g: float) -> void:
 	_gold_label.text = "金币: %d" % int(g)
-
-
-func update_skill_count(banked: int) -> void:
-	# 技能按钮显示剩余免费机会；无机会时禁用
-	_skill_count_label.text = "(%d)" % banked
-	_skill_btn.disabled = banked <= 0
 
 
 ## 更新羁绊按钮：显示当前抽取成本
@@ -196,20 +220,6 @@ func _render_char_panel(build: BuildState, pools: RoguePools) -> void:
 		l.text = line
 		l.add_theme_font_size_override("font_size", 20)
 		vbox.add_child(l)
-	# 技能列表
-	var skill_header := Label.new()
-	skill_header.text = "\n=== 已有技能 (%d) ===" % build.owned_skills.size()
-	skill_header.add_theme_font_size_override("font_size", 22)
-	vbox.add_child(skill_header)
-	for sid in build.owned_skills:
-		var l := Label.new()
-		l.text = "  • " + pools._find_skill_name(String(sid))
-		l.add_theme_font_size_override("font_size", 18)
-		vbox.add_child(l)
-	if build.owned_skills.is_empty():
-		var l := Label.new()
-		l.text = "  （无）"
-		vbox.add_child(l)
 	# 羁绊列表
 	var bond_header := Label.new()
 	bond_header.text = "\n=== 已有羁绊 (%d / %d) ===" % [build.bond_pool.size(), build.bond_pool_capacity]
@@ -224,19 +234,38 @@ func _render_char_panel(build: BuildState, pools: RoguePools) -> void:
 		var l := Label.new()
 		l.text = "  （无）"
 		vbox.add_child(l)
-	# 境界进度
+	# 境界进度（显示境界名 + 当前境界羁绊进度）
 	if not build.path_realm.is_empty():
 		var realm_header := Label.new()
-		realm_header.text = "\n=== 修炼境界 ==="
+		realm_header.text = "\n=== ⚡ 修炼境界 ==="
 		realm_header.add_theme_font_size_override("font_size", 22)
 		vbox.add_child(realm_header)
 		for pid in build.path_realm.keys():
 			var idx: int = build.path_realm[pid]
 			var maxr: int = pools.path_max_realm(pid)
+			var prog: Dictionary = pools.cultivation_progress(build.bond_pool, build.path_realm)
+			# 境界名（轮海/道宫/四极…），修满显示"圆满"
+			var cur_name := pools.realm_name(pid, mini(idx, maxr - 1)) if idx < maxr else "圆满"
 			var l := Label.new()
-			l.text = "  • %s: 第%d境 %d/%d" % [pools.path_name(pid), idx + 1, idx, maxr]
-			l.add_theme_font_size_override("font_size", 18)
+			if idx >= maxr:
+				l.text = "  ★ %s: %s 圆满 (%d/%d)" % [pools.path_name(pid), cur_name, idx, maxr]
+				l.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+			else:
+				var owned_n: int = int(prog.get("owned_count", 0))
+				var total_n: int = int(prog.get("total_count", 0))
+				l.text = "  ◆ %s · %s  羁绊 %d/%d  (%d/%d境)" % [
+					pools.path_name(pid), cur_name, owned_n, total_n, idx, maxr]
+			l.add_theme_font_size_override("font_size", 20)
 			vbox.add_child(l)
+			# 当前境界还缺哪些羁绊
+			if idx < maxr:
+				var missing_names: Array = prog.get("missing_names", [])
+				if not missing_names.is_empty():
+					var ml := Label.new()
+					ml.text = "      缺: " + ", ".join(missing_names)
+					ml.add_theme_color_override("font_color", Color(0.9, 0.6, 0.3))
+					ml.add_theme_font_size_override("font_size", 16)
+					vbox.add_child(ml)
 	# M3: 装备信息
 	var eq_header := Label.new()
 	eq_header.text = "\n=== 装备 +%d / +%d ===" % [build.equip_level, pools.equip_max_level()]
@@ -264,8 +293,8 @@ func _render_char_panel(build: BuildState, pools: RoguePools) -> void:
 		syn_header.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
 		vbox.add_child(syn_header)
 		for syn in build.active_synergies:
-			var tier: String = syn.get("tier", "")
-			var tier_prefix := "★ " if tier == "SS" else ""
+			var rarity: String = syn.get("rarity", "")
+			var tier_prefix := "★ " if rarity == "EX" else ""
 			var l := Label.new()
 			l.text = "  ⚡ %s%s" % [tier_prefix, syn.get("name", syn.get("id", ""))]
 			l.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))

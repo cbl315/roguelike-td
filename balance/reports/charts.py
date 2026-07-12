@@ -220,18 +220,18 @@ def plot_economy_ops(out_dir: Path) -> Path:
 
 
 def plot_economy_rarity(out_dir: Path) -> Path:
-    """抽到的技能稀有度分布（对照权重 60/30/8/2）。"""
+    """抽到的技能稀有度分布（对照权重 58/30/9/2.5/0.5）。"""
     d = _load("economy")
     dist = d["rarity_distribution"]
-    labels = ["common", "rare", "epic", "legendary"]
+    labels = ["N", "SR", "SSR", "UR", "EX"]
     actual = [dist.get(l, 0) for l in labels]
-    expected = [0.60, 0.30, 0.08, 0.02]
+    expected = [0.58, 0.30, 0.09, 0.025, 0.005]
 
     x = range(len(labels))
     fig, ax = plt.subplots(figsize=(8, 5), dpi=120)
     w = 0.35
     ax.bar([i - w / 2 for i in x], actual, w, color="#7aa2f7", label="实际分布")
-    ax.bar([i + w / 2 for i in x], expected, w, color="#565f89", label="权重目标 60/30/8/2")
+    ax.bar([i + w / 2 for i in x], expected, w, color="#565f89", label="权重目标 58/30/9/2.5/0.5")
     ax.set_xticks(list(x))
     ax.set_xticklabels(labels)
     ax.set_ylabel("占比")

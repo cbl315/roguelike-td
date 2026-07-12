@@ -7,6 +7,7 @@
       "id": "common_atk",
       "name": "力量符文",
       "set": "generic",
+      "rarity": "N",
       "effect": {
         "atk_pct_delta": 0.35
       }
@@ -15,6 +16,7 @@
       "id": "common_hp",
       "name": "生命符文",
       "set": "generic",
+      "rarity": "N",
       "effect": {
         "hp_pct_delta": 0.525
       }
@@ -23,6 +25,7 @@
       "id": "common_speed",
       "name": "迅捷符文",
       "set": "generic",
+      "rarity": "N",
       "effect": {
         "attack_speed_delta": 0.35
       }
@@ -31,6 +34,7 @@
       "id": "common_crit",
       "name": "锐利符文",
       "set": "generic",
+      "rarity": "N",
       "effect": {
         "crit_rate_delta": 0.175
       }
@@ -39,6 +43,7 @@
       "id": "common_lifesteal",
       "name": "吸血符文",
       "set": "generic",
+      "rarity": "N",
       "effect": {
         "lifesteal_pct": 0.07
       }
@@ -47,591 +52,429 @@
       "id": "common_gold",
       "name": "财富符文",
       "set": "generic",
+      "rarity": "N",
       "effect": {
         "gold_mult": 0.35
       }
     },
     {
-      "id": "zt_mortal",
-      "name": "凡体",
+      "id": "zt_lunhai_daojing",
+      "name": "道经",
       "set": "zhutian",
+      "rarity": "SR",
       "effect": {
-        "atk_pct_delta": 0.28
+        "atk_pct_delta": 0.1
       }
     },
     {
-      "id": "zt_saint_body",
-      "name": "荒古圣体",
+      "id": "zt_lunhai_kuhai",
+      "name": "苦海",
       "set": "zhutian",
+      "rarity": "SR",
       "effect": {
-        "atk_pct_delta": 0.525
+        "gold_per_sec_delta": 1.0
       }
     },
     {
-      "id": "zt_sage_fruit",
-      "name": "圣人果位",
+      "id": "zt_lunhai_mingquan",
+      "name": "命泉",
       "set": "zhutian",
+      "rarity": "SR",
       "effect": {
-        "crit_rate_delta": 0.35
+        "atk_pct_delta": 0.12
       }
     },
     {
-      "id": "zt_king_blood",
-      "name": "王者之血",
+      "id": "zt_lunhai_shenqiao",
+      "name": "神桥",
       "set": "zhutian",
+      "rarity": "SR",
       "effect": {
-        "atk_pct_delta": 0.63
+        "crit_rate_delta": 0.08
       }
     },
     {
-      "id": "zt_king_bone",
-      "name": "王者之骨",
+      "id": "zt_daogong_heart",
+      "name": "心之神",
       "set": "zhutian",
+      "rarity": "SSR",
       "effect": {
-        "final_dmg_mult": 0.35
+        "atk_pct_delta": 0.14
       }
     },
     {
-      "id": "zt_king_soul",
-      "name": "王者之魂",
+      "id": "zt_daogong_liver",
+      "name": "肝之神",
       "set": "zhutian",
+      "rarity": "SSR",
       "effect": {
-        "crit_dmg_delta": 1.05
+        "lifesteal_pct": 0.05
       }
     },
     {
-      "id": "zt_emperor_cauldron",
-      "name": "天帝鼎",
+      "id": "zt_daogong_spleen",
+      "name": "脾之神",
       "set": "zhutian",
-      "effect": {
-        "final_dmg_mult": 0.525
-      }
-    },
-    {
-      "id": "zt_emperor_throne",
-      "name": "帝座",
-      "set": "zhutian",
-      "effect": {
-        "atk_pct_delta": 0.7
-      }
-    },
-    {
-      "id": "zt_emperor_seal",
-      "name": "帝印",
-      "set": "zhutian",
-      "effect": {
-        "crit_rate_delta": 0.35,
-        "crit_dmg_delta": 0.7
-      }
-    },
-    {
-      "id": "zt_heaven_emperor",
-      "name": "天帝",
-      "set": "zhutian",
-      "effect": {
-        "final_dmg_mult": 0.7
-      }
-    },
-    {
-      "id": "fy_basic",
-      "name": "风云入门",
-      "set": "fengyun",
-      "effect": {
-        "attack_speed_delta": 0.35
-      }
-    },
-    {
-      "id": "fy_wind_legs",
-      "name": "风神腿",
-      "set": "fengyun",
-      "effect": {
-        "attack_speed_delta": 0.7
-      }
-    },
-    {
-      "id": "fy_cloud_palm",
-      "name": "排云掌",
-      "set": "fengyun",
-      "effect": {
-        "skill_mult_pct_delta": 0.875
-      }
-    },
-    {
-      "id": "fy_blade_art",
-      "name": "聂家霸刀",
-      "set": "fengyun",
-      "effect": {
-        "crit_dmg_delta": 2.1
-      }
-    },
-    {
-      "id": "fy_storm_step",
-      "name": "风暴步",
-      "set": "fengyun",
-      "effect": {
-        "attack_speed_delta": 0.875
-      }
-    },
-    {
-      "id": "fy_cloud_strike",
-      "name": "排云击",
-      "set": "fengyun",
-      "effect": {
-        "skill_mult_pct_delta": 1.05
-      }
-    },
-    {
-      "id": "fy_heaven_sword",
-      "name": "倚天剑",
-      "set": "fengyun",
-      "effect": {
-        "crit_dmg_delta": 1.75
-      }
-    },
-    {
-      "id": "fy_dragon_kick",
-      "name": "降龙腿",
-      "set": "fengyun",
-      "effect": {
-        "attack_speed_delta": 1.05,
-        "crit_rate_delta": 0.35
-      }
-    },
-    {
-      "id": "fy_storm_combo",
-      "name": "风云合击",
-      "set": "fengyun",
-      "effect": {
-        "skill_mult_pct_delta": 1.4
-      }
-    },
-    {
-      "id": "bm_mortal",
-      "name": "凡胎",
-      "set": "blackmyth",
+      "rarity": "SSR",
       "effect": {
         "hp_pct_delta": 0.35
       }
     },
     {
-      "id": "bm_destiny",
-      "name": "天命人",
-      "set": "blackmyth",
+      "id": "zt_daogong_lung",
+      "name": "肺之神",
+      "set": "zhutian",
+      "rarity": "SSR",
       "effect": {
-        "all_stats_pct_delta": 0.175
+        "attack_speed_delta": 0.1
       }
     },
     {
-      "id": "bm_immobilize",
-      "name": "定身法",
-      "set": "blackmyth",
+      "id": "zt_daogong_kidney",
+      "name": "肾之神",
+      "set": "zhutian",
+      "rarity": "SSR",
       "effect": {
-        "stun_chance": 0.1,
-        "stun_duration": 0.5
+        "crit_rate_delta": 0.1
       }
     },
     {
-      "id": "bm_dharma",
-      "name": "法天象地",
-      "set": "blackmyth",
+      "id": "zt_siji_left_arm",
+      "name": "左臂极",
+      "set": "zhutian",
+      "rarity": "SSR",
       "effect": {
-        "hp_pct_delta": 1.05,
-        "damage_reduction_delta": 0.525
+        "atk_pct_delta": 0.16
       }
     },
     {
-      "id": "bm_revival",
-      "name": "复苏",
-      "set": "blackmyth",
+      "id": "zt_siji_right_arm",
+      "name": "右臂极",
+      "set": "zhutian",
+      "rarity": "SSR",
       "effect": {
-        "hp_regen_pct_per_5s": 0.07
+        "atk_pct_delta": 0.16
       }
     },
     {
-      "id": "bm_iron_bone",
-      "name": "铁骨",
-      "set": "blackmyth",
+      "id": "zt_siji_left_leg",
+      "name": "左腿极",
+      "set": "zhutian",
+      "rarity": "SSR",
       "effect": {
-        "damage_reduction_delta": 0.7
+        "attack_speed_delta": 0.12
       }
     },
     {
-      "id": "bm_golden_eye",
-      "name": "火眼金睛",
-      "set": "blackmyth",
+      "id": "zt_siji_right_leg",
+      "name": "右腿极",
+      "set": "zhutian",
+      "rarity": "SSR",
       "effect": {
-        "crit_rate_delta": 0.35,
-        "damage_reduction_delta": 0.35
+        "attack_speed_delta": 0.12
       }
     },
     {
-      "id": "bm_great_sage",
-      "name": "大圣",
-      "set": "blackmyth",
+      "id": "zt_hualong_spine_1",
+      "name": "龙骨·第一节",
+      "set": "zhutian",
+      "rarity": "UR",
       "effect": {
-        "hp_pct_delta": 1.4,
-        "all_stats_pct_delta": 0.35
+        "atk_pct_delta": 0.2,
+        "final_dmg_mult": 0.1
       }
     },
     {
-      "id": "bm_qitian",
-      "name": "齐天",
-      "set": "blackmyth",
+      "id": "zt_hualong_spine_2",
+      "name": "龙骨·第二节",
+      "set": "zhutian",
+      "rarity": "UR",
       "effect": {
-        "damage_reduction_delta": 0.875,
-        "final_dmg_mult": 0.525
+        "crit_dmg_delta": 0.35
       }
     },
     {
-      "id": "xy_glimmer",
-      "name": "微光",
-      "set": "xingyun",
+      "id": "zt_hualong_spine_3",
+      "name": "龙骨·第三节",
+      "set": "zhutian",
+      "rarity": "UR",
       "effect": {
-        "crit_rate_delta": 0.175
+        "final_dmg_mult": 0.15
       }
     },
     {
-      "id": "xy_eye",
-      "name": "星陨之眼",
-      "set": "xingyun",
+      "id": "zt_xiantai_zhandao",
+      "name": "仙三·斩道",
+      "set": "zhutian",
+      "rarity": "UR",
       "effect": {
-        "crit_rate_delta": 0.525
+        "final_dmg_mult": 0.12
       }
     },
     {
-      "id": "xy_dice",
-      "name": "命运骰",
-      "set": "xingyun",
+      "id": "zt_xiantai_saint",
+      "name": "仙四·圣人",
+      "set": "zhutian",
+      "rarity": "UR",
       "effect": {
-        "crit_dmg_delta": 1.4
+        "final_dmg_mult": 0.15
       }
     },
     {
-      "id": "xy_lucky",
-      "name": "福星",
-      "set": "xingyun",
+      "id": "zt_xiantai_dasheng",
+      "name": "仙六·大圣",
+      "set": "zhutian",
+      "rarity": "UR",
       "effect": {
-        "crit_rate_delta": 0.175,
-        "crit_dmg_delta": 0.7
+        "final_dmg_mult": 0.2,
+        "crit_dmg_delta": 0.4
       }
     },
     {
-      "id": "xy_meteor_hit",
-      "name": "流星击",
-      "set": "xingyun",
+      "id": "zt_zhundi_tribulation",
+      "name": "渡劫",
+      "set": "zhutian",
+      "rarity": "UR",
       "effect": {
-        "crit_dmg_delta": 1.75
+        "final_dmg_mult": 0.3
       }
     },
     {
-      "id": "xy_star_shard",
-      "name": "星辰碎片",
-      "set": "xingyun",
+      "id": "zt_zhundi_curse_break",
+      "name": "圣体破诅咒",
+      "set": "zhutian",
+      "rarity": "UR",
       "effect": {
-        "crit_rate_delta": 0.35,
-        "crit_dmg_delta": 1.05
+        "atk_pct_delta": 0.4,
+        "crit_dmg_delta": 0.5
       }
     },
     {
-      "id": "xy_supernova",
-      "name": "超新星",
-      "set": "xingyun",
+      "id": "zt_dadi_dao",
+      "name": "帝道",
+      "set": "zhutian",
+      "rarity": "EX",
       "effect": {
-        "crit_dmg_delta": 2.1,
-        "final_dmg_mult": 0.35
+        "final_dmg_mult": 0.5
       }
     },
     {
-      "id": "xy_starfall",
-      "name": "星陨",
-      "set": "xingyun",
+      "id": "zt_dadi_cauldron",
+      "name": "鼎成",
+      "set": "zhutian",
+      "rarity": "EX",
       "effect": {
-        "crit_rate_delta": 0.525,
-        "crit_dmg_delta": 1.75
+        "atk_pct_delta": 0.55,
+        "final_dmg_mult": 0.3
       }
     },
     {
-      "id": "cy_spark",
-      "name": "火花",
-      "set": "cangyan",
-      "effect": {
-        "magic_dmg_pct_delta": 0.35
-      }
-    },
-    {
-      "id": "cy_flame_heart",
-      "name": "焰心",
-      "set": "cangyan",
-      "effect": {
-        "magic_dmg_pct_delta": 0.7
-      }
-    },
-    {
-      "id": "cy_frost_crown",
-      "name": "霜冠",
-      "set": "cangyan",
-      "effect": {
-        "magic_dmg_pct_delta": 0.525,
-        "elemental_dmg_mult": 0.35
-      }
-    },
-    {
-      "id": "cy_thunder_talon",
-      "name": "雷爪",
-      "set": "cangyan",
-      "effect": {
-        "magic_dmg_pct_delta": 0.525,
-        "attack_speed_delta": 0.35
-      }
-    },
-    {
-      "id": "cy_arcane_core",
-      "name": "奥术核心",
-      "set": "cangyan",
-      "effect": {
-        "magic_dmg_pct_delta": 0.35,
-        "cdr_pct": 0.35
-      }
-    },
-    {
-      "id": "cy_element_master",
-      "name": "元素掌控",
-      "set": "cangyan",
-      "effect": {
-        "magic_dmg_pct_delta": 0.875,
-        "elemental_dmg_mult": 0.7
-      }
-    },
-    {
-      "id": "cy_phoenix",
-      "name": "凤凰",
-      "set": "cangyan",
-      "effect": {
-        "magic_dmg_pct_delta": 1.05,
-        "elemental_dmg_mult": 1.05
-      }
-    },
-    {
-      "id": "cy_cangyan",
-      "name": "苍焰",
-      "set": "cangyan",
-      "effect": {
-        "magic_dmg_pct_delta": 1.225,
-        "final_dmg_mult": 0.525
-      }
-    },
-    {
-      "id": "tb_leather",
-      "name": "皮甲",
-      "set": "tiebi",
-      "effect": {
-        "damage_reduction_delta": 0.175
-      }
-    },
-    {
-      "id": "tb_bulwark",
-      "name": "壁垒",
-      "set": "tiebi",
-      "effect": {
-        "damage_reduction_delta": 0.525
-      }
-    },
-    {
-      "id": "tb_thorns",
-      "name": "荆棘甲",
-      "set": "tiebi",
-      "effect": {
-        "reflect_pct": 1.05
-      }
-    },
-    {
-      "id": "tb_vita",
-      "name": "生机根",
-      "set": "tiebi",
+      "id": "zt_dadi_busiyao",
+      "name": "不死药",
+      "set": "zhutian",
+      "rarity": "EX",
       "effect": {
         "hp_pct_delta": 0.875,
-        "hp_regen_pct_per_5s": 0.0525
-      }
-    },
-    {
-      "id": "tb_iron_will",
-      "name": "铁意",
-      "set": "tiebi",
-      "effect": {
-        "damage_reduction_delta": 0.35,
-        "hp_pct_delta": 0.525
-      }
-    },
-    {
-      "id": "tb_steel_body",
-      "name": "钢躯",
-      "set": "tiebi",
-      "effect": {
-        "damage_reduction_delta": 0.7,
-        "reflect_pct": 0.7
-      }
-    },
-    {
-      "id": "tb_unbreakable",
-      "name": "不破",
-      "set": "tiebi",
-      "effect": {
-        "damage_reduction_delta": 0.875,
-        "hp_pct_delta": 1.05,
-        "reflect_pct": 1.05
-      }
-    },
-    {
-      "id": "tb_eternal_guard",
-      "name": "永恒守护",
-      "set": "tiebi",
-      "effect": {
-        "damage_reduction_delta": 1.05,
-        "hp_pct_delta": 1.4,
-        "reflect_pct": 1.4
-      }
-    },
-    {
-      "id": "tj_apprentice",
-      "name": "学徒",
-      "set": "taojin",
-      "effect": {
-        "gold_mult": 0.35
-      }
-    },
-    {
-      "id": "tj_midas",
-      "name": "点金手",
-      "set": "taojin",
-      "effect": {
-        "gold_mult": 0.7
-      }
-    },
-    {
-      "id": "tj_treasure",
-      "name": "寻宝直觉",
-      "set": "taojin",
-      "effect": {
-        "per_kill_gold_delta": 7.0
-      }
-    },
-    {
-      "id": "tj_hoarder",
-      "name": "囤积者",
-      "set": "taojin",
-      "effect": {
-        "gold_per_sec_delta": 10.5
-      }
-    },
-    {
-      "id": "tj_compound",
-      "name": "复利",
-      "set": "taojin",
-      "effect": {
-        "gold_mult": 0.525,
-        "atk_pct_delta": 0.175
-      }
-    },
-    {
-      "id": "tj_tycoon",
-      "name": "财阀",
-      "set": "taojin",
-      "effect": {
-        "gold_mult": 1.05,
-        "atk_pct_delta": 0.35
-      }
-    },
-    {
-      "id": "tj_golden_age",
-      "name": "黄金时代",
-      "set": "taojin",
-      "effect": {
-        "gold_mult": 1.4,
-        "atk_pct_delta": 0.525,
-        "final_dmg_mult": 0.35
-      }
-    },
-    {
-      "id": "tj_eternal_riches",
-      "name": "永恒财富",
-      "set": "taojin",
-      "effect": {
-        "gold_mult": 1.75,
-        "atk_pct_delta": 0.7,
-        "final_dmg_mult": 0.525
-      }
-    },
-    {
-      "id": "sh_cub",
-      "name": "幼兽",
-      "set": "shouhun",
-      "effect": {
-        "atk_pct_delta": 0.28
-      }
-    },
-    {
-      "id": "sh_beast_call",
-      "name": "兽唤",
-      "set": "shouhun",
-      "effect": {
-        "atk_pct_delta": 0.42,
-        "attack_speed_delta": 0.35
-      }
-    },
-    {
-      "id": "sh_pack_alpha",
-      "name": "群首",
-      "set": "shouhun",
-      "effect": {
-        "atk_pct_delta": 0.525
-      }
-    },
-    {
-      "id": "sh_wild_instinct",
-      "name": "野性直觉",
-      "set": "shouhun",
-      "effect": {
-        "crit_rate_delta": 0.28,
         "lifesteal_pct": 0.07
-      }
+      },
+      "note": "寻得不死神药，延寿续命"
     },
     {
-      "id": "sh_primal_roar",
-      "name": "原始咆哮",
-      "set": "shouhun",
+      "id": "zt_dadi_diershi",
+      "name": "活出第二世",
+      "set": "zhutian",
+      "rarity": "EX",
       "effect": {
-        "stun_chance": 0.1,
-        "atk_pct_delta": 0.35
-      }
+        "atk_pct_delta": 0.35,
+        "final_dmg_mult": 0.2
+      },
+      "note": "不死药之力，活出第二世，战力重生"
     },
     {
-      "id": "sh_beast_king",
-      "name": "兽王",
-      "set": "shouhun",
+      "id": "zt_dadi_xianlu",
+      "name": "成仙路开启",
+      "set": "zhutian",
+      "rarity": "EX",
       "effect": {
-        "atk_pct_delta": 0.875,
-        "attack_speed_delta": 0.525
-      }
+        "final_dmg_mult": 0.25,
+        "crit_rate_delta": 0.1
+      },
+      "note": "仙路开启，群帝争锋"
     },
     {
-      "id": "sh_pack_hunt",
-      "name": "群猎",
-      "set": "shouhun",
+      "id": "zt_hongchen_nihuo",
+      "name": "逆活第三世",
+      "set": "zhutian",
+      "rarity": "EX",
       "effect": {
-        "atk_pct_delta": 1.05,
-        "lifesteal_pct": 0.14,
+        "atk_pct_delta": 0.3,
+        "final_dmg_mult": 0.15
+      },
+      "note": "逆活岁月，活出第三世"
+    },
+    {
+      "id": "zt_hongchen_zikhan",
+      "name": "自斩一刀",
+      "set": "zhutian",
+      "rarity": "EX",
+      "effect": {
+        "final_dmg_mult": 0.2,
+        "damage_reduction_delta": 0.1
+      },
+      "note": "自斩一刀，蛰伏禁区，舍弃部分元神换取存活"
+    },
+    {
+      "id": "zt_hongchen_jiqu",
+      "name": "不死物质汲取",
+      "set": "zhutian",
+      "rarity": "EX",
+      "effect": {
+        "hp_pct_delta": 0.525,
+        "lifesteal_pct": 0.05
+      },
+      "note": "汲取宇宙不死物质，延寿蜕变"
+    },
+    {
+      "id": "zt_hongchen_xian",
+      "name": "红尘仙",
+      "set": "zhutian",
+      "rarity": "EX",
+      "effect": {
         "final_dmg_mult": 0.35
-      }
+      },
+      "note": "于红尘中成仙，不死不朽"
     },
     {
-      "id": "sh_primal_dominion",
-      "name": "蛮荒霸主",
-      "set": "shouhun",
+      "id": "zt_tiandi_wandao",
+      "name": "万道相合",
+      "set": "zhutian",
+      "rarity": "EX",
       "effect": {
-        "atk_pct_delta": 1.4,
-        "lifesteal_pct": 0.175,
-        "final_dmg_mult": 0.525
-      }
+        "final_dmg_mult": 0.35
+      },
+      "note": "万道相合，一个时代唯一"
+    },
+    {
+      "id": "zt_tiandi_quan",
+      "name": "天帝拳成",
+      "set": "zhutian",
+      "rarity": "EX",
+      "effect": {
+        "atk_pct_delta": 0.4,
+        "final_dmg_mult": 0.2
+      },
+      "note": "天帝拳大成，镇压诸敌"
+    },
+    {
+      "id": "zt_tiandi_duduan",
+      "name": "独断万古",
+      "set": "zhutian",
+      "rarity": "EX",
+      "effect": {
+        "final_dmg_mult": 0.25,
+        "damage_reduction_delta": 0.1
+      },
+      "note": "独断万古，一人镇压一个纪元"
+    },
+    {
+      "id": "zt_tiandi",
+      "name": "天帝",
+      "set": "zhutian",
+      "rarity": "EX",
+      "effect": {
+        "final_dmg_mult": 0.35
+      },
+      "note": "天帝果位，开辟新纪元"
+    },
+    {
+      "id": "zt_jm_jie",
+      "name": "皆字秘·战力倍增",
+      "set": "zhutian",
+      "rarity": "SR",
+      "effect": {
+        "final_dmg_mult": 0.08
+      },
+      "note": "九秘之一（轮海境）——短时战力翻倍"
+    },
+    {
+      "id": "zt_jm_dou",
+      "name": "斗字秘·斗战圣法",
+      "set": "zhutian",
+      "rarity": "SSR",
+      "effect": {
+        "atk_pct_delta": 0.15
+      },
+      "note": "九秘之一（道宫境）——持续输出"
+    },
+    {
+      "id": "zt_jm_xing",
+      "name": "行字秘·缩地成寸",
+      "set": "zhutian",
+      "rarity": "SSR",
+      "effect": {
+        "attack_speed_delta": 0.12
+      },
+      "note": "九秘之一（四极境）——攻速/移速"
+    },
+    {
+      "id": "zt_jm_bing",
+      "name": "兵字秘·御万兵",
+      "set": "zhutian",
+      "rarity": "UR",
+      "effect": {
+        "armor_pen": 0.15
+      },
+      "note": "九秘之一（化龙境）——穿甲"
+    },
+    {
+      "id": "zt_jm_zu",
+      "name": "组字秘·万阵之祖",
+      "set": "zhutian",
+      "rarity": "UR",
+      "effect": {
+        "magic_dmg_pct_delta": 0.12
+      },
+      "note": "九秘之一（仙台境）——AOE场控"
+    },
+    {
+      "id": "zt_jm_qian",
+      "name": "前字秘·未卜先知",
+      "set": "zhutian",
+      "rarity": "UR",
+      "effect": {
+        "damage_reduction_delta": 0.08
+      },
+      "note": "九秘之一（准帝境）——减伤"
+    },
+    {
+      "id": "zt_jm_lin",
+      "name": "临字秘·镇压临身",
+      "set": "zhutian",
+      "rarity": "EX",
+      "effect": {
+        "crit_dmg_delta": 0.2
+      },
+      "note": "九秘之一（大帝境）——暴伤"
+    },
+    {
+      "id": "zt_jm_zhe",
+      "name": "者字秘·御万物",
+      "set": "zhutian",
+      "rarity": "EX",
+      "effect": {
+        "crit_rate_delta": 0.1
+      },
+      "note": "九秘之一（红尘仙境）——暴击"
+    },
+    {
+      "id": "zt_jm_shu",
+      "name": "数字秘·身外化身",
+      "set": "zhutian",
+      "rarity": "EX",
+      "effect": {
+        "final_dmg_mult": 0.1
+      },
+      "note": "九秘之一（天帝境）——多重投射"
     }
   ],
   "paths": [
@@ -640,484 +483,137 @@
       "name": "遮天",
       "realms": [
         {
-          "name": "凡体",
+          "name": "轮海",
           "bonds": [
-            "zt_mortal"
+            "zt_lunhai_daojing",
+            "zt_lunhai_kuhai",
+            "zt_lunhai_mingquan",
+            "zt_lunhai_shenqiao",
+            "zt_jm_jie"
           ],
           "reward": {
-            "atk_pct_delta": 0.35
-          }
+            "atk_pct_delta": 0.15,
+            "gold_per_sec_delta": 1.0
+          },
+          "note": "苦海聚精气，新手期打通经济基础"
         },
         {
-          "name": "圣体",
+          "name": "道宫",
           "bonds": [
-            "zt_saint_body",
-            "zt_sage_fruit"
+            "zt_daogong_heart",
+            "zt_daogong_liver",
+            "zt_daogong_spleen",
+            "zt_daogong_lung",
+            "zt_daogong_kidney",
+            "zt_jm_dou"
           ],
           "reward": {
-            "atk_pct_delta": 0.525,
-            "crit_rate_delta": 0.175
-          }
+            "atk_pct_delta": 0.2,
+            "crit_rate_delta": 0.05
+          },
+          "note": "五脏神觉醒，build 第一个分支点"
         },
         {
-          "name": "王体",
+          "name": "四极",
           "bonds": [
-            "zt_king_blood",
-            "zt_king_bone",
-            "zt_king_soul"
+            "zt_siji_left_arm",
+            "zt_siji_right_arm",
+            "zt_siji_left_leg",
+            "zt_siji_right_leg",
+            "zt_jm_xing"
           ],
           "reward": {
-            "atk_pct_delta": 0.7,
-            "final_dmg_mult": 0.35
-          }
+            "atk_pct_delta": 0.2,
+            "attack_speed_delta": 0.15
+          },
+          "note": "淬炼四肢，装备槽/属性成型"
         },
         {
-          "name": "皇体",
+          "name": "化龙",
           "bonds": [
-            "zt_emperor_cauldron",
-            "zt_emperor_throne",
-            "zt_emperor_seal"
+            "zt_hualong_spine_1",
+            "zt_hualong_spine_2",
+            "zt_hualong_spine_3",
+            "zt_jm_bing"
           ],
           "reward": {
-            "final_dmg_mult": 0.7
-          }
+            "atk_pct_delta": 0.25,
+            "final_dmg_mult": 0.08
+          },
+          "note": "脊柱化龙，中期爆发"
         },
         {
-          "name": "帝体",
+          "name": "仙台",
           "bonds": [
-            "zt_heaven_emperor"
+            "zt_xiantai_zhandao",
+            "zt_xiantai_saint",
+            "zt_xiantai_dasheng",
+            "zt_jm_zu"
+          ],
+          "reward": {
+            "atk_pct_delta": 0.3,
+            "final_dmg_mult": 0.12
+          },
+          "note": "仙台三重（斩道/圣人/大圣）"
+        },
+        {
+          "name": "准帝",
+          "bonds": [
+            "zt_zhundi_tribulation",
+            "zt_zhundi_curse_break",
+            "zt_jm_qian"
+          ],
+          "reward": {
+            "final_dmg_mult": 0.15,
+            "crit_dmg_delta": 0.3
+          },
+          "note": "圣体破诅咒成准帝，全书最大爽点"
+        },
+        {
+          "name": "大帝",
+          "bonds": [
+            "zt_dadi_dao",
+            "zt_dadi_cauldron",
+            "zt_dadi_busiyao",
+            "zt_dadi_diershi",
+            "zt_dadi_xianlu",
+            "zt_jm_lin"
+          ],
+          "reward": {
+            "final_dmg_mult": 0.2
+          },
+          "synergy_unlock": "zhutian_emperor_fist",
+          "note": "成帝→不死药→活出第二世→成仙路开启；解锁天帝拳联动"
+        },
+        {
+          "name": "红尘仙",
+          "bonds": [
+            "zt_hongchen_nihuo",
+            "zt_hongchen_zikhan",
+            "zt_hongchen_jiqu",
+            "zt_hongchen_xian",
+            "zt_jm_zhe"
+          ],
+          "reward": {
+            "final_dmg_mult": 0.25
+          },
+          "note": "逆活第三世→自斩一刀→汲取不死物质→红尘为仙"
+        },
+        {
+          "name": "天帝",
+          "bonds": [
+            "zt_tiandi_wandao",
+            "zt_tiandi_quan",
+            "zt_tiandi_duduan",
+            "zt_tiandi",
+            "zt_jm_shu"
           ],
           "reward": {
             "status": "heaven_emperor",
-            "final_dmg_mult": 1.75
-          },
-          "synergy_unlock": "zhutian_emperor_fist"
-        }
-      ]
-    },
-    {
-      "id": "fengyun",
-      "name": "风云",
-      "realms": [
-        {
-          "name": "入门",
-          "bonds": [
-            "fy_basic"
-          ],
-          "reward": {
-            "attack_speed_delta": 0.35
-          }
-        },
-        {
-          "name": "小成",
-          "bonds": [
-            "fy_wind_legs",
-            "fy_cloud_palm"
-          ],
-          "reward": {
-            "attack_speed_delta": 0.525,
-            "skill_mult_pct_delta": 0.525
-          }
-        },
-        {
-          "name": "大成",
-          "bonds": [
-            "fy_blade_art",
-            "fy_storm_step",
-            "fy_cloud_strike"
-          ],
-          "reward": {
-            "attack_speed_delta": 0.7,
-            "crit_dmg_delta": 1.05
-          }
-        },
-        {
-          "name": "化境",
-          "bonds": [
-            "fy_heaven_sword",
-            "fy_dragon_kick"
-          ],
-          "reward": {
-            "skill_mult_pct_delta": 1.05
-          }
-        },
-        {
-          "name": "风云合击",
-          "bonds": [
-            "fy_storm_combo"
-          ],
-          "reward": {
-            "status": "storm_combo",
-            "followup_hit_ratio": 1.0,
-            "followup_every_n_hits": 3
-          },
-          "synergy_unlock": "storm_thunder_combo"
-        }
-      ]
-    },
-    {
-      "id": "blackmyth",
-      "name": "黑神话",
-      "realms": [
-        {
-          "name": "凡胎",
-          "bonds": [
-            "bm_mortal"
-          ],
-          "reward": {
-            "hp_pct_delta": 0.35
-          }
-        },
-        {
-          "name": "修心",
-          "bonds": [
-            "bm_destiny",
-            "bm_immobilize"
-          ],
-          "reward": {
-            "all_stats_pct_delta": 0.175,
-            "stun_chance": 0.05
-          }
-        },
-        {
-          "name": "证道",
-          "bonds": [
-            "bm_dharma",
-            "bm_revival",
-            "bm_iron_bone"
-          ],
-          "reward": {
-            "hp_pct_delta": 0.7,
-            "damage_reduction_delta": 0.525
-          }
-        },
-        {
-          "name": "大圣",
-          "bonds": [
-            "bm_golden_eye",
-            "bm_great_sage"
-          ],
-          "reward": {
-            "damage_reduction_delta": 0.7,
-            "all_stats_pct_delta": 0.35
-          }
-        },
-        {
-          "name": "齐天",
-          "bonds": [
-            "bm_qitian"
-          ],
-          "reward": {
-            "status": "great_sage",
-            "transform_duration": 8,
-            "transform_cooldown": 60,
-            "transform_aoe": true,
-            "transform_attack_speed_mult": 2.0
-          },
-          "synergy_unlock": "great_sage_rampage"
-        }
-      ]
-    },
-    {
-      "id": "xingyun",
-      "name": "星陨",
-      "realms": [
-        {
-          "name": "微光",
-          "bonds": [
-            "xy_glimmer"
-          ],
-          "reward": {
-            "crit_rate_delta": 0.175
-          }
-        },
-        {
-          "name": "闪烁",
-          "bonds": [
-            "xy_eye",
-            "xy_dice"
-          ],
-          "reward": {
-            "crit_rate_delta": 0.35,
-            "crit_dmg_delta": 0.7
-          }
-        },
-        {
-          "name": "流星",
-          "bonds": [
-            "xy_lucky",
-            "xy_meteor_hit",
-            "xy_star_shard"
-          ],
-          "reward": {
-            "crit_rate_delta": 0.35,
-            "crit_dmg_delta": 1.05
-          }
-        },
-        {
-          "name": "陨落",
-          "bonds": [
-            "xy_supernova"
-          ],
-          "reward": {
-            "crit_dmg_delta": 1.4,
-            "final_dmg_mult": 0.525
-          }
-        },
-        {
-          "name": "星陨",
-          "bonds": [
-            "xy_starfall"
-          ],
-          "reward": {
-            "status": "star_blessing",
-            "crit_rate_delta": 0.525,
-            "crit_dmg_delta": 1.75
-          },
-          "synergy_unlock": "star_crit_nova"
-        }
-      ]
-    },
-    {
-      "id": "cangyan",
-      "name": "苍焰",
-      "realms": [
-        {
-          "name": "火花",
-          "bonds": [
-            "cy_spark"
-          ],
-          "reward": {
-            "magic_dmg_pct_delta": 0.35
-          }
-        },
-        {
-          "name": "烈焰",
-          "bonds": [
-            "cy_flame_heart",
-            "cy_frost_crown"
-          ],
-          "reward": {
-            "magic_dmg_pct_delta": 0.7,
-            "elemental_dmg_mult": 0.35
-          }
-        },
-        {
-          "name": "焚天",
-          "bonds": [
-            "cy_thunder_talon",
-            "cy_arcane_core",
-            "cy_element_master"
-          ],
-          "reward": {
-            "magic_dmg_pct_delta": 0.875,
-            "elemental_dmg_mult": 0.7
-          }
-        },
-        {
-          "name": "元素",
-          "bonds": [
-            "cy_phoenix"
-          ],
-          "reward": {
-            "magic_dmg_pct_delta": 1.05,
-            "elemental_dmg_mult": 1.05
-          }
-        },
-        {
-          "name": "苍焰",
-          "bonds": [
-            "cy_cangyan"
-          ],
-          "reward": {
-            "status": "elemental_mastery",
-            "magic_dmg_pct_delta": 1.225,
-            "final_dmg_mult": 0.525
-          },
-          "synergy_unlock": "elemental_overload"
-        }
-      ]
-    },
-    {
-      "id": "tiebi",
-      "name": "铁壁",
-      "realms": [
-        {
-          "name": "皮甲",
-          "bonds": [
-            "tb_leather"
-          ],
-          "reward": {
-            "damage_reduction_delta": 0.175
-          }
-        },
-        {
-          "name": "铁甲",
-          "bonds": [
-            "tb_bulwark",
-            "tb_thorns"
-          ],
-          "reward": {
-            "damage_reduction_delta": 0.525,
-            "reflect_pct": 0.7
-          }
-        },
-        {
-          "name": "钢躯",
-          "bonds": [
-            "tb_vita",
-            "tb_iron_will",
-            "tb_steel_body"
-          ],
-          "reward": {
-            "hp_pct_delta": 0.7,
-            "damage_reduction_delta": 0.525
-          }
-        },
-        {
-          "name": "壁垒",
-          "bonds": [
-            "tb_unbreakable"
-          ],
-          "reward": {
-            "damage_reduction_delta": 0.7,
-            "reflect_pct": 1.05
-          }
-        },
-        {
-          "name": "不破",
-          "bonds": [
-            "tb_eternal_guard"
-          ],
-          "reward": {
-            "status": "unbreakable",
-            "damage_reduction_delta": 0.875,
-            "hp_pct_delta": 1.05,
-            "reflect_pct": 1.05
-          },
-          "synergy_unlock": "unbreakable_thorns"
-        }
-      ]
-    },
-    {
-      "id": "taojin",
-      "name": "淘金",
-      "realms": [
-        {
-          "name": "学徒",
-          "bonds": [
-            "tj_apprentice"
-          ],
-          "reward": {
-            "gold_mult": 0.35
-          }
-        },
-        {
-          "name": "商贾",
-          "bonds": [
-            "tj_midas",
-            "tj_treasure"
-          ],
-          "reward": {
-            "gold_mult": 0.525,
-            "per_kill_gold_delta": 3.5
-          }
-        },
-        {
-          "name": "富豪",
-          "bonds": [
-            "tj_hoarder",
-            "tj_compound",
-            "tj_tycoon"
-          ],
-          "reward": {
-            "gold_mult": 0.875,
-            "atk_pct_delta": 0.35
-          }
-        },
-        {
-          "name": "财阀",
-          "bonds": [
-            "tj_golden_age"
-          ],
-          "reward": {
-            "gold_mult": 1.05,
-            "atk_pct_delta": 0.525
-          }
-        },
-        {
-          "name": "点金",
-          "bonds": [
-            "tj_eternal_riches"
-          ],
-          "reward": {
-            "status": "golden_age",
-            "gold_mult": 1.4,
-            "atk_pct_delta": 0.525,
             "final_dmg_mult": 0.35
           },
-          "synergy_unlock": "golden_empire"
-        }
-      ]
-    },
-    {
-      "id": "shouhun",
-      "name": "兽魂",
-      "realms": [
-        {
-          "name": "幼兽",
-          "bonds": [
-            "sh_cub"
-          ],
-          "reward": {
-            "atk_pct_delta": 0.28
-          }
-        },
-        {
-          "name": "野兽",
-          "bonds": [
-            "sh_beast_call",
-            "sh_pack_alpha"
-          ],
-          "reward": {
-            "atk_pct_delta": 0.525,
-            "attack_speed_delta": 0.35
-          }
-        },
-        {
-          "name": "猛兽",
-          "bonds": [
-            "sh_wild_instinct",
-            "sh_primal_roar",
-            "sh_beast_king"
-          ],
-          "reward": {
-            "atk_pct_delta": 0.7,
-            "lifesteal_pct": 0.105
-          }
-        },
-        {
-          "name": "兽王",
-          "bonds": [
-            "sh_pack_hunt"
-          ],
-          "reward": {
-            "atk_pct_delta": 0.875,
-            "attack_speed_delta": 0.525
-          }
-        },
-        {
-          "name": "群猎",
-          "bonds": [
-            "sh_primal_dominion"
-          ],
-          "reward": {
-            "status": "pack_hunt",
-            "atk_pct_delta": 1.05,
-            "lifesteal_pct": 0.14,
-            "final_dmg_mult": 0.35
-          },
-          "synergy_unlock": "pack_frenzy"
+          "synergy_unlock": "zhutian_emperor_fist",
+          "note": "万道相合→天帝拳成→独断万古→天帝果位"
         }
       ]
     }

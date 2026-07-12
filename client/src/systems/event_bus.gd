@@ -24,11 +24,10 @@ signal income_received(amount: float, source: String)
 signal lobby_entered(wave: int)             # 进入波次间大厅
 signal choice_presented(offers: Array)      # 3 选 1
 signal choice_made(offer)                    # 玩家选了某项
-var skill_upgrade_available: int = 0         # 本波剩余免费技能升级次数
 
 # ── 羁绊 / 境界 ──
 signal bond_drawn(bond_id: String)
-signal bond_devoured(path_id: String, realm_idx: int)   # 境界提升
+signal bond_devoured(path_id: String, realm_idx: int, realm_name: String)   # 境界提升
 signal path_maxed(path_id: String)          # 修满顶级境界
 
 # ── 联动 ──
