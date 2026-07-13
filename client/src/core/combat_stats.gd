@@ -30,6 +30,17 @@ var armor_pen: float = 0.0
 var true_dmg_pct: float = 0.0
 var chain_extra_bounces: int = 0          # 连锁弹射次数（联动）
 
+# 生存属性
+const BASE_MAX_HP := 1000.0
+var hp_pct_bonus: float = 0.0             # Σ hp% 加成（effective_max_hp 时乘 base）
+var lifesteal_pct: float = 0.0            # 吸血（造成伤害的比例回血）
+var damage_reduction: float = 0.0         # 减伤（受伤百分比减少）
+
+
+## 算入 hp_pct 加成后的最大血量
+func effective_max_hp() -> float:
+	return BASE_MAX_HP * (1.0 + hp_pct_bonus)
+
 
 func apply_atk_bonus() -> void:
 	"""把累积的 atk_pct_bonus 应用到 atk（base × (1+Σ%)）。"""

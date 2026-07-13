@@ -53,7 +53,17 @@ func _ready() -> void:
 	_hud.bond_picker_requested.connect(open_bond_picker)
 	_hud.char_panel_toggled.connect(toggle_char_panel)
 	_hud.equipment_picker_requested.connect(open_equipment_picker)
-	call_deferred("_start_next_wave")
+	# 开局先弹体系选择面板，选完后再开始第一波
+	call_deferred("_show_path_selection")
+
+
+func _show_path_selection() -> void:
+	# 先把 build/pools 传给 lobby（体系选择需要调 build.choose_path）
+	_lobby.set_build_ref(_build, _pools)
+	# 暂停游戏，弹体系选择面板
+	get_tree().paused = true
+	_lobby.process_mode = Node.PROCESS_MODE_ALWAYS   # 暂停时 lobby 仍可交互
+	_lobby.open_path_selection()
 
 
 func _process(delta: float) -> void:
@@ -125,6 +135,9 @@ func _on_lobby_confirmed() -> void:
 	_hud.update_bond_cost(_build.bond_draw_cost())
 	_hud.update_equip_state(_build.equip_level, _pools.equip_upgrade_cost(_build.equip_level))
 	_hero.refresh_stats()
+	# 如果是开局选体系后第一次关闭面板 → 开始第一波
+	if state == State.READY:
+		_start_next_wave()
 
 
 func open_bond_picker() -> void:
@@ -154,6 +167,8 @@ func _on_hero_hp_changed(hp: float, max_hp: float) -> void:
 
 func _on_hero_destroyed() -> void:
 	state = State.RUN_LOST
+	get_tree().paused = true   # 暂停游戏，停止所有 _process
+	_hud.process_mode = Node.PROCESS_MODE_ALWAYS   # HUD 仍可交互（显示结果）
 	EventBus.run_lost.emit(current_wave)
 	_hud.show_result(false)
 
@@ -182,6 +197,19 @@ func _on_hero_fired(target: Node, dmg: float) -> void:
 	var proj := Projectile.new()
 	add_child(proj)
 	proj.setup(_hero.global_position, target, dmg)
+	# 吸血：projectile 命中时按 lifesteal_pct 回血
+	proj.hit_target.connect(_on_projectile_hit)
+
+
+func _on_projectile_hit(target: Node, damage: float) -> void:
+	if _hero == null or not is_instance_valid(_hero):
+		return
+	if _hero.build == null:
+		return
+	var stats: CombatStats = _hero.build.assemble_stats()
+	var lifesteal: float = stats.lifesteal_pct
+	if lifesteal > 0.0:
+		_hero.heal(damage * lifesteal)
 
 
 ## #6: 由 HUD 的 Tab 键回调，切换角色面板 + 暂停

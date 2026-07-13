@@ -16,6 +16,8 @@ var _rerolls_this_wave: int = 0
 var _current_tab: String = "bond"   # "bond" or "equipment"
 var _replace_mode: bool = false       # 池满替换模式：显示池子让玩家选扔哪个
 var _pending_offer: Dictionary = {}   # 替换模式下待入池的新羁绊
+var _milestone_select_mode: bool = false  # 装备里程碑 3 选 1 模式
+var _pending_milestone_options: Array = [] # 里程碑候选词条
 
 @onready var _gold_label: Label = $TopBar/GoldLabel
 @onready var _info_label: Label = $TopBar/InfoLabel
@@ -39,6 +41,91 @@ func set_build_ref(p_build: BuildState, p_pools: RoguePools) -> void:
 
 
 ## HUD 按钮"羁绊"触发：打开即扣 bond_draw_cost() 金，之后 3 选 1 和刷新都免费。
+## 开局选体系面板（游戏开始时调用）。
+## 当前只有遮天可选；星辰变/宠魅显示但灰色。
+func open_path_selection() -> void:
+	_current_tab = "path_select"
+	_render_path_selection()
+	visible = true
+	get_tree().paused = true
+
+
+## 渲染体系选择面板
+func _render_path_selection() -> void:
+	card_click_rects.clear()
+	for c in _cards_container.get_children():
+		c.queue_free()
+	for c in _actions.get_children():
+		c.queue_free()
+	_info_label.text = "选择你的修炼体系（决定本局玩法路线）"
+	# 体系卡片
+	var systems: Array = [
+		{"id": "zhutian", "name": "遮天", "desc": "物理伤害+肉盾+后期真伤\n9境界·43羁绊·九秘", "available": true},
+		{"id": "xingchenbian", "name": "星辰变", "desc": "法术AOE+星辰之力\n（敬请期待）", "available": false},
+		{"id": "chongmei", "name": "宠魅", "desc": "召唤养成+魂宠进化\n（敬请期待）", "available": false},
+	]
+	for i in systems.size():
+		var sys: Dictionary = systems[i]
+		var card: Control = _make_path_card(sys, i)
+		_cards_container.add_child(card)
+
+
+## 生成一张体系选择卡片
+func _make_path_card(sys: Dictionary, idx: int) -> Control:
+	var panel := Panel.new()
+	panel.custom_minimum_size = Vector2(360, 420)
+	var available: bool = sys.get("available", false)
+	var color := Color(0.2, 0.25, 0.35)
+	if available:
+		color = Color(0.15, 0.2, 0.35)   # 可选：深蓝
+	else:
+		color = Color(0.12, 0.12, 0.12)  # 不可选：暗灰
+	var style := StyleBoxFlat.new()
+	style.bg_color = color
+	style.border_width_left = 3; style.border_width_right = 3
+	style.border_width_top = 3; style.border_width_bottom = 3
+	style.border_color = Color(0.5, 0.7, 1.0) if available else Color(0.3, 0.3, 0.3)
+	panel.add_theme_stylebox_override("panel", style)
+	var vbox := VBoxContainer.new()
+	vbox.offset_left = 20; vbox.offset_right = 340
+	vbox.offset_top = 20; vbox.offset_bottom = 400
+	vbox.add_theme_constant_override("separation", 12)
+	panel.add_child(vbox)
+	# 体系名
+	var name_label := Label.new()
+	name_label.text = sys.get("name", "")
+	name_label.add_theme_font_size_override("font_size", 32)
+	if available:
+		name_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+	else:
+		name_label.add_theme_color_override("font_color", Color(0.4, 0.4, 0.4))
+	vbox.add_child(name_label)
+	# 描述
+	var desc_label := Label.new()
+	desc_label.text = sys.get("desc", "")
+	desc_label.add_theme_font_size_override("font_size", 18)
+	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc_label.custom_minimum_size = Vector2(300, 0)
+	vbox.add_child(desc_label)
+	# 选择按钮
+	var btn := Button.new()
+	if available:
+		btn.text = "选择此体系"
+		btn.pressed.connect(func(): _on_path_chosen(sys.get("id", "")))
+	else:
+		btn.text = "敬请期待"
+		btn.disabled = true
+	btn.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_child(btn)
+	return panel
+
+
+## 选了体系
+func _on_path_chosen(path_id: String) -> void:
+	build.choose_path(path_id)
+	close()   # 关闭面板 → confirmed 信号 → game_manager 开始第一波
+
+
 func open_bond() -> void:
 	if build == null or not build.spend(build.bond_draw_cost()):
 		return   # 金币不足
@@ -59,6 +146,8 @@ func open_equipment() -> void:
 func close() -> void:
 	_replace_mode = false
 	_pending_offer = {}
+	_milestone_select_mode = false
+	_pending_milestone_options = []
 	visible = false
 	get_tree().paused = false
 	confirmed.emit()
@@ -95,6 +184,9 @@ func _render() -> void:
 	# 替换模式：池满了，让玩家选一个羁绊扔掉换新的
 	if _replace_mode:
 		_render_replace_mode()
+		return
+	if _milestone_select_mode:
+		_render_milestone_select()
 		return
 	if _current_tab == "equipment":
 		_render_equipment_tab()
@@ -254,7 +346,8 @@ func _render_equipment_tab() -> void:
 		for affix in build.equip_affixes:
 			var tag: String = "🔴" if affix.get("polarity") == "curse" else "🟢"
 			var al := Label.new()
-			al.text = "  %s %s" % [tag, affix.get("name", "")]
+			var eff_desc: String = pools._effect_to_text(affix.get("effect", {}))
+			al.text = "  %s %s %s" % [tag, affix.get("name", ""), eff_desc]
 			al.add_theme_font_size_override("font_size", 18)
 			vbox.add_child(al)
 	_cards_container.add_child(panel)
@@ -279,13 +372,50 @@ func _on_equip_upgrade() -> void:
 	var result: Dictionary = build.equip_upgrade()
 	if result.is_empty():
 		return
-	# 如果触发了里程碑，显示词条结果
-	var milestone: Dictionary = result.get("milestone", {})
-	if not milestone.is_empty():
-		# 里程碑抽到了词条，留在面板让玩家看结果
-		_render()
+	# 里程碑触发：展示 3 张词条候选让玩家选
+	var options: Array = result.get("milestone_options", [])
+	if not options.is_empty():
+		_pending_milestone_options = options
+		_milestone_select_mode = true
+		_render_milestone_select()
 	else:
 		close()   # 普通升级，关闭面板
+
+
+## 里程碑词条 3 选 1 渲染
+func _render_milestone_select() -> void:
+	card_click_rects.clear()
+	for c in _cards_container.get_children():
+		c.queue_free()
+	for c in _actions.get_children():
+		c.queue_free()
+	_info_label.text = "⚡ 装备里程碑！选择一个词条"
+	for i in _pending_milestone_options.size():
+		var affix: Dictionary = _pending_milestone_options[i]
+		var polarity: String = affix.get("polarity", "positive")
+		var tag: String = "🔴 诅咒" if polarity == "curse" else "🟢 正面"
+		var eff_desc: String = pools._effect_to_text(affix.get("effect", {}))
+		# 用羁绊卡片样式展示
+		var fake_offer: Dictionary = {
+			"id": affix.get("id", ""), "name": affix.get("name", ""),
+			"rarity": "SSR" if polarity != "curse" else "UR",
+			"effect": affix.get("effect", {}),
+			"desc": "%s %s" % [tag, eff_desc]
+		}
+		var card: Control = _make_card(fake_offer, i)
+		_cards_container.add_child(card)
+		call_deferred("_record_card_rect", card, i)
+
+
+## 里程碑词条选择：点了某张卡片
+func _on_milestone_pick(idx: int) -> void:
+	if idx < 0 or idx >= _pending_milestone_options.size():
+		return
+	var chosen: Dictionary = _pending_milestone_options[idx]
+	build.take_milestone_affix(chosen)
+	_milestone_select_mode = false
+	_pending_milestone_options = []
+	close()
 
 
 func _record_card_rect(card: Control, idx: int) -> void:
@@ -428,6 +558,10 @@ func _realm_text() -> String:
 
 # ── 动作 ──
 func _on_pick(idx: int) -> void:
+	# 里程碑词条选择模式
+	if _milestone_select_mode:
+		_on_milestone_pick(idx)
+		return
 	# 替换模式：点击池中卡片 = 丢弃它换 pending_offer
 	if _replace_mode:
 		_on_replace_pick(idx)

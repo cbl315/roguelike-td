@@ -45,10 +45,17 @@ static func _apply(stats, key: String, val) -> void:
 		"all_stats_pct_delta":
 			stats.atk_pct_bonus += v
 			stats.crit_rate += v * 0.5
-		# 以下 key 不影响进攻 CombatStats（生存/经济/控制/特殊），M2 暂忽略
-		# （M2.5/M3 随生存模型/经济系统接入）
+		"hp_pct_delta":
+			stats.hp_pct_bonus += v
+		"hp_boost":
+			stats.hp_pct_bonus += v
+		"lifesteal_pct":
+			stats.lifesteal_pct += v
+		"damage_reduction_delta":
+			stats.damage_reduction += v
+		# 以下 key 不影响 CombatStats（经济/控制/特殊），暂忽略
 		_:
-			pass   # hp_pct_delta/damage_reduction/lifesteal/gold_mult/status/transform 等
+			pass   # gold_mult/status/transform 等
 
 
 ## 从 effect 列表批量累加。

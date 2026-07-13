@@ -49,15 +49,6 @@
       }
     },
     {
-      "id": "common_gold",
-      "name": "财富符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "gold_mult": 0.35
-      }
-    },
-    {
       "id": "zt_lunhai_daojing",
       "name": "道经",
       "set": "zhutian",
@@ -72,7 +63,7 @@
       "set": "zhutian",
       "rarity": "SR",
       "effect": {
-        "gold_per_sec_delta": 1.0
+        "hp_pct_delta": 0.1
       }
     },
     {
@@ -492,10 +483,9 @@
             "zt_jm_jie"
           ],
           "reward": {
-            "atk_pct_delta": 0.15,
-            "gold_per_sec_delta": 1.0
+            "atk_pct_delta": 0.15
           },
-          "note": "苦海聚精气，新手期打通经济基础"
+          "note": "苦海聚精气，肉身筑基"
         },
         {
           "name": "道宫",

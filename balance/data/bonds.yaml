@@ -32,12 +32,6 @@ bonds:
   rarity: N
   effect:
     lifesteal_pct: 0.07
-- id: common_gold
-  name: 财富符文
-  set: generic
-  rarity: N
-  effect:
-    gold_mult: 0.35
 # ══ 遮天体系（修炼 path: zhutian）══
 # 境界阶梯：轮海→道宫→四极→化龙→仙台→准帝→大帝→红尘仙→天帝
 # 抽取规则：当前境界修满（集齐所有子羁绊）并吞噬突破后，才能抽下一境界的羁绊。
@@ -54,7 +48,7 @@ bonds:
   set: zhutian
   rarity: SR
   effect:
-    gold_per_sec_delta: 1.0
+    hp_pct_delta: 0.10
 - id: zt_lunhai_mingquan
   name: 命泉
   set: zhutian
@@ -371,8 +365,7 @@ paths:
     - zt_jm_jie
     reward:
       atk_pct_delta: 0.15
-      gold_per_sec_delta: 1.0
-    note: 苦海聚精气，新手期打通经济基础
+    note: 苦海聚精气，肉身筑基
   - name: 道宫
     bonds:
     - zt_daogong_heart

@@ -15,6 +15,7 @@ var _rng: RandomNumberGenerator
 # 装备数据（M3）
 var _equip_affixes: Array = []   # Array[Dictionary]（equipment.json 的 affixes）
 var _equip_upgrade: Dictionary = {}  # equipment.json 的 upgrade_curve
+var _equip_milestones: Array = []    # equipment.json 的 milestones（[5,10,15,20]）
 
 
 func _init(rng: RandomNumberGenerator = null) -> void:
@@ -31,6 +32,7 @@ func _load_data() -> void:
 	var equip_d := _read_json("equipment.json")
 	_equip_affixes = equip_d.get("affixes", [])
 	_equip_upgrade = equip_d.get("upgrade_curve", {})
+	_equip_milestones = equip_d.get("milestones", [5, 10, 15, 20])
 	for b in _bonds:
 		var bid: String = b.get("id", "")
 		_bond_to_set[bid] = b.get("set", "")
@@ -144,7 +146,7 @@ func equip_upgrade_cost(current_level: int) -> float:
 
 ## 装备最大等级
 func equip_max_level() -> int:
-	return int(_equip_upgrade.get("max_level", 9))
+	return int(_equip_upgrade.get("max_level", 20))
 
 ## 该级的固定经济奖励 effect（奇数级 gold_per_sec，偶数级 per_kill_gold）
 func equip_level_reward(level: int) -> Dictionary:
@@ -153,18 +155,21 @@ func equip_level_reward(level: int) -> Dictionary:
 		return {}
 	return incomes[level - 1]
 
-## 判断该级是否是里程碑（+3/+6/+9）
+## 判断该级是否是里程碑（从 equipment.json 的 milestones 读，不再硬编码）
 func is_milestone_level(level: int) -> bool:
-	var milestones: Array = [3, 6, 9]
-	return milestones.has(level)
+	var milestones: Array = _equip_milestones if not _equip_milestones.is_empty() else [5, 10, 15, 20]
+	for ms in milestones:
+		if int(ms) == level:
+			return true
+	return false
 
 ## +9 是否保底正面
 func is_guaranteed_positive(level: int) -> bool:
 	return level >= int(_equip_upgrade.get("milestone_guarantee_positive_at", 9))
 
-## 里程碑抽词条：正面 70% / 诅咒 30%（+9 保底正面）
-## 返回 {id, name, polarity, effect, desc}
-func draw_milestone_affix(guaranteed_positive: bool) -> Dictionary:
+## 里程碑抽词条选项：返回 3 张候选（正面 70% / 诅咒 30%，+20 保底正面）
+## 返回 Array[Dictionary]，每个含 {id, name, polarity, effect, desc}
+func draw_milestone_affix_options(guaranteed_positive: bool, n: int = 3) -> Array:
 	var positives: Array = []
 	var curses: Array = []
 	for a in _equip_affixes:
@@ -173,40 +178,44 @@ func draw_milestone_affix(guaranteed_positive: bool) -> Dictionary:
 				curses.append(a)
 			_:
 				positives.append(a)
-	var chosen: Dictionary = {}
-	if guaranteed_positive or _rng.randf() < 0.7:
-		# 正面词条
-		if positives.is_empty():
-			chosen = _equip_affixes[_rng.randi() % _equip_affixes.size()]
-		else:
-			chosen = positives[_rng.randi() % positives.size()]
-	else:
-		# 诅咒词条
-		if curses.is_empty():
-			chosen = positives[_rng.randi() % positives.size()] if not positives.is_empty() else {}
-		else:
-			chosen = curses[_rng.randi() % curses.size()]
-	if chosen.is_empty():
-		return {}
-	# 构造 effect：正面用 effect，诅咒合并 cost + benefit
-	var eff: Dictionary = {}
-	var polarity: String = chosen.get("polarity", "positive")
-	if polarity == "curse":
-		var cost: Dictionary = chosen.get("cost", {})
-		var benefit: Dictionary = chosen.get("benefit", {})
-		for k in cost:
-			eff[k] = cost[k]
-		for k in benefit:
-			eff[k] = benefit[k]
-	else:
-		eff = chosen.get("effect", {}).duplicate()
-	var desc_text: String = _effect_to_text(eff)
-	if polarity == "curse":
-		desc_text = "代价换收益！\n" + desc_text
-	return {
-		"id": chosen.get("id", ""), "name": chosen.get("name", ""),
-		"polarity": polarity, "effect": eff, "desc": desc_text
-	}
+	var options: Array = []
+	var picked: Dictionary = {}   # 去重
+	for i in n:
+		var use_positive: bool = guaranteed_positive or _rng.randf() < 0.7
+		var pool: Array = positives if use_positive else curses
+		if pool.is_empty():
+			pool = _equip_affixes
+		# 随机抽一张（去重）
+		var tries: int = 0
+		var chosen: Dictionary = {}
+		while tries < 10:
+			chosen = pool[_rng.randi() % pool.size()]
+			var aid: String = chosen.get("id", str(i))
+			if not picked.has(aid):
+				picked[aid] = true
+				break
+			tries += 1
+		if chosen.is_empty():
+			chosen = pool[_rng.randi() % pool.size()]
+		# 诅咒词条：合并 cost + benefit 成 effect（正面词条已有 effect）
+		var polarity: String = chosen.get("polarity", "positive")
+		if polarity == "curse" and not chosen.has("effect"):
+			var merged_eff: Dictionary = {}
+			var cost_d: Dictionary = chosen.get("cost", {})
+			var benefit_d: Dictionary = chosen.get("benefit", {})
+			for k in cost_d:
+				merged_eff[k] = cost_d[k]
+			for k in benefit_d:
+				merged_eff[k] = benefit_d[k]
+			chosen["effect"] = merged_eff
+		options.append(chosen.duplicate())
+	return options
+
+
+## 里程碑抽词条（旧接口，直接抽一张——保留兼容）
+func draw_milestone_affix(guaranteed_positive: bool) -> Dictionary:
+	var options := draw_milestone_affix_options(guaranteed_positive, 1)
+	return options[0] if not options.is_empty() else {}
 
 ## 查装备词条名称
 func _find_equip_affix_name(aid: String) -> String:
@@ -379,36 +388,36 @@ func cultivation_progress(bond_pool: Array, path_realm: Dictionary) -> Dictionar
 # ── 内部 ──
 # effect key → 中文显示模板（% 为数值占位）。数值 >0 显示 +x%，<0 显示 x%。
 const _EFFECT_LABELS := {
-	"atk_pct_delta": "攻击力 %s%%",
+	"atk_pct_delta": "攻击力 %s",
 	"atk_ratio_delta": "技能倍率 ×%s",
-	"crit_rate_delta": "暴击率 %s%%",
-	"crit_dmg_delta": "暴击伤害 %s%%",
-	"attack_speed_delta": "攻速 %s%%",
-	"skill_mult_pct_delta": "技能增伤 %s%%",
-	"magic_dmg_pct_delta": "法术伤害 %s%%",
-	"physical_dmg_pct_delta": "物理伤害 %s%%",
-	"elemental_dmg_mult": "元素伤害 %s%%",
-	"elemental_pct": "元素伤害 %s%%",
-	"final_dmg_mult": "最终伤害 %s%%",
-	"true_dmg_pct_delta": "真伤占比 %s%%",
-	"armor_pen_delta": "护甲穿透 %s%%",
+	"crit_rate_delta": "暴击率 %s",
+	"crit_dmg_delta": "暴击伤害 %s",
+	"attack_speed_delta": "攻速 %s",
+	"skill_mult_pct_delta": "技能增伤 %s",
+	"magic_dmg_pct_delta": "法术伤害 %s",
+	"physical_dmg_pct_delta": "物理伤害 %s",
+	"elemental_dmg_mult": "元素伤害 %s",
+	"elemental_pct": "元素伤害 %s",
+	"final_dmg_mult": "最终伤害 %s",
+	"true_dmg_pct_delta": "真伤占比 %s",
+	"armor_pen_delta": "护甲穿透 %s",
 	"projectile_count_delta": "弹数 %s",
 	"per_projectile_dmg_mult": "散射递减 ×%s",
-	"hp_pct_delta": "生命 %s%%",
-	"lifesteal_pct": "吸血 %s%%",
-	"damage_reduction_delta": "减伤 %s%%",
-	"gold_mult": "金币掉落 %s%%",
+	"hp_pct_delta": "生命 %s",
+	"lifesteal_pct": "吸血 %s",
+	"damage_reduction_delta": "减伤 %s",
+	"gold_mult": "金币掉落 %s",
 	"gold_per_sec_delta": "每秒金币 %s",
 	"per_kill_gold_delta": "击杀金币 %s",
-	"double_gold_chance": "双倍金币概率 %s%%",
+	"double_gold_chance": "双倍金币概率 %s",
 	"gold_lump": "一次性金币 %s",
 	"bond_draw_cost_delta": "抽羁绊成本 %s",
 	"reroll_cost_delta": "刷新成本 %s",
 	"equip_upgrade_cost_delta": "升级成本 %s",
-	"dmg_taken_mult": "受伤 %s%%",
-	"per_hit_dmg_mult": "单次伤害 %s%%",
-	"draw_cost_mult": "抽取成本 %s%%",
-	"synergy_effect_mult": "联动效果 %s%%",
+	"dmg_taken_mult": "受伤 %s",
+	"per_hit_dmg_mult": "单次伤害 %s",
+	"draw_cost_mult": "抽取成本 %s",
+	"synergy_effect_mult": "联动效果 %s",
 }
 
 ## 绝对值 effect key（不是百分比，直接显示数值）

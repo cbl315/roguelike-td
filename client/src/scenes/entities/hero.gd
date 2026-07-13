@@ -38,10 +38,17 @@ func set_enemies(enemies: Array) -> void:
 	_all_enemies = enemies
 
 
+var _dmg_cooldown: float = 0.0   # 全局受伤间隔（0.3s 内只受一次伤）
+const DMG_INTERVAL := 0.3
+
+
 func take_damage(amount: float) -> void:
+	if _dmg_cooldown > 0.0:
+		return   # 全局无敌帧内，不受伤
 	current_hp = maxf(0.0, current_hp - amount)
 	hp_changed.emit(current_hp, max_hp)
 	queue_redraw()
+	_dmg_cooldown = DMG_INTERVAL   # 进入 0.3s 无敌
 	if current_hp <= 0.0:
 		destroyed.emit()
 
@@ -52,9 +59,29 @@ func refresh_stats() -> void:
 	else:
 		_stats = CombatStats.new()
 		_stats.apply_atk_bonus()
+	# 从 CombatStats 更新 max_hp（hp_pct_delta 生效）
+	var new_max: float = _stats.effective_max_hp() if _stats != null else 1000.0
+	if new_max != max_hp:
+		# 保持当前血量比例（升 max_hp 时不掉血）
+		var ratio: float = current_hp / maxf(max_hp, 1.0)
+		max_hp = new_max
+		current_hp = minf(max_hp, current_hp + (new_max - max_hp))   # max_hp 增加时，补满差值
+		if current_hp > max_hp:
+			current_hp = max_hp
+		hp_changed.emit(current_hp, max_hp)
+
+
+## 吸血回血（projectile 命中时调用）
+func heal(amount: float) -> void:
+	if amount <= 0.0:
+		return
+	current_hp = minf(max_hp, current_hp + amount)
+	hp_changed.emit(current_hp, max_hp)
 
 
 func _process(delta: float) -> void:
+	if _dmg_cooldown > 0.0:
+		_dmg_cooldown -= delta
 	_handle_movement(delta)
 	if _stats == null:
 		refresh_stats()

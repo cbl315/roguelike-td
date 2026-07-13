@@ -46,6 +46,25 @@ func setup(p_pools: Variant, p_rng: RandomNumberGenerator) -> void:
 	synergy_engine = SynergyEngine.new()
 
 
+## 选体系（开局）：获得起点技能的 effect + 初始化 path_realm。
+## path_id: 体系 id（如 "zhutian"）。选了之后该体系羁绊才进抽取池。
+func choose_path(path_id: String) -> void:
+	# 初始化 path_realm（从境0开始）
+	path_realm[path_id] = 0
+	# 获得起点技能 effect（目前硬编码，后续多体系时从数据文件查）
+	match path_id:
+		"zhutian":
+			# 天帝拳：物理伤害倍率 ×1.5
+			accumulated_effects.append({"atk_ratio_delta": 0.5})
+		"xingchenbian":
+			# 星辰变功法：法术伤害倍率 ×1.5（待落地）
+			accumulated_effects.append({"atk_ratio_delta": 0.5})
+		"chongmei":
+			# 召唤莫邪：基础召唤（待落地）
+			accumulated_effects.append({"atk_ratio_delta": 0.3})
+	changed.emit()
+
+
 func add_gold(amount: float) -> void:
 	gold += amount
 	changed.emit()
@@ -114,9 +133,15 @@ func assemble_stats() -> CombatStats:
 	var stats := CombatStats.new()
 	# 累加所有 effect（技能词条 + 境界 reward + 装备词条）
 	EffectResolver.accumulate_all(stats, accumulated_effects)
-	# 羁绊 effect 从 bond_pool 实时查（丢弃/替换自动更新，无需反向撤销）
+	# 羁绊 effect 从 bond_pool + devoured_bonds 实时查（吞噬后属性保留）
 	if pools != null:
 		for bid in bond_pool:
+			var b: Dictionary = pools._find_bond(bid)
+			if not b.is_empty():
+				var eff: Dictionary = b.get("effect", {})
+				if not eff.is_empty():
+					EffectResolver.accumulate_all(stats, [eff])
+		for bid in devoured_bonds:
 			var b: Dictionary = pools._find_bond(bid)
 			if not b.is_empty():
 				var eff: Dictionary = b.get("effect", {})
@@ -157,20 +182,22 @@ func equip_upgrade() -> Dictionary:
 			clean_reward[k] = reward[k]
 	if not clean_reward.is_empty():
 		accumulated_effects.append(clean_reward)
-	# 里程碑（+3/+6/+9）抽词条
-	var milestone_result: Dictionary = {}
+	# 里程碑（+5/+10/+15/+20）抽词条——返回 3 选 1 候选，不直接抽
+	var milestone_options: Array = []
 	if pools.is_milestone_level(equip_level):
 		var gp: bool = pools.is_guaranteed_positive(equip_level)
-		var affix: Dictionary = pools.draw_milestone_affix(gp)
-		if not affix.is_empty():
-			equip_affixes.append(affix)
-			# 词条 effect 累加（战斗效果走 EffectResolver，经济效果走 getter）
-			var aff: Dictionary = affix.get("effect", {})
-			if not aff.is_empty():
-				accumulated_effects.append(aff)
-			milestone_result = affix
+		milestone_options = pools.draw_milestone_affix_options(gp, 3)
 	changed.emit()
-	return {"level": equip_level, "cost": cost, "reward": clean_reward, "milestone": milestone_result}
+	return {"level": equip_level, "cost": cost, "reward": clean_reward, "milestone_options": milestone_options}
+
+
+## 玩家从里程碑 3 选 1 里选了一张词条
+func take_milestone_affix(affix: Dictionary) -> void:
+	equip_affixes.append(affix)
+	var aff: Dictionary = affix.get("effect", {})
+	if not aff.is_empty():
+		accumulated_effects.append(aff)
+	changed.emit()
 
 
 # ── 经济属性 getter（从 accumulated_effects 汇总）──

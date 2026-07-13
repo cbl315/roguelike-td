@@ -162,8 +162,8 @@ func is_char_panel_open() -> bool:
 func _build_char_panel() -> Control:
 	var panel := Panel.new()
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
-	panel.offset_left = 300; panel.offset_right = 1620
-	panel.offset_top = 100; panel.offset_bottom = 980
+	panel.offset_left = 100; panel.offset_right = 1820
+	panel.offset_top = 60; panel.offset_bottom = 1020
 	panel.z_index = 90
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.1, 0.1, 0.15, 0.95)
@@ -172,12 +172,14 @@ func _build_char_panel() -> Control:
 	style.border_color = Color(0.5, 0.55, 0.7)
 	panel.add_theme_stylebox_override("panel", style)
 	var scroll := ScrollContainer.new()
-	scroll.set_anchors_preset(Control.PRESET_FULL_RECT)
-	scroll.offset_left = 20; scroll.offset_right = -20
-	scroll.offset_top = 20; scroll.offset_bottom = -20
+	scroll.position = Vector2(20, 20)
+	scroll.size = Vector2(1700 - 40, 960 - 40)   # 固定大小（panel 区域 100-1820 × 60-1020）
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	panel.add_child(scroll)
 	var vbox := VBoxContainer.new()
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.custom_minimum_size = Vector2(1700 - 60, 0)   # 固定宽度，让内容撑高度
 	vbox.add_theme_constant_override("separation", 6)
 	scroll.add_child(vbox)
 	vbox.set_meta("vbox", true)   # 标记，方便后续 find
@@ -201,6 +203,9 @@ func _render_char_panel(build: BuildState, pools: RoguePools) -> void:
 	var stats: CombatStats = build.assemble_stats()
 	var dps: float = stats.expected_dps(20.0)
 	var stat_lines: Array = [
+		"生命: %.0f" % stats.effective_max_hp(),
+		"吸血: %.0f%%" % (stats.lifesteal_pct * 100.0),
+		"减伤: %.0f%%" % (stats.damage_reduction * 100.0),
 		"攻击力: %.0f" % stats.atk,
 		"技能倍率: ×%.2f" % stats.atk_ratio,
 		"暴击率: %.0f%%" % (stats.crit_rate * 100.0),
@@ -282,7 +287,8 @@ func _render_char_panel(build: BuildState, pools: RoguePools) -> void:
 		for affix in build.equip_affixes:
 			var polarity_tag := "🔴" if affix.get("polarity") == "curse" else "🟢"
 			var al := Label.new()
-			al.text = "  %s %s" % [polarity_tag, affix.get("name", "")]
+			var affix_desc: String = pools._effect_to_text(affix.get("effect", {}))
+			al.text = "  %s %s %s" % [polarity_tag, affix.get("name", ""), affix_desc]
 			al.add_theme_font_size_override("font_size", 18)
 			vbox.add_child(al)
 	# 已触发联动

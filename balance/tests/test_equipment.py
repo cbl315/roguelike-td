@@ -19,30 +19,30 @@ def test_upgrade_curve_structure():
     """升级曲线结构完整。"""
     eq = _load_equipment()
     curve = eq["upgrade_curve"]
-    assert curve["cost_base"] == 15
-    assert curve["cost_per_level"] == 4
-    assert curve["max_level"] == 9
+    assert curve["cost_base"] == 20
+    assert curve["cost_per_level"] == 8
+    assert curve["max_level"] == 20
     incomes = curve["per_level_income"]
-    assert len(incomes) == 9
+    assert len(incomes) == 20
 
 
 def test_upgrade_cost_formula():
-    """升级成本 = 15 + 4 × current_level。"""
+    """升级成本 = 20 + 8 × current_level。"""
     eq = _load_equipment()
     curve = eq["upgrade_curve"]
     base = curve["cost_base"]
     per = curve["cost_per_level"]
-    # level 0 → cost to +1 = 15
-    assert base + per * 0 == 15
-    # level 8 → cost to +9 = 47
-    assert base + per * 8 == 47
+    # level 0 → cost to +1 = 20
+    assert base + per * 0 == 20
+    # level 19 → cost to +20 = 172
+    assert base + per * 19 == 172
 
 
 def test_milestone_levels():
-    """里程碑在 +3/+6/+9。"""
+    """里程碑在 +5/+10/+15/+20。"""
     eq = _load_equipment()
-    assert eq["milestones"] == [3, 6, 9]
-    assert eq["milestone_guarantee_positive_at"] == 9
+    assert eq["milestones"] == [5, 10, 15, 20]
+    assert eq["milestone_guarantee_positive_at"] == 20
 
 
 def test_odd_levels_give_gold_per_sec():
@@ -93,19 +93,19 @@ def test_positive_affixes_have_effect():
         assert "effect" in p, f"positive {p['id']} missing effect"
 
 
-def test_level9_guaranteed_positive():
-    """+9 保底正面词条。"""
+def test_level20_guaranteed_positive():
+    """+20 保底正面词条。"""
     eq = _load_equipment()
     incomes = eq["upgrade_curve"]["per_level_income"]
-    level9 = incomes[8]  # index 8 = level 9
-    assert level9.get("milestone_guaranteed_positive") is True
+    level20 = incomes[19]  # index 19 = level 20
+    assert level20.get("milestone_guaranteed_positive") is True
 
 
 def test_milestone_levels_marked():
-    """+3/+6/+9 在 per_level_income 里标注 milestone: true。"""
+    """+5/+10/+15/+20 在 per_level_income 里标注 milestone: true。"""
     eq = _load_equipment()
     incomes = eq["upgrade_curve"]["per_level_income"]
-    for idx in [2, 5, 8]:  # level 3, 6, 9
+    for idx in [4, 9, 14, 19]:  # level 5, 10, 15, 20
         assert incomes[idx].get("milestone") is True, f"level {idx+1} should be milestone"
 
 
@@ -124,14 +124,14 @@ def test_gold_multiplier_affix_exists():
 
 
 def test_total_upgrade_cost_to_max():
-    """升满 +9 的总成本。"""
+    """升满 +20 的总成本。"""
     eq = _load_equipment()
     curve = eq["upgrade_curve"]
     base = curve["cost_base"]
     per = curve["cost_per_level"]
-    total = sum(base + per * lv for lv in range(9))
-    # 15+19+23+27+31+35+39+43+47 = 279
-    assert total == 279
+    max_lv = curve["max_level"]
+    total = sum(base + per * lv for lv in range(max_lv))
+    assert total == 1920   # 20+28+36+...+172 = 1920
 
 
 # ── Bug 回归测试 ──
