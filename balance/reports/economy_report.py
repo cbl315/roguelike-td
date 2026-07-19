@@ -22,7 +22,7 @@ from td_balance.rogue_pools import RoguePools
 from td_balance.strategy import SimpleStrategy
 
 OUT_DIR = Path(__file__).resolve().parent / "out"
-N_RUNS = 1000
+N_RUNS = 100
 N_WAVES = 30
 
 

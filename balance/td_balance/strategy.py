@@ -101,7 +101,7 @@ class SimpleStrategy(Strategy):
             import random as _r
             available_paths = [p.id for p in pools.paths if p.id != "generic_fusion"]
             # 随机选 2 个体系
-            chosen = pools.rng.sample(available_paths, min(2, len(available_paths)))
+            chosen = pools.rng.sample(available_paths, min(1, len(available_paths)))
             for path_id in chosen:
                 state.path_realm[path_id] = 0
             # generic_fusion 默认解锁
@@ -144,7 +144,22 @@ class SimpleStrategy(Strategy):
                 if not offers:
                     state.add_gold(cost)
                     continue
+                # 优先选体系羁绊（跳过 generic，除非只有 generic）
                 chosen = offers[0]
+                needed = current_realm_needed()
+                needed_set = set(needed)
+                for o in offers:
+                    # 优先选当前境界需要的
+                    if o.id in needed_set:
+                        chosen = o
+                        break
+                if chosen.id not in needed_set:
+                    # 其次选体系羁绊（非 generic）
+                    for o in offers:
+                        bset = pools._bond_to_set.get(o.id, "")
+                        if bset not in ("generic", "seed", ""):
+                            chosen = o
+                            break
                 # 种子卡：不进 bond_pool，直接解锁体系 + 给金币 + 加起点效果
                 seed = pools.get_seed(chosen.id)
                 if seed:

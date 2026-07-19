@@ -2,7 +2,7 @@
   "income": {
     "base_passive": 3,
     "per_kill": 1.5,
-    "per_wave_clear": 45,
+    "per_wave_clear": 60,
     "elite_bonus": 30,
     "boss_bonus": 120
   },

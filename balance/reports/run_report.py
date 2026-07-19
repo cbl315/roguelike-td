@@ -17,7 +17,7 @@ from td_balance.loader import load_wave_params
 from td_balance.run_sim import simulate_run
 
 OUT_DIR = Path(__file__).resolve().parent / "out"
-N_RUNS = 1000
+N_RUNS = 100
 
 
 def simulate_runs(n_runs: int = N_RUNS) -> dict:

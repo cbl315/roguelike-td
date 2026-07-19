@@ -118,12 +118,23 @@ class RoguePools:
             # 极端：generic 也全拥有了且当前境界全凑齐——返回空（玩家应去突破）
             return []
 
-        # prefer_ids 作为加权（仅放大合法池内条目的权重，不引入非法羁绊）
+        # 加权池：体系羁绊权重高，generic 权重低（避免 generic 淹没体系羁绊）
+        weighted_pool: list[str] = []
+        for bid in pool:
+            bset = self._bond_to_set.get(bid, "")
+            weight = 1  # generic 默认 1 份
+            if bset not in ("generic", "seed", ""):
+                weight = 4  # 体系羁绊 4 份（提高出现率）
+            elif bset == "seed":
+                weight = 2  # 种子 2 份
+            for _ in range(weight):
+                weighted_pool.append(bid)
+        # prefer_ids 额外加权（当前境界需要的羁绊再 ×3）
         if prefer_ids:
             prefer_set = set(prefer_ids) & set(pool)
-            weighted_pool = [bid for bid in pool if bid in prefer_set] * 3 + pool
-        else:
-            weighted_pool = pool
+            for bid in prefer_set:
+                for _ in range(3):
+                    weighted_pool.append(bid)
 
         picked: set[str] = set()
         for _ in range(n):

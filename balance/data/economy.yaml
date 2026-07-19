@@ -3,7 +3,7 @@
 income:
   base_passive: 3          # B-3 校准：恢复到能买 build（×3 of B-2 极低值；囤积 1439 可控）
   per_kill: 1.5            # ×3
-  per_wave_clear: 45       # ×3
+  per_wave_clear: 60       # 提高清波奖励，让前期多抽羁绊
   elite_bonus: 30          # ×3
   boss_bonus: 120          # ×3
 

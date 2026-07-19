@@ -110,8 +110,18 @@ func draw_bond_offers(n: int = 3, prefer_ids: Array = [], owned_ids: Array = [],
 	if pool.is_empty():
 		return []   # 极端：全满，玩家该去突破
 
-	# prefer 加权（仅放大合法池内条目，不引入非法羁绊）
-	var weighted_pool: Array = pool.duplicate()
+	# 加权池：体系羁绊权重高，generic 权重低（避免 generic 淹没体系羁绊）
+	var weighted_pool: Array = []
+	for bid in pool:
+		var bond_set: String = _bond_to_set.get(bid, "")
+		var w: int = 1  # generic 默认 1 份
+		if bond_set != "generic" and bond_set != "seed" and bond_set != "":
+			w = 4  # 体系羁绊 4 份
+		elif bond_set == "seed":
+			w = 2  # 种子 2 份
+		for _i in w:
+			weighted_pool.append(bid)
+	# prefer_ids 额外加权（当前境界需要的羁绊再 ×3）
 	if not prefer_ids.is_empty():
 		var prefer_legal: Array = []
 		for bid in prefer_ids:
@@ -120,28 +130,6 @@ func draw_bond_offers(n: int = 3, prefer_ids: Array = [], owned_ids: Array = [],
 		for bid in prefer_legal:
 			for _i in range(3):
 				weighted_pool.append(bid)
-	# 已选体系的羁绊轻微加权（选了某体系后，该体系羁绊更容易出现）
-	for bid in pool:
-		var bond_set: String = _bond_to_set.get(bid, "")
-		# 跳过 generic 和 seed（它们本来就全池可见）
-		if bond_set == "generic" or bond_set == "seed":
-			continue
-		# 检查该羁绊所属的 path 是否在 path_realm 里（已选体系）
-		for p in _paths:
-			var pid: String = p.get("id", "")
-			if pid == "generic_fusion":
-				continue
-			if not path_realm.has(pid):
-				continue
-			# 该 path 的所有境界羁绊
-			var all_path_bonds: Array = []
-			for r in p.get("realms", []):
-				for b in r.get("bonds", []):
-					all_path_bonds.append(b)
-			if all_path_bonds.has(bid):
-				# 已选体系的羁绊：额外加 1 份（轻微加权，不像 prefer 那么强）
-				weighted_pool.append(bid)
-				break
 
 	var picked: Dictionary = {}
 	# 实际可选项数 = min(请求数 n, 可选池去重后的大小)
