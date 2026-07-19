@@ -118,11 +118,13 @@ def test_nine_secrets_distributed_in_realms():
 
 # ── 技能精简为起点技能（Bug #9）──
 
-def test_skills_only_emperor_fist():
-    """Bug: 11个技能（含basic_strike+jt_*）。修复：只有 emperor_fist。"""
+def test_skills_only_starting_skills():
+    """起点技能：遮天 emperor_fist + 星辰变 xc_xingchenbian。"""
     skills = load_skills()
-    assert len(skills) == 1
-    assert skills[0].id == "emperor_fist"
+    ids = {s.id for s in skills}
+    assert "emperor_fist" in ids
+    assert "xc_xingchenbian" in ids
+    assert "basic_strike" not in ids
 
 
 def test_no_basic_strike():

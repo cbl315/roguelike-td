@@ -36,6 +36,9 @@ class BondDef:
     set: str
     effect: dict[str, Any]
     rarity: str = "N"           # N/SR/SSR/UR/EX（按 path 境界深度标档）
+    is_seed: bool = False       # 是否体系种子（点了解锁体系）
+    seed_path: str = ""         # 种子解锁的体系 path id
+    seed_gold: float = 0.0      # 选了种子给的金币奖励
 
 
 @dataclass(frozen=True)

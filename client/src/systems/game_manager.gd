@@ -22,6 +22,9 @@ var _build: BuildState
 var _pools: RoguePools
 var _started: bool = false
 
+# 召唤单位（宠魅体系）
+var _summon_units: Array = []   # Array[SummonUnit]
+
 
 func _ready() -> void:
 	_spawner = $WaveSpawner
@@ -49,12 +52,16 @@ func _ready() -> void:
 	EventBus.enemy_reached_core.connect(_on_enemy_reached_hero)
 	EventBus.enemy_killed.connect(_on_enemy_killed)
 	_hero.fired_projectile.connect(_on_hero_fired)
+	# 召唤单位（宠魅体系）：build_state 通过信号通知生成/吞噬
+	_build.summon_unit_requested.connect(_on_summon_requested)
+	_build.summon_unit_devoured.connect(_on_summon_devoured)
 	_lobby.confirmed.connect(_on_lobby_confirmed)
 	_hud.bond_picker_requested.connect(open_bond_picker)
 	_hud.char_panel_toggled.connect(toggle_char_panel)
 	_hud.equipment_picker_requested.connect(open_equipment_picker)
-	# 开局先弹体系选择面板，选完后再开始第一波
-	call_deferred("_show_path_selection")
+	# 种子机制：开局直接开始第一波（体系种子在羁绊池里选）
+	_lobby.set_build_ref(_build, _pools)
+	call_deferred("_start_next_wave")
 
 
 func _show_path_selection() -> void:
@@ -70,7 +77,12 @@ func _process(delta: float) -> void:
 	match state:
 		State.WAVE_IN_PROGRESS:
 			_hero.set_enemies(_spawner.active_enemies())
-			_hud.update_enemy_count(_spawner.active_enemies().size())
+			# 每帧给所有召唤单位推送敌人列表（和给 hero 推送一样）
+			var _active_enemies: Array = _spawner.active_enemies()
+			for su in _summon_units:
+				if is_instance_valid(su):
+					su.set_enemies(_active_enemies)
+			_hud.update_enemy_count(_active_enemies.size())
 			# #2: 波次倒计时
 			_wave_timer -= delta
 			_hud.update_timer(_wave_timer)
@@ -135,9 +147,6 @@ func _on_lobby_confirmed() -> void:
 	_hud.update_bond_cost(_build.bond_draw_cost())
 	_hud.update_equip_state(_build.equip_level, _pools.equip_upgrade_cost(_build.equip_level))
 	_hero.refresh_stats()
-	# 如果是开局选体系后第一次关闭面板 → 开始第一波
-	if state == State.READY:
-		_start_next_wave()
 
 
 func open_bond_picker() -> void:
@@ -210,6 +219,59 @@ func _on_projectile_hit(target: Node, damage: float) -> void:
 	var lifesteal: float = stats.lifesteal_pct
 	if lifesteal > 0.0:
 		_hero.heal(damage * lifesteal)
+
+
+# ── 召唤单位（宠魅体系）──
+
+## 创建并挂载一个召唤单位到 self（和 hero 同层）。
+func spawn_summon_unit(unit_id: String, unit_name: String, offset: Vector2) -> void:
+	if not is_instance_valid(_hero):
+		return
+	# 已存在同 id 的召唤单位则不重复创建
+	for su in _summon_units:
+		if is_instance_valid(su) and su.unit_id == unit_id:
+			return
+	var summon := SummonUnit.new()
+	add_child(summon)
+	summon.setup(unit_name, unit_id, _hero, offset)
+	# 初始位置 = 英雄位置 + 偏移（避免从原点飞过来）
+	summon.global_position = _hero.global_position + offset
+	# 绑定 source：信号自带 (target, dmg)，bind 把召唤单位追加在末尾 → (target, dmg, source)
+	summon.fired_projectile.connect(_on_summon_fired.bind(summon))
+	_summon_units.append(summon)
+
+
+## build_state 请求生成召唤单位（unit_id 决定跟随偏移）。
+func _on_summon_requested(unit_id: String, unit_name: String) -> void:
+	# 莫邪在英雄右上方，白魇魔在英雄左上方
+	var offset: Vector2
+	match unit_id:
+		"moxie":
+			offset = Vector2(70, -70)
+		"baiyanmeng":
+			offset = Vector2(-70, -70)
+		_:
+			offset = Vector2(0, -100)
+	spawn_summon_unit(unit_id, unit_name, offset)
+
+
+## 白魇魔被吞噬 → 停用对应召唤单位。
+func _on_summon_devoured(unit_id: String) -> void:
+	for su in _summon_units:
+		if is_instance_valid(su) and su.unit_id == unit_id:
+			su.deactivate()
+
+
+## 召唤单位发射弹道（复用 _on_hero_fired 的逻辑，吸血也走 hero.heal）。
+## 信号 fired_projectile 自带 (target, dmg)；bind 追加 source 在末尾 → (target, dmg, source)。
+func _on_summon_fired(target: Node, dmg: float, source: Node) -> void:
+	if not is_instance_valid(source):
+		return
+	var proj := Projectile.new()
+	add_child(proj)
+	proj.setup(source.global_position, target, dmg)
+	# 吸血：projectile 命中时按 lifesteal_pct 回血（命中 hero.heal）
+	proj.hit_target.connect(_on_projectile_hit)
 
 
 ## #6: 由 HUD 的 Tab 键回调，切换角色面板 + 暂停

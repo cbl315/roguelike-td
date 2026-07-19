@@ -32,6 +32,37 @@ bonds:
   rarity: N
   effect:
     lifesteal_pct: 0.07
+# ══ 体系种子（点了才解锁体系羁绊池 + 给金币奖励）══
+- id: seed_zhutian
+  name: 遮天·道经种子
+  set: seed
+  rarity: SR
+  is_seed: true
+  seed_path: zhutian
+  seed_gold: 30
+  effect:
+    atk_pct_delta: 0.05
+  note: 选择后解锁遮天羁绊池，获得天帝拳起点技能，+30金币
+- id: seed_xingchenbian
+  name: 星辰变·功法种子
+  set: seed
+  rarity: SR
+  is_seed: true
+  seed_path: xingchenbian
+  seed_gold: 30
+  effect:
+    magic_dmg_pct_delta: 0.05
+  note: 选择后解锁星辰变羁绊池，获得星辰变功法起点技能，+30金币
+- id: seed_chongmei
+  name: 宠魅·魂约种子
+  set: seed
+  rarity: SR
+  is_seed: true
+  seed_path: chongmei
+  seed_gold: 30
+  effect:
+    atk_pct_delta: 0.05
+  note: 选择后解锁宠魅羁绊池，获得召唤莫邪起点技能，+30金币
 # ══ 遮天体系（修炼 path: zhutian）══
 # 境界阶梯：轮海→道宫→四极→化龙→仙台→准帝→大帝→红尘仙→天帝
 # 抽取规则：当前境界修满（集齐所有子羁绊）并吞噬突破后，才能抽下一境界的羁绊。
@@ -348,6 +379,397 @@ bonds:
     final_dmg_mult: 0.10
   note: 九秘之一（天帝境）——多重投射
 
+# ══ 星辰变体系（修炼 path: xingchenbian）══
+# 主打：法术伤害 + 星辰属性
+# 9 境界：星云→流星→星核→行星→渡劫→恒星→暗星→黑洞→宇宙
+
+# ── 星云（境0，rarity SR）──
+- id: xc_xy_xingchen
+  name: 星辰之力
+  set: xingchenbian
+  rarity: SR
+  effect:
+    magic_dmg_pct_delta: 0.10
+- id: xc_xy_yunqi
+  name: 云气
+  set: xingchenbian
+  rarity: SR
+  effect:
+    magic_dmg_pct_delta: 0.05
+- id: xc_xy_linggen
+  name: 灵根
+  set: xingchenbian
+  rarity: SR
+  effect:
+    crit_rate_delta: 0.05
+
+# ── 流星（境1，rarity SSR）──
+- id: xc_lx_liuxing
+  name: 流星
+  set: xingchenbian
+  rarity: SSR
+  effect:
+    attack_speed_delta: 0.15
+- id: xc_lx_liuxinglei
+  name: 流星泪
+  set: xingchenbian
+  rarity: SSR
+  effect:
+    hp_pct_delta: 0.15
+    lifesteal_pct: 0.03
+- id: xc_lx_poeng
+  name: 破空
+  set: xingchenbian
+  rarity: SSR
+  effect:
+    armor_pen: 0.10
+
+# ── 星核（境2，rarity SSR）──
+- id: xc_xh_xinhe
+  name: 星核
+  set: xingchenbian
+  rarity: SSR
+  effect:
+    magic_dmg_pct_delta: 0.15
+- id: xc_xh_faize
+  name: 六九天劫
+  set: xingchenbian
+  rarity: SSR
+  effect:
+    final_dmg_mult: 0.08
+- id: xc_xh_yuanshen
+  name: 星力凝核
+  set: xingchenbian
+  rarity: SSR
+  effect:
+    crit_dmg_delta: 0.20
+
+# ── 行星（境3，rarity SSR）──
+- id: xc_xx_guidao
+  name: 轨道
+  set: xingchenbian
+  rarity: SSR
+  effect:
+    attack_speed_delta: 0.12
+- id: xc_xx_wuxing
+  name: 五行
+  set: xingchenbian
+  rarity: SSR
+  effect:
+    elemental_dmg_mult: 0.15
+- id: xc_xx_dunjia
+  name: 遁甲
+  set: xingchenbian
+  rarity: SSR
+  effect:
+    damage_reduction_delta: 0.05
+
+# ── 渡劫（境4，rarity UR）──
+- id: xc_dj_leijie
+  name: 雷劫
+  set: xingchenbian
+  rarity: UR
+  effect:
+    elemental_dmg_mult: 0.20
+- id: xc_dj_duomie
+  name: 渡灭
+  set: xingchenbian
+  rarity: UR
+  effect:
+    final_dmg_mult: 0.12
+
+# ── 恒星（境5，rarity UR）──
+- id: xc_hx_hengguang
+  name: 恒光
+  set: xingchenbian
+  rarity: UR
+  effect:
+    magic_dmg_pct_delta: 0.20
+- id: xc_hx_taoyang
+  name: 太阳
+  set: xingchenbian
+  rarity: UR
+  effect:
+    elemental_dmg_mult: 0.15
+
+# ── 暗星（境6，rarity UR）──
+- id: xc_ax_ansu
+  name: 暗素
+  set: xingchenbian
+  rarity: UR
+  effect:
+    final_dmg_mult: 0.15
+- id: xc_ax_xuanying
+  name: 玄影
+  set: xingchenbian
+  rarity: UR
+  effect:
+    crit_rate_delta: 0.10
+
+# ── 黑洞（境7，rarity EX）──
+- id: xc_hd_tunshi
+  name: 吞噬
+  set: xingchenbian
+  rarity: EX
+  effect:
+    final_dmg_mult: 0.20
+    lifesteal_pct: 0.05
+- id: xc_hd_xumie
+  name: 虚灭
+  set: xingchenbian
+  rarity: EX
+  effect:
+    magic_dmg_pct_delta: 0.25
+
+# ── 宇宙（境8，rarity EX）──
+- id: xc_yz_yuzhou
+  name: 宇宙
+  set: xingchenbian
+  rarity: EX
+  effect:
+    final_dmg_mult: 0.25
+- id: xc_yz_hongmeng
+  name: 鸿蒙
+  set: xingchenbian
+  rarity: EX
+  effect:
+    final_dmg_mult: 0.30
+    magic_dmg_pct_delta: 0.20
+
+# ══ 宠魅体系（修炼 path: chongmei）══
+# 主打：召唤养成 + 半魔化变身
+# 9 境界：魂徒→魂士→魂师→魂主→魂皇→魂宰→魂朽→千年最强→万年强者
+
+# ── 魂徒（境0，rarity SR，4个）──
+- id: cm_ht_baiyanmeng
+  name: 白魇魔·第三魂约
+  set: chongmei
+  rarity: SR
+  effect:
+    magic_dmg_pct_delta: 0.10
+    lifesteal_pct: 0.02
+- id: cm_ht_moxie
+  name: 莫邪·第四魂约
+  set: chongmei
+  rarity: SR
+  effect:
+    atk_pct_delta: 0.10
+- id: cm_ht_yanmojuedi
+  name: 魇魔免疫
+  set: chongmei
+  rarity: SR
+  effect:
+    hp_pct_delta: 0.10
+    damage_reduction_delta: 0.03
+- id: cm_ht_hunian
+  name: 魂念觉醒
+  set: chongmei
+  rarity: SR
+  effect:
+    crit_rate_delta: 0.05
+
+# ── 魂士（境1，rarity SSR，3个）──
+- id: cm_hs_liuwei
+  name: 莫邪进化·六尾妖狐
+  set: chongmei
+  rarity: SSR
+  effect:
+    atk_pct_delta: 0.15
+    elemental_dmg_mult: 0.10
+- id: cm_hs_banmo_first
+  name: 半魔楚暮·首次觉醒
+  set: chongmei
+  rarity: SSR
+  effect:
+    atk_pct_delta: 0.15
+    final_dmg_mult: 0.08
+- id: cm_hs_xiashou
+  name: 夺魂归来
+  set: chongmei
+  rarity: SSR
+  effect:
+    atk_pct_delta: 0.10
+    crit_dmg_delta: 0.15
+
+# ── 魂师（境2，rarity SSR，4个）──
+- id: cm_hs_jiuwei
+  name: 莫邪进化·九尾炎狐
+  set: chongmei
+  rarity: SSR
+  effect:
+    elemental_dmg_mult: 0.15
+    atk_pct_delta: 0.10
+- id: cm_hs_qiudao
+  name: 囚岛淬炼
+  set: chongmei
+  rarity: SSR
+  effect:
+    atk_pct_delta: 0.12
+    hp_pct_delta: 0.10
+- id: cm_hs_baiyanmeng_gain
+  name: 白魇魔成长
+  set: chongmei
+  rarity: SSR
+  effect:
+    magic_dmg_pct_delta: 0.12
+- id: cm_hs_hundian
+  name: 魂殿赐技
+  set: chongmei
+  rarity: SSR
+  effect:
+    attack_speed_delta: 0.10
+    crit_rate_delta: 0.05
+
+# ── 魂主（境3，rarity UR，4个）──
+- id: cm_hz_baiyanmeng_awaken
+  name: 白魇魔·觉醒
+  set: chongmei
+  rarity: UR
+  effect:
+    magic_dmg_pct_delta: 0.15
+    lifesteal_pct: 0.03
+- id: cm_hz_moxie_tongling
+  name: 莫邪·统领级突破
+  set: chongmei
+  rarity: UR
+  effect:
+    atk_pct_delta: 0.20
+    elemental_dmg_mult: 0.10
+- id: cm_hz_xuanwu
+  name: 玄物吸收
+  set: chongmei
+  rarity: UR
+  effect:
+    atk_pct_delta: 0.10
+    hp_pct_delta: 0.15
+- id: cm_hz_baiyanmeng_fanshi
+  name: 白魇魔反噬加重
+  set: chongmei
+  rarity: UR
+  effect:
+    final_dmg_mult: 0.12
+    crit_dmg_delta: 0.20
+
+# ── 魂皇（境4，rarity UR，3个）──
+- id: cm_hz_banmo_stable
+  name: 半魔化·稳定
+  set: chongmei
+  rarity: UR
+  effect:
+    atk_pct_delta: 0.15
+    damage_reduction_delta: 0.05
+- id: cm_hz_moxie_peak
+  name: 莫邪·战力巅峰
+  set: chongmei
+  rarity: UR
+  effect:
+    atk_pct_delta: 0.15
+    elemental_dmg_mult: 0.10
+- id: cm_hz_yunjing
+  name: 云境突破
+  set: chongmei
+  rarity: UR
+  effect:
+    attack_speed_delta: 0.12
+    crit_rate_delta: 0.05
+
+# ── 魂宰（境5，rarity UR，3个）──
+- id: cm_hz_qizuifu
+  name: 莫邪进化·七罪狐
+  set: chongmei
+  rarity: UR
+  effect:
+    atk_pct_delta: 0.20
+    true_dmg_pct_delta: 0.05
+    final_dmg_mult: 0.10
+- id: cm_hz_baiyanmeng_wanquan
+  name: 白魇魔·完全体
+  set: chongmei
+  rarity: UR
+  effect:
+    magic_dmg_pct_delta: 0.20
+    lifesteal_pct: 0.03
+- id: cm_hz_zhuzai
+  name: 主宰级突破
+  set: chongmei
+  rarity: UR
+  effect:
+    atk_pct_delta: 0.15
+    hp_pct_delta: 0.15
+
+# ── 魂朽（境6，rarity EX，3个）──
+- id: cm_hxiu_shezui
+  name: 莫邪进化·赦罪之狐
+  set: chongmei
+  rarity: EX
+  effect:
+    atk_pct_delta: 0.20
+    final_dmg_mult: 0.15
+    lifesteal_pct: 0.03
+- id: cm_hxiu_buxiu
+  name: 触碰不朽
+  set: chongmei
+  rarity: EX
+  effect:
+    hp_pct_delta: 0.20
+    damage_reduction_delta: 0.05
+- id: cm_hxiu_zuiyan
+  name: 罪炎·第五等级
+  set: chongmei
+  rarity: EX
+  effect:
+    elemental_dmg_mult: 0.20
+    true_dmg_pct_delta: 0.05
+
+# ── 千年最强（境7，rarity EX，3个）──
+- id: cm_qn_zidi
+  name: 莫邪终极·幽冥狐尊·紫帝
+  set: chongmei
+  rarity: EX
+  effect:
+    atk_pct_delta: 0.25
+    final_dmg_mult: 0.20
+    elemental_dmg_mult: 0.15
+- id: cm_qn_qisi
+  name: 起死回生
+  set: chongmei
+  rarity: EX
+  effect:
+    hp_pct_delta: 0.25
+    lifesteal_pct: 0.05
+- id: cm_qn_qiannian
+  name: 千年最强者
+  set: chongmei
+  rarity: EX
+  effect:
+    atk_pct_delta: 0.20
+    crit_rate_delta: 0.10
+    crit_dmg_delta: 0.30
+
+# ── 万年强者（境8，rarity EX，3个）──
+- id: cm_wn_moren_wanquan
+  name: 魔人·完全体
+  set: chongmei
+  rarity: EX
+  effect:
+    final_dmg_mult: 0.25
+    atk_pct_delta: 0.20
+- id: cm_wn_moxie_zhuanji
+  name: 莫邪·紫帝专精
+  set: chongmei
+  rarity: EX
+  effect:
+    atk_pct_delta: 0.20
+    elemental_dmg_mult: 0.15
+- id: cm_wn_wannian
+  name: 万年强者·万兽之主
+  set: chongmei
+  rarity: EX
+  effect:
+    final_dmg_mult: 0.30
+    atk_pct_delta: 0.25
+    hp_pct_delta: 0.20
+
 paths:
 # ══ 遮天修炼路径（境界树）══
 # 阶梯抽取：玩家初始可抽境界 0（轮海）的羁绊；集齐当前境界全部羁绊并吞噬突破后，
@@ -452,3 +874,173 @@ paths:
       final_dmg_mult: 0.35
     synergy_unlock: zhutian_emperor_fist
     note: 万道相合→天帝拳成→独断万古→天帝果位
+
+# ══ 星辰变修炼路径 ══
+- id: xingchenbian
+  name: 星辰变
+  realms:
+  - name: 星云
+    bonds:
+    - xc_xy_xingchen
+    - xc_xy_yunqi
+    - xc_xy_linggen
+    reward:
+      magic_dmg_pct_delta: 0.15
+    note: 气态凝聚，法术萌芽
+  - name: 流星
+    bonds:
+    - xc_lx_liuxing
+    - xc_lx_liuxinglei
+    - xc_lx_poeng
+    reward:
+      magic_dmg_pct_delta: 0.20
+      attack_speed_delta: 0.10
+    note: 破空而出，速度爆发
+  - name: 星核
+    bonds:
+    - xc_xh_xinhe
+    - xc_xh_faize
+    - xc_xh_yuanshen
+    reward:
+      magic_dmg_pct_delta: 0.20
+      final_dmg_mult: 0.08
+    note: 凝聚核心，法术成型
+  - name: 行星
+    bonds:
+    - xc_xx_guidao
+    - xc_xx_wuxing
+    - xc_xx_dunjia
+    reward:
+      magic_dmg_pct_delta: 0.25
+      elemental_dmg_mult: 0.10
+    note: 稳定轨道，全面成长
+  - name: 渡劫
+    bonds:
+    - xc_dj_leijie
+    - xc_dj_duomie
+    reward:
+      final_dmg_mult: 0.15
+      elemental_dmg_mult: 0.10
+    note: 天劫洗礼，质变门槛
+  - name: 恒星
+    bonds:
+    - xc_hx_hengguang
+    - xc_hx_taoyang
+    reward:
+      magic_dmg_pct_delta: 0.25
+      elemental_dmg_mult: 0.10
+    note: 自身发光，法术巅峰
+  - name: 暗星
+    bonds:
+    - xc_ax_ansu
+    - xc_ax_xuanying
+    reward:
+      final_dmg_mult: 0.15
+      crit_rate_delta: 0.05
+    note: 暗物质，隐藏力量
+  - name: 黑洞
+    bonds:
+    - xc_hd_tunshi
+    - xc_hd_xumie
+    reward:
+      final_dmg_mult: 0.20
+      lifesteal_pct: 0.03
+    note: 吞噬万物，终极法术
+  - name: 宇宙
+    bonds:
+    - xc_yz_yuzhou
+    - xc_yz_hongmeng
+    reward:
+      final_dmg_mult: 0.25
+      magic_dmg_pct_delta: 0.20
+    note: 自成一界，造物之主
+
+# ══ 宠魅修炼路径 ══
+- id: chongmei
+  name: 宠魅
+  realms:
+  - name: 魂徒
+    bonds:
+    - cm_ht_baiyanmeng
+    - cm_ht_moxie
+    - cm_ht_yanmojuedi
+    - cm_ht_hunian
+    reward:
+      atk_pct_delta: 0.15
+      lifesteal_pct: 0.02
+    note: 白魇魔签订+莫邪签订，魇魔绝地求生
+  - name: 魂士
+    bonds:
+    - cm_hs_liuwei
+    - cm_hs_banmo_first
+    - cm_hs_xiashou
+    reward:
+      atk_pct_delta: 0.20
+      final_dmg_mult: 0.08
+    note: 六尾妖狐+半魔首觉，击败夏广寒
+  - name: 魂师
+    bonds:
+    - cm_hs_jiuwei
+    - cm_hs_qiudao
+    - cm_hs_baiyanmeng_gain
+    - cm_hs_hundian
+    reward:
+      atk_pct_delta: 0.20
+      elemental_dmg_mult: 0.10
+    note: 九尾炎狐+囚岛淬炼+魂殿赐技
+  - name: 魂主
+    bonds:
+    - cm_hz_baiyanmeng_awaken
+    - cm_hz_moxie_tongling
+    - cm_hz_xuanwu
+    - cm_hz_baiyanmeng_fanshi
+    reward:
+      atk_pct_delta: 0.25
+      lifesteal_pct: 0.03
+    note: 白魇魔觉醒+莫邪统领级
+  - name: 魂皇
+    bonds:
+    - cm_hz_banmo_stable
+    - cm_hz_moxie_peak
+    - cm_hz_yunjing
+    reward:
+      atk_pct_delta: 0.25
+      damage_reduction_delta: 0.05
+    note: 半魔化稳定+莫邪巅峰
+  - name: 魂宰
+    bonds:
+    - cm_hz_qizuifu
+    - cm_hz_baiyanmeng_wanquan
+    - cm_hz_zhuzai
+    reward:
+      final_dmg_mult: 0.15
+      true_dmg_pct_delta: 0.05
+    note: 七罪狐+白魇魔完全体+主宰级
+  - name: 魂朽
+    bonds:
+    - cm_hxiu_shezui
+    - cm_hxiu_buxiu
+    - cm_hxiu_zuiyan
+    reward:
+      final_dmg_mult: 0.20
+      lifesteal_pct: 0.03
+    note: 赦罪之狐+触碰不朽（白魇魔被吞噬，半魔化觉醒）
+  - name: 千年最强
+    bonds:
+    - cm_qn_zidi
+    - cm_qn_qisi
+    - cm_qn_qiannian
+    reward:
+      final_dmg_mult: 0.20
+      atk_pct_delta: 0.20
+    note: 幽冥狐尊·紫帝降临（第三魂宠登场）
+  - name: 万年强者
+    bonds:
+    - cm_wn_moren_wanquan
+    - cm_wn_moxie_zhuanji
+    - cm_wn_wannian
+    reward:
+      final_dmg_mult: 0.25
+      atk_pct_delta: 0.25
+      hp_pct_delta: 0.15
+    note: 魔人完全体+万兽之主

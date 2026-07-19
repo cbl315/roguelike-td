@@ -61,7 +61,7 @@ func _render_path_selection() -> void:
 	# 体系卡片
 	var systems: Array = [
 		{"id": "zhutian", "name": "遮天", "desc": "物理伤害+肉盾+后期真伤\n9境界·43羁绊·九秘", "available": true},
-		{"id": "xingchenbian", "name": "星辰变", "desc": "法术AOE+星辰之力\n（敬请期待）", "available": false},
+		{"id": "xingchenbian", "name": "星辰变", "desc": "法术AOE+星辰之力\n9境界·22羁绊", "available": true},
 		{"id": "chongmei", "name": "宠魅", "desc": "召唤养成+魂宠进化\n（敬请期待）", "available": false},
 	]
 	for i in systems.size():
@@ -160,11 +160,15 @@ func _refresh_bond_offers() -> void:
 	var prog: Dictionary = pools.cultivation_progress(build.bond_pool, build.path_realm)
 	if not prog.is_empty():
 		prefer = prog.get("needed", [])
-	# 排除：已拥有 + 已吞噬（引擎内部也排已拥有，这里补已吞噬）
+	# 排除：已拥有 + 已吞噬 + 已选体系的种子（引擎内部也排已拥有）
 	var excluded: Array = build.bond_pool.duplicate()
 	for b in build.devoured_bonds:
 		if not excluded.has(b):
 			excluded.append(b)
+	# 已选体系的种子不再出现
+	for b in pools._bonds:
+		if b.get("is_seed", false) and build.path_realm.has(b.get("seed_path", "")):
+			excluded.append(b.get("id", ""))
 	_bond_offers = pools.draw_bond_offers(3, prefer, excluded, build.path_realm)
 	_render()
 
@@ -578,7 +582,11 @@ func _on_pick(idx: int) -> void:
 		_replace_mode = true
 		_render()
 		return
-	# 选一次即关闭面板
+	# 选了种子：不自动刷新，给金币后关闭面板（用户自己再点羁绊按钮）
+	if offer.get("is_seed", false):
+		close()
+		return
+	# 普通羁绊：选一次即关闭面板
 	close()
 
 

@@ -74,9 +74,9 @@ def test_all_synergies_require_devoured_set():
 
 
 def test_synergy_count():
-    """联动总数 = 3（天帝之拳 + 天帝雷罚 + 九秘合一；当前仅遮天体系）。"""
+    """联动总数 = 9（遮天3 + 星辰变3 + 宠魅3）。"""
     engine = SynergyEngine()
-    assert len(engine.synergies) == 3
+    assert len(engine.synergies) == 9
 
 
 # ── Bug 回归测试 ──

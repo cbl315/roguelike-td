@@ -7,6 +7,10 @@ class_name BuildState
 
 signal changed
 
+# 召唤单位（宠魅体系）：build_state 不直接创建节点，通过信号通知 game_manager
+signal summon_unit_requested(unit_id: String, unit_name: String)
+signal summon_unit_devoured(unit_id: String)   # 白魇魔被吞噬
+
 var gold: float = 0.0
 var accumulated_effects: Array = []    # Array[Dictionary] 累积的 effect（境界 reward + 装备词条）
 var bond_pool: Array = []              # Array[String] 当前羁绊 id（上限 10）
@@ -46,23 +50,23 @@ func setup(p_pools: Variant, p_rng: RandomNumberGenerator) -> void:
 	synergy_engine = SynergyEngine.new()
 
 
-## 选体系（开局）：获得起点技能的 effect + 初始化 path_realm。
-## path_id: 体系 id（如 "zhutian"）。选了之后该体系羁绊才进抽取池。
+## 选体系（开局/种子）：获得起点技能的 effect + 初始化 path_realm。
 func choose_path(path_id: String) -> void:
-	# 初始化 path_realm（从境0开始）
 	path_realm[path_id] = 0
-	# 获得起点技能 effect（目前硬编码，后续多体系时从数据文件查）
+	choose_path_effect(path_id)
+	changed.emit()
+
+
+## 给起点技能加 effect（种子和 choose_path 共用）
+func choose_path_effect(path_id: String) -> void:
 	match path_id:
 		"zhutian":
-			# 天帝拳：物理伤害倍率 ×1.5
 			accumulated_effects.append({"atk_ratio_delta": 0.5})
 		"xingchenbian":
-			# 星辰变功法：法术伤害倍率 ×1.5（待落地）
 			accumulated_effects.append({"atk_ratio_delta": 0.5})
 		"chongmei":
-			# 召唤莫邪：基础召唤（待落地）
 			accumulated_effects.append({"atk_ratio_delta": 0.3})
-	changed.emit()
+			summon_unit_requested.emit("moxie", "莫邪")
 
 
 func add_gold(amount: float) -> void:
@@ -82,9 +86,19 @@ func spend(amount: float) -> bool:
 ## 羁绊 effect 不存 accumulated_effects——assemble_stats 时从 bond_pool 实时查，
 ## 这样丢弃/替换羁绊自动更新属性（无需反向撤销）。
 func take_bond_offer(offer: Dictionary) -> bool:
+	var bid: String = offer.get("id")
+	# 种子卡：不进 bond_pool，直接解锁体系 + 给金币 + 加起点效果
+	if offer.get("is_seed", false):
+		var seed_path: String = offer.get("seed_path", "")
+		var seed_gold: float = float(offer.get("seed_gold", 0))
+		path_realm[seed_path] = 0   # 解锁体系
+		add_gold(seed_gold)          # 给金币奖励
+		choose_path_effect(seed_path) # 加起点技能 effect
+		_try_devour()
+		changed.emit()
+		return true
 	if bond_pool.size() >= bond_pool_capacity:
 		return false   # 池满——调用方应弹替换 UI
-	var bid: String = offer.get("id")
 	bond_pool.append(bid)
 	# bonds_drawn 在 open_bond 时已递增（扣款时机 = 打开面板）
 	# 检查境界吞噬
@@ -126,6 +140,14 @@ func _try_devour() -> void:
 		if not reward.is_empty():
 			accumulated_effects.append(reward)
 		EventBus.bond_devoured.emit(pid, idx + 1, pools.realm_name(pid, idx))
+		# 宠魅体系境界 → 召唤单位生命周期
+		if pid == "chongmei":
+			# 魂主境（realm==3）：白魇魔降生
+			if idx + 1 == 3:
+				summon_unit_requested.emit("baiyanmeng", "白魇魔")
+			# 魂朽境（realm==6）：白魇魔被吞噬
+			elif idx + 1 == 6:
+				summon_unit_devoured.emit("baiyanmeng")
 
 
 ## 组装当前 CombatStats（完整管线 + 联动重算）。

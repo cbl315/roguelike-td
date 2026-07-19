@@ -41,3 +41,82 @@ synergies:
     effect:
       final_dmg_mult: 2.0                   # 最终伤害 +200%
     note: 九秘从技能转为羁绊，修满 9 境界自动集齐触发
+
+  # ══ 星辰变联动 ══
+
+  # ── 星辰变·星耀（修满星辰变 + 至少恒星境）──
+  - id: xingchenbian_star
+    name: 星辰变·星耀
+    rarity: SSR
+    trigger:
+      all:
+        - bond_devoured_set: xingchenbian
+    effect:
+      magic_dmg_pct_delta: 0.50
+    note: 修满星辰变境界，法伤 +50%
+
+  # ── 黑洞·吞噬万物（法术终极，三重联动）──
+  - id: xingchenbian_blackhole
+    name: 黑洞·吞噬万物
+    rarity: EX
+    trigger:
+      all:
+        - bond_devoured_set: xingchenbian
+        - equipment_affix: magic_amp
+    effect:
+      final_dmg_mult: 1.5
+      magic_dmg_pct_delta: 0.50
+    note: 法术流终极——星辰变+黑洞+法术增幅
+
+  # ── 宇宙诞生（法术流天花板）──
+  - id: xingchenbian_universe
+    name: 宇宙诞生
+    rarity: EX
+    trigger:
+      all:
+        - bond_devoured_set: xingchenbian
+        - equipment_affix: synergy_amp
+    effect:
+      final_dmg_mult: 1.0
+      lifesteal_pct: 0.10
+    note: 自成宇宙，万法归一——法术吸血终极续航
+
+  # ══ 宠魅联动 ══
+
+  # ── 莫邪进化·九尾（修满宠魅 + 起点技能）──
+  - id: chongmei_evolution
+    name: 莫邪进化·九尾
+    rarity: SSR
+    trigger:
+      all:
+        - bond_devoured_set: chongmei
+    effect:
+      atk_pct_delta: 0.30
+      elemental_dmg_mult: 0.20
+    note: 修满宠魅境界，莫邪终极进化
+
+  # ── 半魔化·灵魂吞噬（三重联动）──
+  - id: chongmei_half_demon
+    name: 半魔楚暮·灵魂吞噬
+    rarity: EX
+    trigger:
+      all:
+        - bond_devoured_set: chongmei
+        - equipment_affix: synergy_amp
+    effect:
+      final_dmg_mult: 1.5
+      lifesteal_pct: 0.05
+    note: 吞噬白魇魔灵魂，化身魔人——宠魅体系招牌
+
+  # ── 紫帝降临（终极）──
+  - id: chongmei_zidi
+    name: 幽冥狐尊·紫帝降临
+    rarity: EX
+    trigger:
+      all:
+        - bond_devoured_set: chongmei
+        - equipment_affix: magic_amp
+    effect:
+      final_dmg_mult: 1.0
+      atk_pct_delta: 0.30
+    note: 召唤流天花板——魔人+紫帝双终极

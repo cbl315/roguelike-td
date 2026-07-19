@@ -92,14 +92,18 @@ class SimpleStrategy(Strategy):
             actions.append(action)
             state.record(action)
 
-        # 选一条主修炼路径（开局随机选一条推进；B-3 可改智能选择）
+        # 主修炼路径：如果还没选任何体系，优先抽种子
         if not hasattr(state, "_main_path") or state.__dict__.get("_main_path") is None:
-            import random as _r
-            state.__dict__["_main_path"] = pools.rng.choice(pools.paths).id
+            state.__dict__["_main_path"] = None
+        # 如果已选了体系，设 main_path
+        if state._main_path is None and state.path_realm:
+            state.__dict__["_main_path"] = list(state.path_realm.keys())[0]
         main_path = state._main_path
 
         def current_realm_needed() -> list[str]:
             """主路径当前境界需要的羁绊。"""
+            if main_path is None:
+                return []
             idx = state.path_realm.get(main_path, 0)
             return pools.current_realm_bonds(main_path, idx)
 
@@ -129,6 +133,17 @@ class SimpleStrategy(Strategy):
                     state.add_gold(cost)
                     continue
                 chosen = offers[0]
+                # 种子卡：不进 bond_pool，直接解锁体系 + 给金币 + 加起点效果
+                seed = pools.get_seed(chosen.id)
+                if seed:
+                    state.path_realm[seed.seed_path] = 0
+                    state.add_gold(seed.seed_gold)
+                    # 种子不计入抽取递增成本（bond_times_drawn 不变）
+                    do(Action(ActionType.DRAW_BOND, cost=cost, detail=f"🌱 种子: {chosen.name} (解锁{seed.seed_path}+{seed.seed_gold}金)"))
+                    # 选了种子后更新 main_path
+                    if state._main_path is None:
+                        state.__dict__["_main_path"] = seed.seed_path
+                    continue
                 # 池满 → 丢最无用的（模拟玩家合理选择）
                 if len(state.bond_pool) >= state.bond_pool_capacity:
                     discard = _pick_discard(state.bond_pool, state.path_realm, pools, chosen.id)

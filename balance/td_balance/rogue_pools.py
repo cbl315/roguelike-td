@@ -54,8 +54,20 @@ class RoguePools:
             for r in p.realms:
                 ids.extend(r.bonds)
             self._path_bond_ids[p.id] = ids
+        # 种子羁绊查找表：seed_path → BondDef
+        self._seeds: dict[str, "BondDef"] = {b.seed_path: b for b in self.bonds if b.is_seed}
+
+    def get_seed(self, bond_id: str):
+        """如果 bond_id 是种子，返回对应的 BondDef，否则 None。"""
+        for b in self.bonds:
+            if b.id == bond_id and b.is_seed:
+                return b
+        return None
 
     def _weighted_rarity(self) -> str:
+        """按权重抽一个稀有度。"""
+        weights = [self.rarity_weights[r] for r in self.rarities]
+        return self.rng.weighted_choice(self.rarities, weights)
         """按权重抽一个稀有度。"""
         weights = [self.rarity_weights[r] for r in self.rarities]
         return self.rng.weighted_choice(self.rarities, weights)
@@ -83,12 +95,18 @@ class RoguePools:
         bond_map = {b.id: b for b in self.bonds}
         owned = set(owned_bond_ids or [])
 
-        # 构建合法池 = generic + 各 path 当前境界的羁绊
-        # path_realm 为空/None 时，视为所有 path 从境0开始（初始状态）
+        # 构建合法池 = generic + 种子 + 已选体系当前境界的羁绊
         pr = path_realm or {}
         legal: list[str] = [b.id for b in self.bonds if b.set == "generic"]
+        # 种子卡：始终可见（不管选没选体系），但已选的不重复出现
+        for b in self.bonds:
+            if b.set == "seed" and b.seed_path not in pr:
+                legal.append(b.id)
+        # 已选体系的当前境界羁绊
         for p in self.paths:
-            idx = pr.get(p.id, 0)
+            if p.id not in pr:
+                continue
+            idx = pr[p.id]
             if idx < len(p.realms):
                 legal.extend(p.realms[idx].bonds)
         # 去重 + 排除已拥有
@@ -107,8 +125,15 @@ class RoguePools:
         else:
             weighted_pool = pool
 
+        picked: set[str] = set()
         for _ in range(n):
             bid = self.rng.choice(weighted_pool)
+            # 去重：已抽到的不重复
+            tries = 0
+            while bid in picked and tries < 8:
+                bid = self.rng.choice(weighted_pool)
+                tries += 1
+            picked.add(bid)
             b = bond_map[bid]
             offers.append(Offer(KIND_BOND, b.id, b.name, b.rarity))
         return offers

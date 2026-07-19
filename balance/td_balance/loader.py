@@ -140,6 +140,9 @@ def load_bonds() -> list[BondDef]:
             set=b["set"],
             effect=b.get("effect", {}),
             rarity=b.get("rarity", "N"),
+            is_seed=b.get("is_seed", False),
+            seed_path=b.get("seed_path", ""),
+            seed_gold=b.get("seed_gold", 0.0),
         )
         for b in d["bonds"]
     ]

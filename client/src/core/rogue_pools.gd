@@ -74,13 +74,22 @@ func draw_bond_offers(n: int = 3, prefer_ids: Array = [], owned_ids: Array = [],
 	for bid in owned_ids:
 		owned[bid] = true
 
-	# 合法池 = generic + 各 path 当前境界的羁绊
+	# 合法池 = generic + 种子卡（未选体系时可见） + 已选体系当前境界的羁绊
 	var legal: Array = []
 	for b in _bonds:
 		if b.get("set") == "generic":
 			legal.append(b.get("id"))
+		# 种子卡：始终可见（除非已选了该体系）
+		if b.get("is_seed", false):
+			var sp: String = b.get("seed_path", "")
+			if not path_realm.has(sp):
+				legal.append(b.get("id"))
 	for p in _paths:
-		var idx: int = int(path_realm.get(p.get("id"), 0))
+		var pid: String = p.get("id", "")
+		# 只允许玩家已选的体系（path_realm 里有记录）的羁绊进池
+		if not path_realm.has(pid):
+			continue
+		var idx: int = int(path_realm[pid])
 		var realms: Array = p.get("realms", [])
 		if idx < realms.size():
 			for bid in realms[idx].get("bonds", []):
@@ -128,11 +137,17 @@ func draw_bond_offers(n: int = 3, prefer_ids: Array = [], owned_ids: Array = [],
 		if b.is_empty():
 			b = _bonds[_rng.randi() % _bonds.size()]
 		var eff: Dictionary = b.get("effect", {})
-		offers.append({
+		var offer_data: Dictionary = {
 			"kind": "bond", "id": b.get("id"), "name": b.get("name"),
 			"rarity": b.get("rarity", "N"), "effect": eff,
 			"desc": _effect_to_text(eff)
-		})
+		}
+		# 种子卡：带上种子字段，让 take_bond_offer 能识别
+		if b.get("is_seed", false):
+			offer_data["is_seed"] = true
+			offer_data["seed_path"] = b.get("seed_path", "")
+			offer_data["seed_gold"] = b.get("seed_gold", 0)
+		offers.append(offer_data)
 	return offers
 
 
