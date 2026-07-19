@@ -172,10 +172,10 @@ def test_zhutian_bond_count():
 
 
 def test_generic_bond_count():
-    """generic 通用羁绊 = 5（原6，删了 common_gold）。"""
+    """generic 通用羁绊 = 10（扩展后）。"""
     bonds = load_bonds()
     generic = [b for b in bonds if b.set == "generic"]
-    assert len(generic) == 5, f"generic 羁绊应有 5 个，实际 {len(generic)}"
+    assert len(generic) == 30, f"generic 羁绊应有 30 个，实际 {len(generic)}"
 
 
 def test_zhutian_nine_realms():

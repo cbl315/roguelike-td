@@ -120,6 +120,28 @@ func draw_bond_offers(n: int = 3, prefer_ids: Array = [], owned_ids: Array = [],
 		for bid in prefer_legal:
 			for _i in range(3):
 				weighted_pool.append(bid)
+	# 已选体系的羁绊轻微加权（选了某体系后，该体系羁绊更容易出现）
+	for bid in pool:
+		var bond_set: String = _bond_to_set.get(bid, "")
+		# 跳过 generic 和 seed（它们本来就全池可见）
+		if bond_set == "generic" or bond_set == "seed":
+			continue
+		# 检查该羁绊所属的 path 是否在 path_realm 里（已选体系）
+		for p in _paths:
+			var pid: String = p.get("id", "")
+			if pid == "generic_fusion":
+				continue
+			if not path_realm.has(pid):
+				continue
+			# 该 path 的所有境界羁绊
+			var all_path_bonds: Array = []
+			for r in p.get("realms", []):
+				for b in r.get("bonds", []):
+					all_path_bonds.append(b)
+			if all_path_bonds.has(bid):
+				# 已选体系的羁绊：额外加 1 份（轻微加权，不像 prefer 那么强）
+				weighted_pool.append(bid)
+				break
 
 	var picked: Dictionary = {}
 	# 实际可选项数 = min(请求数 n, 可选池去重后的大小)
@@ -368,8 +390,15 @@ func cultivation_progress(bond_pool: Array, path_realm: Dictionary) -> Dictionar
 	var pid: String = ""
 	var idx: int = 0
 	if not path_realm.is_empty():
-		pid = path_realm.keys()[0]
-		idx = path_realm[pid]
+		# 优先取非 generic_fusion 的体系（generic_fusion 不是修炼体系，不该显示进度）
+		for key in path_realm.keys():
+			if key != "generic_fusion":
+				pid = key
+				idx = path_realm[key]
+				break
+		# 如果只有 generic_fusion，不显示修炼进度
+		if pid == "":
+			return {}
 	else:
 		# 未开始修炼：找已拥有羁绊所属的路径
 		pid = _detect_path_from_bonds(bond_pool)

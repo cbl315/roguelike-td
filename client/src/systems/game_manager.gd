@@ -121,6 +121,7 @@ func _start_next_wave() -> void:
 	_hud.update_bond_cost(_build.bond_draw_cost())
 	_hud.update_equip_state(_build.equip_level, _pools.equip_upgrade_cost(_build.equip_level))
 	_hero.refresh_stats()
+	_refresh_summon_stats()
 	if _spawner: _spawner.start_wave(current_wave)
 
 
@@ -147,6 +148,7 @@ func _on_lobby_confirmed() -> void:
 	_hud.update_bond_cost(_build.bond_draw_cost())
 	_hud.update_equip_state(_build.equip_level, _pools.equip_upgrade_cost(_build.equip_level))
 	_hero.refresh_stats()
+	_refresh_summon_stats()
 
 
 func open_bond_picker() -> void:
@@ -260,6 +262,16 @@ func _on_summon_devoured(unit_id: String) -> void:
 	for su in _summon_units:
 		if is_instance_valid(su) and su.unit_id == unit_id:
 			su.deactivate()
+
+
+## 刷新所有召唤单位的属性（用和英雄一样的 build stats）
+func _refresh_summon_stats() -> void:
+	if _build == null:
+		return
+	var stats: CombatStats = _build.assemble_stats()
+	for su in _summon_units:
+		if is_instance_valid(su) and su.active:
+			su.refresh_stats(stats)
 
 
 ## 召唤单位发射弹道（复用 _on_hero_fired 的逻辑，吸血也走 hero.heal）。

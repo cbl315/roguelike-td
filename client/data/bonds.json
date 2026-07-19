@@ -49,6 +49,259 @@
       }
     },
     {
+      "id": "common_armor",
+      "name": "铁甲符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "damage_reduction_delta": 0.05
+      }
+    },
+    {
+      "id": "common_pen",
+      "name": "破甲符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "armor_pen": 0.1
+      }
+    },
+    {
+      "id": "common_cdmg",
+      "name": "暴烈符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "crit_dmg_delta": 0.35
+      }
+    },
+    {
+      "id": "common_regen",
+      "name": "回春符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "lifesteal_pct": 0.03,
+        "hp_pct_delta": 0.1
+      }
+    },
+    {
+      "id": "common_dodge",
+      "name": "灵巧符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "attack_speed_delta": 0.15,
+        "crit_rate_delta": 0.05
+      }
+    },
+    {
+      "id": "common_might",
+      "name": "神力符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "atk_pct_delta": 0.2,
+        "crit_dmg_delta": 0.15
+      }
+    },
+    {
+      "id": "common_vitality",
+      "name": "强体符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "hp_pct_delta": 0.35,
+        "damage_reduction_delta": 0.03
+      }
+    },
+    {
+      "id": "common_swift",
+      "name": "疾风符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "attack_speed_delta": 0.2,
+        "armor_pen": 0.05
+      }
+    },
+    {
+      "id": "common_focus",
+      "name": "聚神符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "crit_rate_delta": 0.1,
+        "crit_dmg_delta": 0.2
+      }
+    },
+    {
+      "id": "common_bloodlust",
+      "name": "嗜血符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "lifesteal_pct": 0.05,
+        "atk_pct_delta": 0.1
+      }
+    },
+    {
+      "id": "common_fortify",
+      "name": "坚壁符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "damage_reduction_delta": 0.04,
+        "hp_pct_delta": 0.2
+      }
+    },
+    {
+      "id": "common_pierce",
+      "name": "贯穿符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "armor_pen": 0.08,
+        "atk_pct_delta": 0.1
+      }
+    },
+    {
+      "id": "common_fury",
+      "name": "狂怒符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "crit_dmg_delta": 0.25,
+        "attack_speed_delta": 0.1
+      }
+    },
+    {
+      "id": "common_ward",
+      "name": "庇护符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "hp_pct_delta": 0.15,
+        "lifesteal_pct": 0.03,
+        "damage_reduction_delta": 0.02
+      }
+    },
+    {
+      "id": "common_precision",
+      "name": "精准符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "crit_rate_delta": 0.08,
+        "armor_pen": 0.05,
+        "attack_speed_delta": 0.05
+      }
+    },
+    {
+      "id": "common_valor",
+      "name": "勇毅符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "atk_pct_delta": 0.15,
+        "hp_pct_delta": 0.15
+      }
+    },
+    {
+      "id": "common_tempest",
+      "name": "风暴符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "attack_speed_delta": 0.12,
+        "crit_rate_delta": 0.05
+      }
+    },
+    {
+      "id": "common_savage",
+      "name": "蛮荒符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "atk_pct_delta": 0.12,
+        "lifesteal_pct": 0.03
+      }
+    },
+    {
+      "id": "common_guardian",
+      "name": "守护符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "hp_pct_delta": 0.25,
+        "damage_reduction_delta": 0.03
+      }
+    },
+    {
+      "id": "common_hunter",
+      "name": "猎手符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "crit_dmg_delta": 0.15,
+        "armor_pen": 0.05
+      }
+    },
+    {
+      "id": "common_berserker",
+      "name": "狂战符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "atk_pct_delta": 0.1,
+        "attack_speed_delta": 0.1,
+        "lifesteal_pct": 0.02
+      }
+    },
+    {
+      "id": "common_titan",
+      "name": "泰坦符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "hp_pct_delta": 0.2,
+        "atk_pct_delta": 0.1
+      }
+    },
+    {
+      "id": "common_assassin",
+      "name": "刺客符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "crit_rate_delta": 0.07,
+        "crit_dmg_delta": 0.12,
+        "attack_speed_delta": 0.05
+      }
+    },
+    {
+      "id": "common_paladin",
+      "name": "圣骑符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "hp_pct_delta": 0.12,
+        "lifesteal_pct": 0.04,
+        "damage_reduction_delta": 0.02
+      }
+    },
+    {
+      "id": "common_warlord",
+      "name": "军阀符文",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "atk_pct_delta": 0.12,
+        "crit_dmg_delta": 0.1,
+        "armor_pen": 0.03
+      }
+    },
+    {
       "id": "seed_zhutian",
       "name": "遮天·道经种子",
       "set": "seed",
@@ -56,10 +309,7 @@
       "is_seed": true,
       "seed_path": "zhutian",
       "seed_gold": 30,
-      "effect": {
-        "atk_pct_delta": 0.05
-      },
-      "note": "选择后解锁遮天羁绊池，获得天帝拳起点技能，+30金币"
+      "note": "选择后解锁遮天羁绊池，+30金币（不加属性）"
     },
     {
       "id": "seed_xingchenbian",
@@ -69,10 +319,7 @@
       "is_seed": true,
       "seed_path": "xingchenbian",
       "seed_gold": 30,
-      "effect": {
-        "magic_dmg_pct_delta": 0.05
-      },
-      "note": "选择后解锁星辰变羁绊池，获得星辰变功法起点技能，+30金币"
+      "note": "选择后解锁星辰变羁绊池，+30金币（不加属性）"
     },
     {
       "id": "seed_chongmei",
@@ -82,10 +329,7 @@
       "is_seed": true,
       "seed_path": "chongmei",
       "seed_gold": 30,
-      "effect": {
-        "atk_pct_delta": 0.05
-      },
-      "note": "选择后解锁宠魅羁绊池，获得召唤莫邪起点技能，+30金币"
+      "note": "选择后解锁宠魅羁绊池，+30金币（不加属性）"
     },
     {
       "id": "zt_lunhai_daojing",
@@ -1390,6 +1634,105 @@
             "hp_pct_delta": 0.15
           },
           "note": "魔人完全体+万兽之主"
+        }
+      ]
+    },
+    {
+      "id": "generic_fusion",
+      "name": "符文融合",
+      "realms": [
+        {
+          "name": "融合·一阶",
+          "bonds": [
+            "common_atk",
+            "common_hp",
+            "common_speed"
+          ],
+          "reward": {
+            "atk_pct_delta": 0.05,
+            "hp_pct_delta": 0.05
+          }
+        },
+        {
+          "name": "融合·二阶",
+          "bonds": [
+            "common_crit",
+            "common_lifesteal",
+            "common_armor"
+          ],
+          "reward": {
+            "crit_rate_delta": 0.05,
+            "lifesteal_pct": 0.02,
+            "damage_reduction_delta": 0.02
+          }
+        },
+        {
+          "name": "融合·三阶",
+          "bonds": [
+            "common_pen",
+            "common_cdmg",
+            "common_regen",
+            "common_dodge"
+          ],
+          "reward": {
+            "armor_pen": 0.05,
+            "crit_dmg_delta": 0.1,
+            "lifesteal_pct": 0.02,
+            "attack_speed_delta": 0.05
+          }
+        },
+        {
+          "name": "融合·四阶",
+          "bonds": [
+            "common_might",
+            "common_vitality",
+            "common_swift",
+            "common_focus",
+            "common_bloodlust"
+          ],
+          "reward": {
+            "atk_pct_delta": 0.08,
+            "hp_pct_delta": 0.08,
+            "attack_speed_delta": 0.05,
+            "crit_rate_delta": 0.03
+          }
+        },
+        {
+          "name": "融合·五阶",
+          "bonds": [
+            "common_fortify",
+            "common_pierce",
+            "common_fury",
+            "common_ward",
+            "common_precision"
+          ],
+          "reward": {
+            "damage_reduction_delta": 0.03,
+            "armor_pen": 0.05,
+            "crit_dmg_delta": 0.08,
+            "hp_pct_delta": 0.05
+          }
+        },
+        {
+          "name": "融合·六阶",
+          "bonds": [
+            "common_valor",
+            "common_tempest",
+            "common_savage",
+            "common_guardian",
+            "common_hunter",
+            "common_berserker",
+            "common_titan",
+            "common_assassin",
+            "common_paladin",
+            "common_warlord"
+          ],
+          "reward": {
+            "atk_pct_delta": 0.1,
+            "hp_pct_delta": 0.1,
+            "crit_rate_delta": 0.05,
+            "lifesteal_pct": 0.03
+          }
         }
       ]
     }

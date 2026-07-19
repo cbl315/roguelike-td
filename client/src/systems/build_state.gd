@@ -48,6 +48,8 @@ func setup(p_pools: Variant, p_rng: RandomNumberGenerator) -> void:
 	pools = p_pools
 	rng = p_rng
 	synergy_engine = SynergyEngine.new()
+	# generic_fusion 默认解锁（所有玩家可吞噬 generic 羁绊）
+	path_realm["generic_fusion"] = 0
 
 
 ## 选体系（开局/种子）：获得起点技能的 effect + 初始化 path_realm。
@@ -87,14 +89,15 @@ func spend(amount: float) -> bool:
 ## 这样丢弃/替换羁绊自动更新属性（无需反向撤销）。
 func take_bond_offer(offer: Dictionary) -> bool:
 	var bid: String = offer.get("id")
-	# 种子卡：不进 bond_pool，直接解锁体系 + 给金币 + 加起点效果
+	# 种子卡：不进 bond_pool，直接解锁体系 + 给金币（不加属性）
 	if offer.get("is_seed", false):
 		var seed_path: String = offer.get("seed_path", "")
 		var seed_gold: float = float(offer.get("seed_gold", 0))
 		path_realm[seed_path] = 0   # 解锁体系
 		add_gold(seed_gold)          # 给金币奖励
-		choose_path_effect(seed_path) # 加起点技能 effect
-		_try_devour()
+		# 宠魅种子：生成莫邪召唤单位
+		if seed_path == "chongmei":
+			summon_unit_requested.emit("moxie", "莫邪")
 		changed.emit()
 		return true
 	if bond_pool.size() >= bond_pool_capacity:
@@ -142,8 +145,8 @@ func _try_devour() -> void:
 		EventBus.bond_devoured.emit(pid, idx + 1, pools.realm_name(pid, idx))
 		# 宠魅体系境界 → 召唤单位生命周期
 		if pid == "chongmei":
-			# 魂主境（realm==3）：白魇魔降生
-			if idx + 1 == 3:
+			# 魂师境（realm==2）：白魇魔降生（设计文档：魂师境界自动获得）
+			if idx + 1 == 2:
 				summon_unit_requested.emit("baiyanmeng", "白魇魔")
 			# 魂朽境（realm==6）：白魇魔被吞噬
 			elif idx + 1 == 6:

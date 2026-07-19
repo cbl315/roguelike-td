@@ -239,6 +239,18 @@ func _render_char_panel(build: BuildState, pools: RoguePools) -> void:
 		var l := Label.new()
 		l.text = "  （无）"
 		vbox.add_child(l)
+	# 已吞噬羁绊
+	if build.devoured_bonds.size() > 0:
+		var dev_header := Label.new()
+		dev_header.text = "\n=== 已吞噬 (%d) ===" % build.devoured_bonds.size()
+		dev_header.add_theme_font_size_override("font_size", 22)
+		vbox.add_child(dev_header)
+		for bid in build.devoured_bonds:
+			var l := Label.new()
+			l.text = "  ◆ " + pools._find_bond_name(String(bid))
+			l.add_theme_font_size_override("font_size", 16)
+			l.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
+			vbox.add_child(l)
 	# 境界进度（显示境界名 + 当前境界羁绊进度）
 	if not build.path_realm.is_empty():
 		var realm_header := Label.new()

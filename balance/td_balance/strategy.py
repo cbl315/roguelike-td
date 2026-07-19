@@ -92,9 +92,21 @@ class SimpleStrategy(Strategy):
             actions.append(action)
             state.record(action)
 
-        # 主修炼路径：如果还没选任何体系，优先抽种子
+        # 主修炼路径：开局自动选 2 个种子（模拟多修互补）
         if not hasattr(state, "_main_path") or state.__dict__.get("_main_path") is None:
             state.__dict__["_main_path"] = None
+        # 开局选种子（第一次 spend_lobby 时）
+        if not state.path_realm and not hasattr(state, "_seeds_taken"):
+            state.__dict__["_seeds_taken"] = True
+            import random as _r
+            available_paths = [p.id for p in pools.paths if p.id != "generic_fusion"]
+            # 随机选 2 个体系
+            chosen = pools.rng.sample(available_paths, min(2, len(available_paths)))
+            for path_id in chosen:
+                state.path_realm[path_id] = 0
+            # generic_fusion 默认解锁
+            state.path_realm["generic_fusion"] = 0
+            state.__dict__["_main_path"] = chosen[0]
         # 如果已选了体系，设 main_path
         if state._main_path is None and state.path_realm:
             state.__dict__["_main_path"] = list(state.path_realm.keys())[0]

@@ -6,7 +6,7 @@ class_name Lobby
 
 signal confirmed()
 
-const REROLL_CAP := 3
+const REROLL_CAP := 1
 
 var build: BuildState
 var pools: RoguePools
