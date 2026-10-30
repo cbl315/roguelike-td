@@ -1,67 +1,72 @@
-[gd_scene load_steps=6 format=3 uid="uid://main_scene_m1"]
+[gd_scene format=3 uid="uid://cyqxkskeee306"]
 
-[ext_resource type="Script" path="res://src/systems/game_manager.gd" id="1_gm"]
-[ext_resource type="Script" path="res://src/systems/wave_spawner.gd" id="2_spawner"]
-[ext_resource type="Script" path="res://src/scenes/entities/hero.gd" id="4_hero"]
-[ext_resource type="Script" path="res://src/scenes/hud/hud.gd" id="5_hud"]
-[ext_resource type="Script" path="res://src/scenes/lobby/lobby.gd" id="6_lobby"]
+[ext_resource type="Script" uid="uid://ci3i2ifjrxp41" path="res://src/systems/game_manager.gd" id="1_gm"]
+[ext_resource type="Script" uid="uid://d3k4voso5q0uc" path="res://src/systems/wave_spawner.gd" id="2_spawner"]
+[ext_resource type="Script" uid="uid://d0w37ekgho5np" path="res://src/scenes/floor_renderer.gd" id="3_floor"]
+[ext_resource type="Script" uid="uid://mappr2o1awa2" path="res://src/scenes/entities/hero.gd" id="4_hero"]
+[ext_resource type="Script" uid="uid://3u0dhmoco65p" path="res://src/scenes/hud/hud.gd" id="5_hud"]
+[ext_resource type="Script" uid="uid://bbs1bnffgxt6v" path="res://src/scenes/lobby/lobby.gd" id="6_lobby"]
+[ext_resource type="Script" uid="uid://bdsf4stlrrm2t" path="res://src/scenes/virtual_joystick.gd" id="7_joy"]
 
 [sub_resource type="Theme" id="Theme_hud"]
 default_font_size = 24
 
-[node name="GameRoot" type="Node2D"]
+[node name="GameRoot" type="Node2D" unique_id=930693608]
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=217120697]
 offset_right = 3000.0
 offset_bottom = 2000.0
 color = Color(0.08, 0.085, 0.12, 1)
 
-[node name="RoomBorder" type="Line2D" parent="."]
+[node name="RoomBorder" type="Line2D" parent="." unique_id=2062789458]
 points = PackedVector2Array(80, 80, 2920, 80, 2920, 1920, 80, 1920, 80, 80)
 width = 4.0
 default_color = Color(0.3, 0.35, 0.5, 0.8)
 
-[node name="GridLines" type="Node2D" parent="."]
+[node name="GridLines" type="Node2D" parent="." unique_id=1785987044]
+script = ExtResource("3_floor")
 
-[node name="GameManager" type="Node2D" parent="."]
+[node name="GameManager" type="Node2D" parent="." unique_id=103978387]
 script = ExtResource("1_gm")
 
-[node name="WaveSpawner" type="Node" parent="GameManager"]
+[node name="WaveSpawner" type="Node" parent="GameManager" unique_id=750189246]
 script = ExtResource("2_spawner")
 
-[node name="SpawnTimer" type="Timer" parent="GameManager/WaveSpawner"]
+[node name="SpawnTimer" type="Timer" parent="GameManager/WaveSpawner" unique_id=2102724800]
 one_shot = true
 
-[node name="Hero" type="Node2D" parent="GameManager"]
+[node name="Hero" type="Node2D" parent="GameManager" unique_id=998333436]
 position = Vector2(1500, 1000)
 script = ExtResource("4_hero")
 
-[node name="Camera2D" type="Camera2D" parent="GameManager/Hero"]
+[node name="Camera2D" type="Camera2D" parent="GameManager/Hero" unique_id=650675868]
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
-zoom = Vector2(1.0, 1.0)
 
-[node name="PriorityLabel" type="Label" parent="GameManager/Hero"]
+[node name="PriorityLabel" type="Label" parent="GameManager/Hero" unique_id=952213927]
 offset_left = -60.0
 offset_top = 44.0
 offset_right = 60.0
 offset_bottom = 74.0
-horizontal_alignment = 1
 text = "目标:最近"
+horizontal_alignment = 1
 
-[node name="UILayer" type="CanvasLayer" parent="."]
+[node name="UILayer" type="CanvasLayer" parent="." unique_id=1724990336]
 layer = 10
 
-[node name="HUD" type="Control" parent="UILayer"]
+[node name="HUD" type="Control" parent="UILayer" unique_id=1715477421]
+process_mode = 2
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
-process_mode = 2
 script = ExtResource("5_hud")
 
-[node name="WaveLabel" type="Label" parent="UILayer/HUD"]
+[node name="WaveLabel" type="Label" parent="UILayer/HUD" unique_id=770594262]
+layout_mode = 0
 offset_left = 30.0
 offset_top = 20.0
 offset_right = 400.0
@@ -69,15 +74,16 @@ offset_bottom = 56.0
 theme = SubResource("Theme_hud")
 text = "第 0 波"
 
-[node name="TimerLabel" type="Label" parent="UILayer/HUD"]
+[node name="TimerLabel" type="Label" parent="UILayer/HUD" unique_id=1599729279]
+layout_mode = 0
 offset_left = 420.0
 offset_top = 20.0
 offset_right = 700.0
 offset_bottom = 56.0
 theme = SubResource("Theme_hud")
-text = ""
 
-[node name="EnemyLabel" type="Label" parent="UILayer/HUD"]
+[node name="EnemyLabel" type="Label" parent="UILayer/HUD" unique_id=1588645128]
+layout_mode = 0
 offset_left = 30.0
 offset_top = 58.0
 offset_right = 400.0
@@ -85,7 +91,8 @@ offset_bottom = 94.0
 theme = SubResource("Theme_hud")
 text = "敌人: 0"
 
-[node name="GoldLabel" type="Label" parent="UILayer/HUD"]
+[node name="GoldLabel" type="Label" parent="UILayer/HUD" unique_id=935749610]
+layout_mode = 0
 offset_left = 30.0
 offset_top = 96.0
 offset_right = 400.0
@@ -93,34 +100,36 @@ offset_bottom = 132.0
 theme = SubResource("Theme_hud")
 text = "金币: 0"
 
-[node name="SideButtons" type="VBoxContainer" parent="UILayer/HUD"]
+[node name="SideButtons" type="VBoxContainer" parent="UILayer/HUD" unique_id=1550863080]
+layout_mode = 0
 offset_left = 40.0
 offset_top = 820.0
 offset_right = 360.0
 offset_bottom = 1130.0
 
-[node name="BondButton" type="Button" parent="UILayer/HUD/SideButtons"]
+[node name="BondButton" type="Button" parent="UILayer/HUD/SideButtons" unique_id=97352806]
 custom_minimum_size = Vector2(280, 60)
-theme = SubResource("Theme_hud")
+layout_mode = 2
 focus_mode = 0
-mouse_filter = 0
+theme = SubResource("Theme_hud")
 text = "羁绊 (30金)"
 
-[node name="EquipButton" type="Button" parent="UILayer/HUD/SideButtons"]
+[node name="EquipButton" type="Button" parent="UILayer/HUD/SideButtons" unique_id=1438190127]
 custom_minimum_size = Vector2(280, 60)
-theme = SubResource("Theme_hud")
+layout_mode = 2
 focus_mode = 0
-mouse_filter = 0
+theme = SubResource("Theme_hud")
 text = "装备 (+0, 15金)"
 
-[node name="CharButton" type="Button" parent="UILayer/HUD/SideButtons"]
+[node name="CharButton" type="Button" parent="UILayer/HUD/SideButtons" unique_id=519482418]
 custom_minimum_size = Vector2(280, 60)
-theme = SubResource("Theme_hud")
+layout_mode = 2
 focus_mode = 0
-mouse_filter = 0
+theme = SubResource("Theme_hud")
 text = "角色面板"
 
-[node name="CoreHPBar" type="ProgressBar" parent="UILayer/HUD"]
+[node name="CoreHPBar" type="ProgressBar" parent="UILayer/HUD" unique_id=1017766663]
+layout_mode = 0
 offset_left = 1500.0
 offset_top = 30.0
 offset_right = 1890.0
@@ -128,7 +137,8 @@ offset_bottom = 60.0
 max_value = 1000.0
 value = 1000.0
 
-[node name="CoreHPLabel" type="Label" parent="UILayer/HUD"]
+[node name="CoreHPLabel" type="Label" parent="UILayer/HUD" unique_id=1616582889]
+layout_mode = 0
 offset_left = 1500.0
 offset_top = 62.0
 offset_right = 1890.0
@@ -136,7 +146,8 @@ offset_bottom = 95.0
 theme = SubResource("Theme_hud")
 text = "英雄 1000 / 1000"
 
-[node name="ResultLabel" type="Label" parent="UILayer/HUD"]
+[node name="ResultLabel" type="Label" parent="UILayer/HUD" unique_id=887620167]
+layout_mode = 0
 offset_left = 600.0
 offset_top = 480.0
 offset_right = 1320.0
@@ -144,51 +155,68 @@ offset_bottom = 600.0
 theme = SubResource("Theme_hud")
 horizontal_alignment = 1
 vertical_alignment = 1
-text = ""
 
-[node name="Lobby" type="Control" parent="UILayer"]
-visible = false
-process_mode = 3
+[node name="VirtualJoystick" type="Control" parent="UILayer" unique_id=855337299]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("7_joy")
+
+[node name="Lobby" type="Control" parent="UILayer" unique_id=1600196864]
+process_mode = 3
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("6_lobby")
 
-[node name="Dim" type="ColorRect" parent="UILayer/Lobby"]
+[node name="Dim" type="ColorRect" parent="UILayer/Lobby" unique_id=1854224632]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 color = Color(0, 0, 0, 0.7)
 
-[node name="TopBar" type="HBoxContainer" parent="UILayer/Lobby"]
+[node name="TopBar" type="HBoxContainer" parent="UILayer/Lobby" unique_id=1740123433]
+layout_mode = 0
 offset_left = 40.0
 offset_top = 30.0
 offset_right = 1880.0
 offset_bottom = 80.0
 
-[node name="GoldLabel" type="Label" parent="UILayer/Lobby/TopBar"]
+[node name="GoldLabel" type="Label" parent="UILayer/Lobby/TopBar" unique_id=1214205271]
 custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
 theme = SubResource("Theme_hud")
 text = "金币: 0"
 
-[node name="InfoLabel" type="Label" parent="UILayer/Lobby/TopBar"]
+[node name="InfoLabel" type="Label" parent="UILayer/Lobby/TopBar" unique_id=1212743950]
 custom_minimum_size = Vector2(700, 0)
+layout_mode = 2
 theme = SubResource("Theme_hud")
-text = ""
 
-[node name="DPSLabel" type="Label" parent="UILayer/Lobby/TopBar"]
+[node name="DPSLabel" type="Label" parent="UILayer/Lobby/TopBar" unique_id=682520019]
 custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
 theme = SubResource("Theme_hud")
 text = "DPS: 0"
 
-[node name="BuildLabel" type="Label" parent="UILayer/Lobby/TopBar"]
+[node name="BuildLabel" type="Label" parent="UILayer/Lobby/TopBar" unique_id=943761663]
 custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
 theme = SubResource("Theme_hud")
-text = ""
 
-[node name="CardsContainer" type="HBoxContainer" parent="UILayer/Lobby"]
+[node name="CardsContainer" type="HBoxContainer" parent="UILayer/Lobby" unique_id=1823441225]
+layout_mode = 0
 offset_left = 200.0
 offset_top = 130.0
 offset_right = 1720.0
@@ -196,7 +224,8 @@ offset_bottom = 520.0
 theme = SubResource("Theme_hud")
 alignment = 1
 
-[node name="Actions" type="VBoxContainer" parent="UILayer/Lobby"]
+[node name="Actions" type="VBoxContainer" parent="UILayer/Lobby" unique_id=907551155]
+layout_mode = 0
 offset_left = 760.0
 offset_top = 560.0
 offset_right = 1160.0
@@ -204,13 +233,15 @@ offset_bottom = 980.0
 theme = SubResource("Theme_hud")
 alignment = 1
 
-[node name="SidePanel" type="VBoxContainer" parent="UILayer/Lobby"]
+[node name="SidePanel" type="VBoxContainer" parent="UILayer/Lobby" unique_id=1807238371]
+layout_mode = 0
 offset_left = 40.0
 offset_top = 130.0
 offset_right = 190.0
 offset_bottom = 900.0
 
-[node name="RealmLabel" type="Label" parent="UILayer/Lobby/SidePanel"]
+[node name="RealmLabel" type="Label" parent="UILayer/Lobby/SidePanel" unique_id=519476599]
+layout_mode = 2
 theme = SubResource("Theme_hud")
 text = "未修炼任何体系"
 

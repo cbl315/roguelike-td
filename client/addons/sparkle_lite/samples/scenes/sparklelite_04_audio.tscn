@@ -1,0 +1,190 @@
+[gd_scene load_steps=21 format=4]
+
+[ext_resource type="Script" path="res://addons/sparkle_lite/samples/scenes/sparklelite_04_audio.gd" id="1_demo"]
+[ext_resource type="Script" uid="uid://b432gm11skduw" path="res://addons/sparkle_lite/players/feedback_player_lite.gd" id="2_player"]
+[ext_resource type="Script" uid="uid://c6es8l4fws5lo" path="res://addons/sparkle_lite/feedbacks/feedback_audio_lite.gd" id="3_audio"]
+[ext_resource type="AudioStream" uid="uid://ccjum0d0g58nk" path="res://addons/sparkle_lite/samples/assets/sounds/sparklelite_click.ogg" id="4_click_b"]
+[ext_resource type="AudioStream" uid="uid://bqv3yk3o7hfjk" path="res://addons/sparkle_lite/samples/assets/sounds/sparklelite_tap_a.ogg" id="5_tap_a"]
+[ext_resource type="AudioStream" uid="uid://c00j8mhtglhhc" path="res://addons/sparkle_lite/samples/assets/sounds/sparklelite_tap_b.ogg" id="6_tap_b"]
+[ext_resource type="AudioStream" uid="uid://bem1w0w7mkat2" path="res://addons/sparkle_lite/samples/assets/sounds/sparklelite_switch_a.ogg" id="7_switch_a"]
+[ext_resource type="AudioStream" uid="uid://ey5360t2m0la" path="res://addons/sparkle_lite/samples/assets/sounds/sparklelite_switch_b.ogg" id="8_switch_b"]
+[ext_resource type="AudioStream" uid="uid://xdd8t4sy5rgo" path="res://addons/sparkle_lite/samples/assets/sounds/sparklelite_pop.mp3" id="9_pop"]
+[ext_resource type="AudioStream" uid="uid://c5ue7ncxbhcra" path="res://addons/sparkle_lite/samples/assets/sounds/sparklelite_confetti_pop.mp3" id="10_confetti"]
+
+[sub_resource type="Resource" id="Audio_ClickB"]
+script = ExtResource("3_audio")
+label = "Click"
+duration_ms = 250.0
+stream = ExtResource("4_click_b")
+volume_db = -3.0
+pitch_min = 0.9
+pitch_max = 1.1
+bus = "Master"
+use_3d = false
+loading_mode = 0
+max_simultaneous = 6
+pool_size = 6
+
+[sub_resource type="Resource" id="Audio_TapA"]
+script = ExtResource("3_audio")
+label = "Tap A"
+duration_ms = 250.0
+stream = ExtResource("5_tap_a")
+volume_db = -3.0
+pitch_min = 0.92
+pitch_max = 1.08
+bus = "Master"
+loading_mode = 0
+max_simultaneous = 6
+pool_size = 6
+
+[sub_resource type="Resource" id="Audio_TapB"]
+script = ExtResource("3_audio")
+label = "Tap B"
+duration_ms = 250.0
+stream = ExtResource("6_tap_b")
+volume_db = -3.0
+pitch_min = 0.92
+pitch_max = 1.08
+bus = "Master"
+loading_mode = 0
+max_simultaneous = 6
+pool_size = 6
+
+[sub_resource type="Resource" id="Audio_SwitchA"]
+script = ExtResource("3_audio")
+label = "Switch A"
+duration_ms = 350.0
+stream = ExtResource("7_switch_a")
+volume_db = -3.0
+pitch_min = 0.88
+pitch_max = 1.12
+bus = "Master"
+loading_mode = 0
+max_simultaneous = 4
+pool_size = 4
+
+[sub_resource type="Resource" id="Audio_SwitchB"]
+script = ExtResource("3_audio")
+label = "Switch B"
+duration_ms = 350.0
+stream = ExtResource("8_switch_b")
+volume_db = -3.0
+pitch_min = 0.88
+pitch_max = 1.12
+bus = "Master"
+loading_mode = 0
+max_simultaneous = 4
+pool_size = 4
+
+[sub_resource type="Resource" id="Audio_Pop"]
+script = ExtResource("3_audio")
+label = "Pop"
+duration_ms = 500.0
+stream = ExtResource("9_pop")
+volume_db = -2.0
+pitch_min = 0.85
+pitch_max = 1.15
+bus = "Master"
+loading_mode = 0
+max_simultaneous = 6
+pool_size = 6
+
+[sub_resource type="Resource" id="Audio_Confetti"]
+script = ExtResource("3_audio")
+label = "Confetti"
+duration_ms = 1200.0
+stream = ExtResource("10_confetti")
+volume_db = -3.0
+pitch_min = 0.9
+pitch_max = 1.1
+bus = "Master"
+loading_mode = 0
+max_simultaneous = 4
+pool_size = 4
+
+[sub_resource type="Resource" id="Audio_Mode_Pool"]
+script = ExtResource("3_audio")
+label = "Mode: POOL"
+duration_ms = 250.0
+stream = ExtResource("9_pop")
+volume_db = -4.0
+pitch_min = 0.95
+pitch_max = 1.05
+bus = "Master"
+loading_mode = 0
+max_simultaneous = 4
+pool_size = 4
+
+[sub_resource type="Resource" id="Audio_Mode_Cache"]
+script = ExtResource("3_audio")
+label = "Mode: CACHE"
+duration_ms = 250.0
+stream = ExtResource("9_pop")
+volume_db = -4.0
+pitch_min = 0.95
+pitch_max = 1.05
+bus = "Master"
+loading_mode = 1
+
+[sub_resource type="Resource" id="Audio_Mode_OneTime"]
+script = ExtResource("3_audio")
+label = "Mode: ONE_TIME"
+duration_ms = 250.0
+stream = ExtResource("9_pop")
+volume_db = -4.0
+pitch_min = 0.95
+pitch_max = 1.05
+bus = "Master"
+loading_mode = 2
+
+[node name="Demo" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_demo")
+
+[node name="Sounds" type="Node" parent="."]
+
+[node name="ClickB" type="Node" parent="Sounds"]
+script = ExtResource("2_player")
+feedbacks = Array[Resource]([SubResource("Audio_ClickB")])
+
+[node name="TapA" type="Node" parent="Sounds"]
+script = ExtResource("2_player")
+feedbacks = Array[Resource]([SubResource("Audio_TapA")])
+
+[node name="TapB" type="Node" parent="Sounds"]
+script = ExtResource("2_player")
+feedbacks = Array[Resource]([SubResource("Audio_TapB")])
+
+[node name="SwitchA" type="Node" parent="Sounds"]
+script = ExtResource("2_player")
+feedbacks = Array[Resource]([SubResource("Audio_SwitchA")])
+
+[node name="SwitchB" type="Node" parent="Sounds"]
+script = ExtResource("2_player")
+feedbacks = Array[Resource]([SubResource("Audio_SwitchB")])
+
+[node name="Pop" type="Node" parent="Sounds"]
+script = ExtResource("2_player")
+feedbacks = Array[Resource]([SubResource("Audio_Pop")])
+
+[node name="Confetti" type="Node" parent="Sounds"]
+script = ExtResource("2_player")
+feedbacks = Array[Resource]([SubResource("Audio_Confetti")])
+
+[node name="ModeCompare" type="Node" parent="."]
+
+[node name="Pool" type="Node" parent="ModeCompare"]
+script = ExtResource("2_player")
+feedbacks = Array[Resource]([SubResource("Audio_Mode_Pool")])
+
+[node name="Cache" type="Node" parent="ModeCompare"]
+script = ExtResource("2_player")
+feedbacks = Array[Resource]([SubResource("Audio_Mode_Cache")])
+
+[node name="OneTime" type="Node" parent="ModeCompare"]
+script = ExtResource("2_player")
+feedbacks = Array[Resource]([SubResource("Audio_Mode_OneTime")])

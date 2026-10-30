@@ -371,6 +371,32 @@ func _detect_path_from_bonds(bond_pool: Array) -> String:
 	return best_pid
 
 
+## 指定体系的修炼进度（用于角色面板多体系逐行显示）。
+func cultivation_progress_for(bond_pool: Array, pid: String, idx: int) -> Dictionary:
+	var needed: Array = current_realm_bonds(pid, idx)
+	var owned_count: int = 0
+	var missing: Array = []
+	var missing_names: Array = []
+	for b in needed:
+		if bond_pool.has(b):
+			owned_count += 1
+		else:
+			missing.append(b)
+			missing_names.append(_find_bond_name(String(b)))
+	return {
+		"path_id": pid,
+		"path_name": path_name(pid),
+		"realm_idx": idx,
+		"realm_name": realm_name(pid, idx),
+		"max_realm": path_max_realm(pid),
+		"needed": needed,
+		"owned_count": owned_count,
+		"total_count": needed.size(),
+		"missing": missing,
+		"missing_names": missing_names,
+	}
+
+
 ## 获取修炼进度摘要（用于卡片/面板显示）。
 ## 如果有正在修炼的路径（path_realm 非空），显示该路径当前境界进度。
 ## 如果没有（path_realm 空），扫描已拥有羁绊找出最有潜力的路径。

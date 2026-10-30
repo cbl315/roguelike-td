@@ -1,0 +1,227 @@
+[gd_scene load_steps=22 format=3]
+
+[ext_resource type="Script" path="res://addons/sparkle_lite/samples/scenes/sparklelite_07_combined.gd" id="1_demo"]
+[ext_resource type="Script" uid="uid://b432gm11skduw" path="res://addons/sparkle_lite/players/feedback_player_lite.gd" id="2_player"]
+[ext_resource type="Script" uid="uid://dlrvjops7ha02" path="res://addons/sparkle_lite/feedbacks/feedback_camera_shake_lite.gd" id="3_shake"]
+[ext_resource type="Script" uid="uid://burn5odqf8o1c" path="res://addons/sparkle_lite/feedbacks/feedback_screen_flash_2d_lite.gd" id="4_flash"]
+[ext_resource type="Script" uid="uid://c6es8l4fws5lo" path="res://addons/sparkle_lite/feedbacks/feedback_audio_lite.gd" id="5_audio"]
+[ext_resource type="Script" uid="uid://beamqnuh08rly" path="res://addons/sparkle_lite/feedbacks/feedback_hit_pause_lite.gd" id="6_pause"]
+[ext_resource type="Script" uid="uid://bia20fnpxa4d5" path="res://addons/sparkle_lite/feedbacks/feedback_call_lite.gd" id="7_call"]
+[ext_resource type="Script" uid="uid://g77pfphvu4vi" path="res://addons/sparkle_lite/feedbacks/feedback_scale_punch_lite.gd" id="8_punch"]
+[ext_resource type="AudioStream" uid="uid://xdd8t4sy5rgo" path="res://addons/sparkle_lite/samples/assets/sounds/sparklelite_pop.mp3" id="9_pop"]
+[ext_resource type="AudioStream" uid="uid://c5ue7ncxbhcra" path="res://addons/sparkle_lite/samples/assets/sounds/sparklelite_confetti_pop.mp3" id="10_confetti"]
+
+[sub_resource type="Resource" id="Audio_Shoot"]
+script = ExtResource("5_audio")
+label = "Muzzle sound"
+enabled = true
+delay_ms = 0.0
+duration_ms = 300.0
+intensity_multiplier = 1.0
+stream = ExtResource("9_pop")
+volume_db = -2.0
+pitch_min = 0.9
+pitch_max = 1.1
+bus = "Master"
+use_3d = false
+loading_mode = 0
+max_simultaneous = 4
+pool_size = 4
+
+[sub_resource type="Resource" id="Shake_Muzzle"]
+script = ExtResource("3_shake")
+label = "Recoil shake"
+enabled = true
+delay_ms = 0.0
+duration_ms = 380.0
+intensity_multiplier = 1.0
+shake_position_x = true
+shake_position_y = true
+shake_position_z = false
+position_amplitude = Vector3(0.2, 0.2, 0)
+position_randomness = Vector3(0.55, 0.55, 0)
+position_curve = null
+shake_rotation_x = false
+shake_rotation_y = false
+shake_rotation_z = true
+rotation_amplitude = Vector3(0, 0, 3)
+rotation_randomness = Vector3(0.5, 0.5, 0.6)
+rotation_curve = null
+camera_selection_mode = 0
+camera_path = NodePath("")
+camera_group_name = ""
+use_distance_falloff = false
+shake_source_path = NodePath("")
+falloff_start_distance = 5.0
+falloff_end_distance = 20.0
+falloff_curve = null
+use_unscaled_time = true
+
+[sub_resource type="Resource" id="Flash_Muzzle"]
+script = ExtResource("4_flash")
+label = "Muzzle flash (yellow)"
+enabled = true
+delay_ms = 0.0
+duration_ms = 260.0
+intensity_multiplier = 1.0
+flash_color = Color(1, 0.92, 0.55, 1)
+fade_in_duration_ms = 20.0
+hold_duration_ms = 30.0
+fade_out_duration_ms = 210.0
+flash_intensity = 0.28
+canvas_layer = 100
+blend_mode = 1
+
+[sub_resource type="Resource" id="Pause_Impact"]
+script = ExtResource("6_pause")
+label = "Impact freeze"
+enabled = true
+delay_ms = 120.0
+duration_ms = 120.0
+intensity_multiplier = 1.0
+time_scale_during_pause = 0.08
+affect_audio = false
+
+[sub_resource type="Resource" id="Audio_Impact"]
+script = ExtResource("5_audio")
+label = "Impact sound"
+enabled = true
+delay_ms = 120.0
+duration_ms = 900.0
+intensity_multiplier = 1.0
+stream = ExtResource("10_confetti")
+volume_db = -3.0
+pitch_min = 0.85
+pitch_max = 1.08
+bus = "Master"
+use_3d = false
+loading_mode = 0
+max_simultaneous = 4
+pool_size = 4
+
+[sub_resource type="Resource" id="Call_Hit"]
+script = ExtResource("7_call")
+label = "on_candy_hit()"
+enabled = true
+delay_ms = 120.0
+duration_ms = 0.0
+intensity_multiplier = 1.0
+mode = 0
+target = NodePath("..")
+method_or_signal = &"on_candy_hit"
+arguments = []
+
+[sub_resource type="Resource" id="Punch_Candy"]
+script = ExtResource("8_punch")
+label = "Candy pop"
+enabled = true
+delay_ms = 120.0
+duration_ms = 600.0
+intensity_multiplier = 1.0
+target = NodePath("")
+punch_scale = Vector3(1.45, 1.45, 1)
+elasticity = 0.6
+use_unscaled_time = true
+
+[sub_resource type="Resource" id="Flash_Impact"]
+script = ExtResource("4_flash")
+label = "Impact flash (pink)"
+enabled = true
+delay_ms = 120.0
+duration_ms = 340.0
+intensity_multiplier = 1.0
+flash_color = Color(1, 0.435, 0.659, 1)
+fade_in_duration_ms = 30.0
+hold_duration_ms = 40.0
+fade_out_duration_ms = 270.0
+flash_intensity = 0.22
+canvas_layer = 100
+blend_mode = 1
+
+[sub_resource type="Environment" id="Env_Arena"]
+background_mode = 1
+background_color = Color(0.078, 0.039, 0.125, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.45, 0.35, 0.55, 1)
+ambient_light_energy = 0.55
+tonemap_mode = 3
+glow_enabled = true
+glow_intensity = 0.5
+fog_enabled = true
+fog_light_color = Color(0.2, 0.1, 0.24, 1)
+fog_density = 0.012
+
+[sub_resource type="PlaneMesh" id="Mesh_Floor"]
+size = Vector2(40, 40)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Floor"]
+albedo_color = Color(0.086, 0.043, 0.141, 1)
+roughness = 0.95
+
+[sub_resource type="BoxMesh" id="Mesh_Pillar"]
+size = Vector3(0.5, 2, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Pillar"]
+albedo_color = Color(0.635, 0.29, 0.886, 1)
+roughness = 0.75
+emission_enabled = true
+emission = Color(0.635, 0.29, 0.886, 1)
+emission_energy_multiplier = 0.5
+
+[node name="Demo" type="Node3D"]
+script = ExtResource("1_demo")
+
+[node name="WorldEnv" type="WorldEnvironment" parent="."]
+environment = SubResource("Env_Arena")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 0, 5, 0)
+light_color = Color(1, 0.95, 0.85, 1)
+light_energy = 1.1
+shadow_enabled = true
+
+[node name="Fill" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.766044, 0, 0.642788, 0, 1, 0, -0.642788, 0, -0.766044, 0, 4, 0)
+light_color = Color(0.635, 0.29, 0.886, 1)
+light_energy = 0.5
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+mesh = SubResource("Mesh_Floor")
+material_override = SubResource("Mat_Floor")
+
+[node name="Scenery" type="Node3D" parent="."]
+
+[node name="PillarL1" type="MeshInstance3D" parent="Scenery"]
+transform = Transform3D(1, 0, 0, 0, 1.4, 0, 0, 0, 1, -3.2, 1.4, -2.5)
+mesh = SubResource("Mesh_Pillar")
+material_override = SubResource("Mat_Pillar")
+
+[node name="PillarL2" type="MeshInstance3D" parent="Scenery"]
+transform = Transform3D(1, 0, 0, 0, 0.9, 0, 0, 0, 1, -4.8, 0.9, -4.2)
+mesh = SubResource("Mesh_Pillar")
+material_override = SubResource("Mat_Pillar")
+
+[node name="PillarR1" type="MeshInstance3D" parent="Scenery"]
+transform = Transform3D(1, 0, 0, 0, 1.2, 0, 0, 0, 1, 3.2, 1.2, -2.5)
+mesh = SubResource("Mesh_Pillar")
+material_override = SubResource("Mat_Pillar")
+
+[node name="PillarR2" type="MeshInstance3D" parent="Scenery"]
+transform = Transform3D(1, 0, 0, 0, 1.6, 0, 0, 0, 1, 4.8, 1.6, -4.2)
+mesh = SubResource("Mesh_Pillar")
+material_override = SubResource("Mat_Pillar")
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.994, 0.113, 0, -0.113, 0.994, 0, 1.65, 3.6)
+current = true
+fov = 50.0
+
+[node name="FeedbackPlayer" type="Node" parent="."]
+script = ExtResource("2_player")
+feedbacks = Array[Resource]([SubResource("Audio_Shoot"), SubResource("Shake_Muzzle"), SubResource("Flash_Muzzle"), SubResource("Pause_Impact"), SubResource("Audio_Impact"), SubResource("Call_Hit"), SubResource("Punch_Candy"), SubResource("Flash_Impact")])
+auto_play_on_ready = false
+loop = false
+loop_delay_ms = 0.0
+loop_from_index = 0
+default_intensity = 1.0
+minimum_interval_ms = 0.0

@@ -21,6 +21,8 @@ var _fire_timer: float = 0.0
 var _all_enemies: Array = []   # 当前波全部敌人（由 game_manager 每帧推送）
 var build: BuildState = null
 var _stats: CombatStats = null
+var _juice := Juice.new()
+var _prev_pos: Vector2 = Vector2.ZERO   # 上一帧位置（计算移动速度比）
 
 ## 房间边界（由 game_manager 设置）
 var room_rect: Rect2 = Rect2(80, 80, 2840, 1840)
@@ -32,6 +34,7 @@ func _ready() -> void:
 	current_hp = max_hp
 	hp_changed.emit(current_hp, max_hp)
 	_update_priority_label()
+	_prev_pos = global_position
 
 
 func set_enemies(enemies: Array) -> void:
@@ -47,6 +50,7 @@ func take_damage(amount: float) -> void:
 		return   # 全局无敌帧内，不受伤
 	current_hp = maxf(0.0, current_hp - amount)
 	hp_changed.emit(current_hp, max_hp)
+	_juice.play_flash()
 	queue_redraw()
 	_dmg_cooldown = DMG_INTERVAL   # 进入 0.3s 无敌
 	if current_hp <= 0.0:
@@ -71,6 +75,17 @@ func refresh_stats() -> void:
 		hp_changed.emit(current_hp, max_hp)
 
 
+## 直接扣血（绕过无敌帧；Boss Debuff 反弹伤害用）。仍触发信号与死亡判定。
+func apply_raw_damage(amount: float) -> void:
+	if amount <= 0.0:
+		return
+	current_hp = maxf(0.0, current_hp - amount)
+	hp_changed.emit(current_hp, max_hp)
+	queue_redraw()
+	if current_hp <= 0.0:
+		destroyed.emit()
+
+
 ## 吸血回血（projectile 命中时调用）
 func heal(amount: float) -> void:
 	if amount <= 0.0:
@@ -85,6 +100,12 @@ func _process(delta: float) -> void:
 	_handle_movement(delta)
 	if _stats == null:
 		refresh_stats()
+	# Juice：计算移动速度比并更新动画状态
+	var moved: float = global_position.distance_to(_prev_pos)
+	var speed_ratio: float = clampf(moved / (move_speed * delta + 1.0), 0.0, 1.0)
+	_juice.tick(delta, moved > 1.0, speed_ratio)
+	_prev_pos = global_position
+	queue_redraw()
 	# 筛选攻击范围内的敌人
 	var in_range: Array = []
 	for e in _all_enemies:
@@ -102,7 +123,7 @@ func _process(delta: float) -> void:
 		_fire(target)
 
 
-## 玩家操控移动：WASD / 方向键，房间边界约束
+## 玩家操控移动：WASD / 方向键 / 移动端虚拟摇杆，房间边界约束
 func _handle_movement(delta: float) -> void:
 	var dir: Vector2 = Vector2.ZERO
 	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
@@ -113,6 +134,9 @@ func _handle_movement(delta: float) -> void:
 		dir.y += 1.0
 	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
 		dir.y -= 1.0
+	# 移动端：键盘无输入时读虚拟摇杆方向
+	if dir == Vector2.ZERO:
+		dir = VirtualJoystick.dir
 	if dir != Vector2.ZERO:
 		global_position += dir.normalized() * move_speed * delta
 		# 房间边界约束
@@ -126,6 +150,7 @@ func _fire(target: Node2D) -> void:
 	if enemy == null:
 		return
 	var dmg: float = _stats.expected_hit_dmg(enemy.armor)
+	_juice.play_attack()
 	# 伤害由弹道到达目标时结算（锁定式，不会误伤途中敌人）
 	fired_projectile.emit(target, dmg)
 	# 连锁弹射（联动 chain_extra_bounces）：命中后弹射到附近敌人
@@ -177,13 +202,35 @@ func _update_priority_label() -> void:
 
 func _draw() -> void:
 	var hp_ratio := clampf(current_hp / max_hp, 1e-05, 1.0)
-	# 攻击范围圈（半透明）
+	# 攻击范围圈（半透明，不参与 juice 变换）
 	draw_circle(Vector2.ZERO, attack_range, Color(0.3, 0.4, 0.6, 0.06))
 	draw_arc(Vector2.ZERO, attack_range, 0, TAU, 64, Color(0.3, 0.4, 0.6, 0.2), 1.5)
-	# 外发光
-	draw_circle(Vector2.ZERO, radius + 8, Color(0.4, 0.6, 1.0, 0.25))
-	# 本体（蓝，hp 越低越偏红）
-	var col := Color(0.45, 0.65 * hp_ratio + 0.2, 1.0 * hp_ratio + 0.2)
-	draw_circle(Vector2.ZERO, radius, col)
-	# HP 环（英雄即核心，显示血量环）
+	# 本体：应用 juice 变换（idle呼吸 + 移动挤压 + 攻击反馈）
+	draw_set_transform(_juice.offset, _juice.rotation, _juice.scale)
+	if _sprite_tex:
+		var ts: Vector2 = _sprite_tex.get_size()
+		draw_texture(_sprite_tex, -ts / 2)
+		# 命中闪白：贴图上叠加白色半透明
+		if _juice.get_flash() > 0.0:
+			draw_rect(Rect2(-ts / 2, ts), Color(1, 1, 1, _juice.get_flash() * 0.7), true)
+	else:
+		# 外发光
+		draw_circle(Vector2.ZERO, radius + 8, Color(0.4, 0.6, 1.0, 0.25))
+		# 色块本体（蓝，hp 越低越偏红）
+		var col := Color(0.45, 0.65 * hp_ratio + 0.2, 1.0 * hp_ratio + 0.2)
+		if _juice.get_flash() > 0.0:
+			col = col.lerp(Color.WHITE, _juice.get_flash())
+		draw_circle(Vector2.ZERO, radius, col)
+	# 重置变换（HP环不受 juice 影响）
+	draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
+	# HP 环（始终叠加在贴图/色块上方）
 	draw_arc(Vector2.ZERO, radius + 14, -TAU / 2, -TAU / 2 + TAU * hp_ratio, 48, Color(0.4, 1.0, 0.5), 4.0)
+
+
+## 加载精灵贴图（有贴图时替换色块）
+func set_sprite(tex: Texture2D) -> void:
+	_sprite_tex = tex
+	queue_redraw()
+
+
+var _sprite_tex: Texture2D = null

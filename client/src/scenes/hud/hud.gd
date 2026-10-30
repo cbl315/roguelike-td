@@ -5,10 +5,12 @@ class_name HUD
 signal bond_picker_requested()
 signal char_panel_toggled()
 signal equipment_picker_requested()   # M3: 装备升级
+signal restart_requested()            # 结算画面按 R 重开
 
 var _char_panel: Control = null   # #6: Tab 角色面板（动态创建）
 var _toast_label: Label = null    # 居中临时提示（突破境界）
 var _toast_timer: float = 0.0     # Toast 剩余显示时间
+var _result_shown: bool = false   # 结算画面显示中（R 键重开用）
 
 @onready var _wave_label: Label = $WaveLabel
 @onready var _timer_label: Label = $TimerLabel
@@ -58,6 +60,12 @@ func _show_toast(text: String, color: Color, duration: float = 3.0) -> void:
 	_toast_timer = duration
 
 
+## Boss Debuff 横幅预告（Boss 波开始时，比普通 Toast 更醒目）
+func show_boss_debuff_banner(debuff_name: String, wave: int) -> void:
+	SoundManager.play("wave_start", -3.0)
+	_show_toast("⚠ 第 %d 波 BOSS · %s" % [wave, debuff_name], Color(1.0, 0.45, 0.35), 4.0)
+
+
 func _on_bond_devoured(path_id: String, realm_idx: int, realm_name: String) -> void:
 	# 突破境界提示：realm_name 是刚完成的境界（如轮海），idx 是已完成数
 	var name_map := {"zhutian": "遮天"}
@@ -66,20 +74,28 @@ func _on_bond_devoured(path_id: String, realm_idx: int, realm_name: String) -> v
 
 
 func _on_bond_btn() -> void:
+	SoundManager.play("ui_click", -6.0)
 	bond_picker_requested.emit()
 
 
 func _on_equip_btn() -> void:
+	SoundManager.play("ui_click", -6.0)
 	equipment_picker_requested.emit()
 
 
 func _on_char_btn() -> void:
+	SoundManager.play("ui_click", -6.0)
 	char_panel_toggled.emit()
 
 
 ## 角色面板：Tab/C 键 或 ESC 关闭（也通过按钮触发，移动端友好）
+## 结算画面：R 键重开（HUD 是 ALWAYS，暂停时也能收到）
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
+		if event.keycode == KEY_R and _result_shown:
+			restart_requested.emit()
+			get_viewport().set_input_as_handled()
+			return
 		if event.keycode == KEY_TAB or event.keycode == KEY_C:
 			char_panel_toggled.emit()
 			get_viewport().set_input_as_handled()
@@ -127,9 +143,13 @@ func update_equip_state(level: int, cost: float) -> void:
 	_equip_btn.disabled = false
 
 
-func show_result(won: bool) -> void:
+func show_result(won: bool, wave: int = 1) -> void:
+	_result_shown = true
 	_result_label.visible = true
-	_result_label.text = "🎉 通关！英雄！" if won else "💀 核心被毁，第 %d 波失败"
+	if won:
+		_result_label.text = "🎉 通关！英雄！守住了全部 %d 波\n\n按 R 重新开始" % wave
+	else:
+		_result_label.text = "💀 核心被毁，第 %d 波失败\n\n按 R 重新开始" % wave
 
 
 # ── #6: Tab 角色面板 ──
@@ -260,7 +280,10 @@ func _render_char_panel(build: BuildState, pools: RoguePools) -> void:
 		for pid in build.path_realm.keys():
 			var idx: int = build.path_realm[pid]
 			var maxr: int = pools.path_max_realm(pid)
-			var prog: Dictionary = pools.cultivation_progress(build.bond_pool, build.path_realm)
+			# 跳过 generic_fusion（不是修炼体系，不显示境界进度）
+			if pid == "generic_fusion":
+				continue
+			var prog: Dictionary = pools.cultivation_progress_for(build.bond_pool, pid, idx)
 			# 境界名（轮海/道宫/四极…），修满显示"圆满"
 			var cur_name := pools.realm_name(pid, mini(idx, maxr - 1)) if idx < maxr else "圆满"
 			var l := Label.new()

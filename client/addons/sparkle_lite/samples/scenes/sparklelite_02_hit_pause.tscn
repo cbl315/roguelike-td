@@ -1,0 +1,118 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://addons/sparkle_lite/samples/scenes/sparklelite_02_hit_pause.gd" id="1_demo"]
+[ext_resource type="Script" uid="uid://b432gm11skduw" path="res://addons/sparkle_lite/players/feedback_player_lite.gd" id="2_player"]
+[ext_resource type="Script" uid="uid://dlrvjops7ha02" path="res://addons/sparkle_lite/feedbacks/feedback_camera_shake_lite.gd" id="3_shake"]
+[ext_resource type="Script" uid="uid://beamqnuh08rly" path="res://addons/sparkle_lite/feedbacks/feedback_hit_pause_lite.gd" id="4_pause"]
+
+[sub_resource type="Resource" id="Shake_Hit"]
+script = ExtResource("3_shake")
+label = "Impact Shake"
+enabled = true
+delay_ms = 0.0
+duration_ms = 350.0
+intensity_multiplier = 1.0
+shake_position_x = true
+shake_position_y = true
+shake_position_z = true
+position_amplitude = Vector3(0.18, 0.18, 0.08)
+position_randomness = Vector3(0.5, 0.5, 0.3)
+position_curve = null
+shake_rotation_x = true
+shake_rotation_y = true
+shake_rotation_z = true
+rotation_amplitude = Vector3(0.8, 0.8, 3)
+rotation_randomness = Vector3(0.6, 0.6, 0.6)
+rotation_curve = null
+camera_selection_mode = 0
+camera_path = NodePath("")
+camera_group_name = ""
+use_distance_falloff = false
+shake_source_path = NodePath("")
+falloff_start_distance = 5.0
+falloff_end_distance = 20.0
+falloff_curve = null
+use_unscaled_time = true
+
+[sub_resource type="Resource" id="Pause_Hit"]
+script = ExtResource("4_pause")
+label = "Hit Stop"
+enabled = true
+delay_ms = 50.0
+duration_ms = 120.0
+intensity_multiplier = 1.0
+time_scale_during_pause = 0.05
+affect_audio = false
+
+[sub_resource type="Environment" id="Env_Arena"]
+background_mode = 1
+background_color = Color(0.086, 0.039, 0.145, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.5, 0.3, 0.5, 1)
+ambient_light_energy = 0.5
+tonemap_mode = 3
+glow_enabled = true
+glow_intensity = 0.5
+fog_enabled = true
+fog_light_color = Color(0.2, 0.08, 0.22, 1)
+fog_density = 0.015
+
+[sub_resource type="PlaneMesh" id="Mesh_Floor"]
+size = Vector2(36, 36)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Floor"]
+albedo_color = Color(0.086, 0.039, 0.145, 1)
+roughness = 0.95
+
+[sub_resource type="BoxMesh" id="Mesh_Platform"]
+size = Vector3(4, 0.2, 4)
+
+[sub_resource type="StandardMaterial3D" id="Mat_Platform"]
+albedo_color = Color(0.15, 0.08, 0.22, 1)
+roughness = 0.7
+emission_enabled = true
+emission = Color(0.635, 0.29, 0.886, 1)
+emission_energy_multiplier = 0.25
+
+[node name="Demo" type="Node3D"]
+script = ExtResource("1_demo")
+
+[node name="WorldEnv" type="WorldEnvironment" parent="."]
+environment = SubResource("Env_Arena")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.642788, -0.573576, 0.5, 0, 0.656059, 0.754711, -0.766044, -0.485071, 0.421635, 0, 5, 0)
+light_energy = 1.0
+shadow_enabled = true
+
+[node name="Fill" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.766044, 0, 0.642788, 0, 1, 0, -0.642788, 0, -0.766044, 0, 4, 0)
+light_color = Color(1, 0.435, 0.659, 1)
+light_energy = 0.4
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+mesh = SubResource("Mesh_Floor")
+material_override = SubResource("Mat_Floor")
+
+[node name="CenterPlatform" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+mesh = SubResource("Mesh_Platform")
+material_override = SubResource("Mat_Platform")
+
+[node name="OrbitPivot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0)
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.978, 0.208, 0, -0.208, 0.978, 0, 1.8, 4.8)
+current = true
+fov = 55.0
+
+[node name="FeedbackPlayer" type="Node" parent="."]
+script = ExtResource("2_player")
+feedbacks = Array[Resource]([SubResource("Shake_Hit"), SubResource("Pause_Hit")])
+auto_play_on_ready = false
+loop = false
+loop_delay_ms = 0.0
+loop_from_index = 0
+default_intensity = 1.0
+minimum_interval_ms = 0.0

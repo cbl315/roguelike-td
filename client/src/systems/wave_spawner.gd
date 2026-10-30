@@ -15,6 +15,8 @@ var _wave: int = 1
 var _spawning: bool = false
 var _active_enemies: Array = []   # 当前波活跃敌人
 var _rng := RandomNumberGenerator.new()
+## Boss Debuff 系统（game_manager 注入；急行之令/不灭之躯/回春之核作用于怪）
+var boss_debuffs: BossDebuffs = null
 
 @onready var _spawn_timer: Timer = $SpawnTimer
 
@@ -56,7 +58,22 @@ func _spawn_one() -> void:
 	var enemy: Enemy = Enemy.new()
 	add_child(enemy)
 	var hp: float = WaveCurves.enemy_hp(_wave)
-	enemy.setup(hp, WaveCurves.is_boss_wave(_wave), WaveCurves.is_elite_wave(_wave), _hero, _room_rect)
+	var is_boss: bool = WaveCurves.is_boss_wave(_wave)
+	var is_elite: bool = WaveCurves.is_elite_wave(_wave)
+	enemy.setup(hp, is_boss, is_elite, _hero, _room_rect)
+	# Boss Debuff：急行之令（全怪移速）/ 不灭之躯（Boss 血量）/ 回春之核（Boss 回血）
+	if boss_debuffs != null:
+		boss_debuffs.modify_enemy(enemy, is_boss)
+	# 美术：按类型装载敌人贴图（随机选择增加视觉多样性）
+	var tex: Texture2D = null
+	if is_boss:
+		tex = SpriteAtlas.get_boss_enemy_tex(_wave)
+	elif is_elite:
+		tex = SpriteAtlas.get_elite_enemy_tex(_rng)
+	else:
+		tex = SpriteAtlas.get_normal_enemy_tex(_rng)
+	if tex:
+		enemy.set_sprite(tex)
 	# 在房间边缘随机位置出生（离英雄有一定距离）
 	enemy.global_position = _random_edge_pos()
 	enemy.reached_core.connect(_on_enemy_reached_core)

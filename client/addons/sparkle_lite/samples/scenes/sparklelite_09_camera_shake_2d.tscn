@@ -1,0 +1,49 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://addons/sparkle_lite/samples/scenes/sparklelite_09_camera_shake_2d.gd" id="1_demo"]
+[ext_resource type="Script" uid="uid://b432gm11skduw" path="res://addons/sparkle_lite/players/feedback_player_lite.gd" id="2_player"]
+[ext_resource type="Script" path="res://addons/sparkle_lite/feedbacks/feedback_camera_shake_2d_lite.gd" id="3_shake2d"]
+
+[sub_resource type="Resource" id="Shake_Default"]
+script = ExtResource("3_shake2d")
+label = "Pop Shake"
+enabled = true
+delay_ms = 0.0
+duration_ms = 420.0
+intensity_multiplier = 1.0
+shake_position_x = true
+shake_position_y = true
+position_amplitude = Vector2(14, 14)
+position_randomness = Vector2(0.55, 0.55)
+position_curve = null
+shake_rotation = true
+rotation_amplitude = 2.5
+rotation_randomness = 0.55
+rotation_curve = null
+camera_selection_mode = 0
+camera_path = NodePath("")
+camera_group_name = ""
+use_distance_falloff = false
+shake_source_path = NodePath("")
+falloff_start_distance = 200.0
+falloff_end_distance = 800.0
+falloff_curve = null
+use_unscaled_time = true
+
+[node name="Demo" type="Node2D"]
+script = ExtResource("1_demo")
+
+[node name="Camera" type="Camera2D" parent="."]
+zoom = Vector2(1, 1)
+
+[node name="Playfield" type="Node2D" parent="."]
+
+[node name="FeedbackPlayer" type="Node" parent="."]
+script = ExtResource("2_player")
+feedbacks = Array[Resource]([SubResource("Shake_Default")])
+auto_play_on_ready = false
+loop = false
+loop_delay_ms = 0.0
+loop_from_index = 0
+default_intensity = 1.0
+minimum_interval_ms = 0.0

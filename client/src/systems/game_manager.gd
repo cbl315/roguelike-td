@@ -21,9 +21,19 @@ var _gold_tick: float = 0.0   # M3: gold_per_sec 累积器
 var _build: BuildState
 var _pools: RoguePools
 var _started: bool = false
+var _rng := RandomNumberGenerator.new()
 
 # 召唤单位（宠魅体系）
 var _summon_units: Array = []   # Array[SummonUnit]
+
+# Sparkle Lite game feel：场景级反馈（震动/顿帧/闪屏）
+var _fb_kill: FeedbackPlayerLite = null       # 击杀普通怪
+var _fb_kill_boss: FeedbackPlayerLite = null  # 击杀 Boss（更强）
+var _fb_hit: FeedbackPlayerLite = null        # 英雄受击
+
+# Boss Debuff 系统（GDD §12）
+var _boss_debuffs := BossDebuffs.new()
+var _lobby_reroll_delta: int = 0   # 封印之手：Boss 波后大厅刷新次数增减
 
 
 func _ready() -> void:
@@ -37,6 +47,10 @@ func _ready() -> void:
 	_hero.room_rect = room_rect
 	_hero.max_hp = hero_hp
 	_hero.current_hp = hero_hp
+	# 美术：英雄贴图（SpriteAtlas 集中预加载）
+	if SpriteAtlas.hero_tex:
+		_hero.set_sprite(SpriteAtlas.hero_tex)
+	_rng.randomize()
 	# M2: build 系统
 	var rng := RandomNumberGenerator.new()
 	rng.randomize()
@@ -59,9 +73,61 @@ func _ready() -> void:
 	_hud.bond_picker_requested.connect(open_bond_picker)
 	_hud.char_panel_toggled.connect(toggle_char_panel)
 	_hud.equipment_picker_requested.connect(open_equipment_picker)
+	_hud.restart_requested.connect(_on_restart_requested)
 	# 种子机制：开局直接开始第一波（体系种子在羁绊池里选）
 	_lobby.set_build_ref(_build, _pools)
+	# Boss Debuff：每局抽 3 个绑定 Boss 波
+	_boss_debuffs.setup(_rng)
+	_spawner.boss_debuffs = _boss_debuffs
+	# Sparkle Lite：创建场景级反馈播放器
+	_setup_feedbacks()
 	call_deferred("_start_next_wave")
+
+
+## Sparkle Lite 反馈配置：3种预设（击杀普通/Boss/英雄受击）
+func _setup_feedbacks() -> void:
+	# 击杀普通怪：轻微震动 + 顿帧
+	_fb_kill = FeedbackPlayerLite.new()
+	_fb_kill.name = "FBKill"
+	var kill_shake := FeedbackCameraShake2DLite.new()
+	kill_shake.position_amplitude = Vector2(4, 4)
+	kill_shake.rotation_amplitude = 1.0
+	kill_shake.duration_ms = 120.0
+	var kill_pause := FeedbackHitPauseLite.new()
+	kill_pause.duration_ms = 40.0
+	kill_pause.time_scale_during_pause = 0.1
+	_fb_kill.feedbacks = [kill_shake, kill_pause]
+	add_child(_fb_kill)
+
+	# 击杀 Boss：强震动 + 顿帧 + 白闪
+	_fb_kill_boss = FeedbackPlayerLite.new()
+	_fb_kill_boss.name = "FBKillBoss"
+	var boss_shake := FeedbackCameraShake2DLite.new()
+	boss_shake.position_amplitude = Vector2(16, 16)
+	boss_shake.rotation_amplitude = 4.0
+	boss_shake.duration_ms = 400.0
+	var boss_pause := FeedbackHitPauseLite.new()
+	boss_pause.duration_ms = 120.0
+	boss_pause.time_scale_during_pause = 0.03
+	var boss_flash := FeedbackScreenFlash2DLite.new()
+	boss_flash.flash_color = Color.WHITE
+	boss_flash.flash_intensity = 0.5
+	boss_flash.fade_out_duration_ms = 300.0
+	_fb_kill_boss.feedbacks = [boss_shake, boss_pause, boss_flash]
+	add_child(_fb_kill_boss)
+
+	# 英雄受击：红色闪屏 + 微震动
+	_fb_hit = FeedbackPlayerLite.new()
+	_fb_hit.name = "FBHit"
+	var hit_shake := FeedbackCameraShake2DLite.new()
+	hit_shake.position_amplitude = Vector2(6, 6)
+	hit_shake.duration_ms = 150.0
+	var hit_flash := FeedbackScreenFlash2DLite.new()
+	hit_flash.flash_color = Color(1.0, 0.2, 0.2)
+	hit_flash.flash_intensity = 0.3
+	hit_flash.fade_out_duration_ms = 200.0
+	_fb_hit.feedbacks = [hit_shake, hit_flash]
+	add_child(_fb_hit)
 
 
 func _show_path_selection() -> void:
@@ -109,18 +175,24 @@ func _start_next_wave() -> void:
 	if current_wave > WaveCurves.main_quest_waves():
 		state = State.RUN_WON
 		EventBus.run_won.emit()
-		if _hud: _hud.show_result(true)
+		if _hud: _hud.show_result(true, current_wave - 1)
 		return
 	state = State.WAVE_IN_PROGRESS
 	EventBus.wave_started.emit(current_wave)
 	if _hud: _hud.update_wave(current_wave)
+	# Boss Debuff：激活本波 debuff（若有）+ 横幅预告
+	var deb: Dictionary = _boss_debuffs.on_wave_started(current_wave)
+	if not deb.is_empty():
+		EventBus.boss_debuff_revealed.emit(deb.get("id", ""), current_wave)
+		if _hud: _hud.show_boss_debuff_banner(deb.get("name", ""), current_wave)
 	# #2: 设置波次倒计时
 	_wave_timer = WaveCurves.wave_duration(current_wave)
 	_lobby.set_build_ref(_build, _pools)
 	_hud.update_gold(_build.gold)
 	_hud.update_bond_cost(_build.bond_draw_cost())
 	_hud.update_equip_state(_build.equip_level, _pools.equip_upgrade_cost(_build.equip_level))
-	_hero.refresh_stats()
+	_hero.refresh_stats()   # debuff 属性类效果在此生效
+	_boss_debuffs.modify_stats(_hero._stats)
 	_refresh_summon_stats()
 	if _spawner: _spawner.start_wave(current_wave)
 
@@ -130,6 +202,11 @@ func _on_wave_finished() -> void:
 		return   # 防重复（超时 + 全清可能同时触发）
 	state = State.WAVE_CLEARED
 	EventBus.wave_cleared.emit(current_wave)
+	# Boss Debuff：波结束 → 停用效果；封印之手作用于之后的大厅
+	var was_debuff_wave: bool = _boss_debuffs.is_active()
+	_lobby_reroll_delta = _boss_debuffs.reroll_cap_delta() if was_debuff_wave else 0
+	_boss_debuffs.on_wave_finished()
+	_hero.refresh_stats()   # 恢复无 debuff 属性
 	# #2: 清完怪提前结束 → 剩余时间奖励金币（每秒 2 金）
 	var time_bonus: float = 0.0
 	if _wave_timer > 0.0:
@@ -144,18 +221,22 @@ func _on_wave_finished() -> void:
 
 
 func _on_lobby_confirmed() -> void:
+	_lobby_reroll_delta = 0   # 封印之手只作用于 Boss 波后的一次大厅会话
 	_hud.update_gold(_build.gold)
 	_hud.update_bond_cost(_build.bond_draw_cost())
 	_hud.update_equip_state(_build.equip_level, _pools.equip_upgrade_cost(_build.equip_level))
 	_hero.refresh_stats()
+	_boss_debuffs.modify_stats(_hero._stats)   # Boss 波内开大厅重选羁绊后仍保持 debuff
 	_refresh_summon_stats()
 
 
 func open_bond_picker() -> void:
 	if _build.gold < _build.bond_draw_cost():
+		SoundManager.play("error")
 		return
 	get_tree().paused = true
 	_lobby.set_build_ref(_build, _pools)
+	_lobby.reroll_delta = _lobby_reroll_delta   # 封印之手：Boss 波后大厅刷新 -1
 	_lobby.open_bond()
 
 
@@ -165,6 +246,7 @@ func open_equipment_picker() -> void:
 		return
 	var cost: float = _pools.equip_upgrade_cost(_build.equip_level)
 	if _build.gold < cost:
+		SoundManager.play("error")
 		return
 	get_tree().paused = true
 	_lobby.set_build_ref(_build, _pools)
@@ -179,15 +261,31 @@ func _on_hero_hp_changed(hp: float, max_hp: float) -> void:
 func _on_hero_destroyed() -> void:
 	state = State.RUN_LOST
 	get_tree().paused = true   # 暂停游戏，停止所有 _process
-	_hud.process_mode = Node.PROCESS_MODE_ALWAYS   # HUD 仍可交互（显示结果）
+	_hud.process_mode = Node.PROCESS_MODE_ALWAYS   # HUD 仍可交互（显示结果/重开）
 	EventBus.run_lost.emit(current_wave)
-	_hud.show_result(false)
+	_hud.show_result(false, current_wave)
+
+
+## 结算画面按 R → 重载场景开新局（HUD 发信号，GameManager 执行）
+func _on_restart_requested() -> void:
+	get_tree().paused = false
+	get_tree().reload_current_scene()
 
 
 ## 怪走到英雄位置 → 扣英雄血（GDD：怪漏到核心）
 ## 伤害由 enemy.leak_damage 数据驱动传入（随波数/类型递增）
 func _on_enemy_reached_hero(enemy: Node, dmg: float) -> void:
+	# 受击音效只在实际掉血时响（无敌帧内不响）
+	if _hero._dmg_cooldown <= 0.0:
+		SoundManager.play("hero_hurt", -4.0)
 	_hero.take_damage(dmg)
+	# Boss Debuff：反噬之力（受击额外掉核心血，绕过无敌帧）
+	var extra: float = _boss_debuffs.extra_core_loss(_hero.max_hp)
+	if extra > 0.0:
+		_hero.apply_raw_damage(extra)
+	# Sparkle Lite：英雄受击反馈（红闪 + 微震动）
+	if _fb_hit != null:
+		_fb_hit.play()
 
 
 ## 击杀奖励：金额由 enemy.kill_reward 数据驱动 + 装备经济加成（M3）
@@ -197,22 +295,34 @@ func _on_enemy_killed(enemy: Node) -> void:
 	# M3: 装备经济效果
 	reward += _build.per_kill_bonus()           # per_kill_gold_delta
 	reward *= _build.gold_multiplier()          # gold_mult 乘区
+	reward = _boss_debuffs.modify_gold(reward)  # Boss Debuff：贪婪之噬（Boss 波内金币减半）
 	if randf() < _build.double_gold_chance():   # double_gold_chance 概率翻倍
 		reward *= 2.0
 	_build.add_gold(reward)
 	EventBus.gold_changed.emit(_build.gold)
 	_hud.update_gold(_build.gold)
+	# Sparkle Lite：击杀反馈（Boss 强震动+顿帧+闪屏，普通怪轻震动）
+	if _fb_kill_boss != null and e != null and e.is_boss:
+		_fb_kill_boss.play()
+	elif _fb_kill != null:
+		_fb_kill.play()
 
 
 func _on_hero_fired(target: Node, dmg: float) -> void:
+	SoundManager.play("fire", -10.0)
 	var proj := Projectile.new()
 	add_child(proj)
 	proj.setup(_hero.global_position, target, dmg)
+	# 美术：弹道贴图（随机元素特效）
+	var ptex: Texture2D = SpriteAtlas.get_projectile_tex(_rng)
+	if ptex:
+		proj.set_sprite(ptex)
 	# 吸血：projectile 命中时按 lifesteal_pct 回血
 	proj.hit_target.connect(_on_projectile_hit)
 
 
 func _on_projectile_hit(target: Node, damage: float) -> void:
+	SoundManager.play("hit", -9.0)
 	if _hero == null or not is_instance_valid(_hero):
 		return
 	if _hero.build == null:
@@ -220,7 +330,11 @@ func _on_projectile_hit(target: Node, damage: float) -> void:
 	var stats: CombatStats = _hero.build.assemble_stats()
 	var lifesteal: float = stats.lifesteal_pct
 	if lifesteal > 0.0:
-		_hero.heal(damage * lifesteal)
+		_hero.heal(damage * lifesteal * _boss_debuffs.healing_mult())   # 禁疗之印
+	# Boss Debuff：镜面之甲（命中反弹，绕过无敌帧直接扣血）
+	var reflect: float = _boss_debuffs.reflect_dmg(damage)
+	if reflect > 0.0:
+		_hero.apply_raw_damage(reflect)
 
 
 # ── 召唤单位（宠魅体系）──
@@ -236,6 +350,14 @@ func spawn_summon_unit(unit_id: String, unit_name: String, offset: Vector2) -> v
 	var summon := SummonUnit.new()
 	add_child(summon)
 	summon.setup(unit_name, unit_id, _hero, offset)
+	# 美术：按 unit_id 装载贴图
+	match unit_id:
+		"moxie":
+			if SpriteAtlas.summon_moxie_tex:
+				summon.set_sprite(SpriteAtlas.summon_moxie_tex)
+		"baiyanmeng":
+			if SpriteAtlas.summon_baiyanmeng_tex:
+				summon.set_sprite(SpriteAtlas.summon_baiyanmeng_tex)
 	# 初始位置 = 英雄位置 + 偏移（避免从原点飞过来）
 	summon.global_position = _hero.global_position + offset
 	# 绑定 source：信号自带 (target, dmg)，bind 把召唤单位追加在末尾 → (target, dmg, source)
@@ -269,6 +391,7 @@ func _refresh_summon_stats() -> void:
 	if _build == null:
 		return
 	var stats: CombatStats = _build.assemble_stats()
+	_boss_debuffs.modify_stats(stats)
 	for su in _summon_units:
 		if is_instance_valid(su) and su.active:
 			su.refresh_stats(stats)
@@ -282,6 +405,10 @@ func _on_summon_fired(target: Node, dmg: float, source: Node) -> void:
 	var proj := Projectile.new()
 	add_child(proj)
 	proj.setup(source.global_position, target, dmg)
+	# 美术：弹道贴图
+	var ptex: Texture2D = SpriteAtlas.get_projectile_tex(_rng)
+	if ptex:
+		proj.set_sprite(ptex)
 	# 吸血：projectile 命中时按 lifesteal_pct 回血（命中 hero.heal）
 	proj.hit_target.connect(_on_projectile_hit)
 

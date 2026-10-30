@@ -25,6 +25,8 @@ var all_enemies: Array = []
 var follow_speed: float = 400.0
 ## 是否激活（白魇魔被吞噬后 deactivate）
 var active: bool = true
+var _juice := Juice.new()
+var _prev_pos: Vector2 = Vector2.ZERO
 
 # 占位精灵颜色（彩色圆形，不用美术资源）
 const COLOR_MOXIE := Color(0.95, 0.35, 0.15)       # 莫邪：橙红色
@@ -46,6 +48,8 @@ func setup(p_name: String, p_id: String, hero: Node2D, offset: Vector2) -> void:
 	follow_offset = offset
 	stats = CombatStats.new()
 	stats.apply_atk_bonus()
+	_juice.play_spawn()
+	_prev_pos = global_position
 
 
 func set_enemies(enemies: Array) -> void:
@@ -85,6 +89,11 @@ func _process(delta: float) -> void:
 	if _fire_timer >= interval:
 		_fire_timer = 0.0
 		_fire(nearest)
+	# Juice：跟随移动时的挤压
+	var moved: float = global_position.distance_to(_prev_pos)
+	_juice.tick(delta, moved > 0.5, clampf(moved / (follow_speed * delta + 1.0), 0.0, 1.0))
+	_prev_pos = global_position
+	queue_redraw()
 
 
 func _fire(target: Node2D) -> void:
@@ -94,6 +103,7 @@ func _fire(target: Node2D) -> void:
 	var dmg: float = stats.expected_hit_dmg(enemy.armor)
 	if dmg <= 0.0:
 		return
+	_juice.play_attack()
 	fired_projectile.emit(target, dmg)
 
 
@@ -114,8 +124,25 @@ func activate() -> void:
 	visible = true
 
 
-## 占位精灵：按 unit_id 画彩色圆形（莫邪=橙红，白魇魔=青色，其它=灰）
+## 加载精灵贴图
+func set_sprite(tex: Texture2D) -> void:
+	_sprite_tex = tex
+	queue_redraw()
+
+
+var _sprite_tex: Texture2D = null
+
+
 func _draw() -> void:
+	# 应用 juice 变换（idle呼吸 + 移动挤压 + 攻击反馈）
+	draw_set_transform(_juice.offset, _juice.rotation, _juice.scale)
+	# 优先贴图，无则色块
+	if _sprite_tex:
+		var ts: Vector2 = _sprite_tex.get_size()
+		draw_texture(_sprite_tex, -ts / 2)
+		draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
+		return
+	# 色块 fallback：按 unit_id 画彩色圆形
 	var col: Color = COLOR_DEFAULT
 	match unit_id:
 		"moxie":
@@ -128,3 +155,4 @@ func _draw() -> void:
 	draw_circle(Vector2.ZERO, DRAW_RADIUS, col)
 	# 描边
 	draw_arc(Vector2.ZERO, DRAW_RADIUS, 0, TAU, 48, Color(1, 1, 1, 0.5), 1.5)
+	draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)

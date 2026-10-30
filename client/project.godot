@@ -22,6 +22,10 @@ config/features=PackedStringArray("4.6", "Forward Plus")
 [autoload]
 
 EventBus="*res://src/systems/event_bus.gd"
+SoundManager="*res://src/systems/sound_manager.gd"
+SpriteAtlas="*res://src/core/sprite_atlas.gd"
+SparkleLitePresets="*uid://x7rw1c5kdamp"
+MCPGameBridge="res://addons/godot_mcp/game_bridge/mcp_game_bridge.gd"
 
 [display]
 
@@ -29,6 +33,21 @@ window/size/viewport_width=1920
 window/size/viewport_height=1080
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+
+[editor_plugins]
+
+enabled=PackedStringArray("sparkle_lite", "godot_mcp")
+
+[godot_mcp]
+
+bind_mode=0
+custom_bind_ip=""
+port_override_enabled=false
+port_override=6550
+
+[gui]
+
+theme/custom_font="res://src/assets/fonts/NotoSansSC-subset.otf"
 
 [rendering]
 

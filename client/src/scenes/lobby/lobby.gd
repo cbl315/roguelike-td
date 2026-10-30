@@ -6,7 +6,13 @@ class_name Lobby
 
 signal confirmed()
 
-const REROLL_CAP := 1
+const REROLL_BASE := 1
+## 封印之手（Boss Debuff）：本会话刷新次数增减（game_manager 注入，波后大厅 -1）
+var reroll_delta: int = 0
+
+
+func _reroll_cap() -> int:
+	return maxi(0, REROLL_BASE + reroll_delta)
 
 var build: BuildState
 var pools: RoguePools
@@ -428,9 +434,10 @@ func _record_card_rect(card: Control, idx: int) -> void:
 	# 动作按钮
 	_clear_actions()
 	if _current_tab == "bond":
-		var reroll_lbl := "刷新羁绊 (免费 %d/%d)" % [_rerolls_this_wave, REROLL_CAP]
+		var cap := _reroll_cap()
+		var reroll_lbl := "刷新羁绊 (免费 %d/%d)" % [_rerolls_this_wave, cap]
 		_add_action(reroll_lbl, "_on_reroll_bond",
-			_rerolls_this_wave < REROLL_CAP)
+			_rerolls_this_wave < cap)
 	_add_action("切换 羁绊/装备 (Tab)", "_on_toggle_tab", true)
 	_add_action("稍后再选", "_on_confirm", true)
 
@@ -575,6 +582,7 @@ func _on_pick(idx: int) -> void:
 	if idx >= offers.size():
 		return
 	var offer: Dictionary = offers[idx]
+	SoundManager.play("card_pick")
 	var ok: bool = build.take_bond_offer(offer)
 	if not ok:
 		# 池满 → 进替换模式：让玩家选一个扔掉换新的
@@ -592,7 +600,7 @@ func _on_pick(idx: int) -> void:
 
 func _on_reroll_bond() -> void:
 	# 刷新免费（open_bond 时已付 bond_draw_cost）
-	if _rerolls_this_wave < REROLL_CAP:
+	if _rerolls_this_wave < _reroll_cap():
 		_rerolls_this_wave += 1
 		_refresh_bond_offers()
 

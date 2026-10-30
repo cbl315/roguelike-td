@@ -1,0 +1,108 @@
+[gd_scene format=3 uid="uid://brog3th0x5uxs"]
+
+[ext_resource type="Script" uid="uid://7ka84girsj6p" path="res://addons/sparkle_lite/samples/scenes/sparklelite_01_camera_shake.gd" id="1_demo"]
+[ext_resource type="Script" uid="uid://b432gm11skduw" path="res://addons/sparkle_lite/players/feedback_player_lite.gd" id="2_player"]
+[ext_resource type="Script" uid="uid://c2mscmakyx0aa" path="res://addons/sparkle_lite/feedbacks/feedback_base_lite.gd" id="3_n3gae"]
+[ext_resource type="Script" uid="uid://dlrvjops7ha02" path="res://addons/sparkle_lite/feedbacks/feedback_camera_shake_lite.gd" id="3_shake"]
+
+[sub_resource type="Environment" id="Env_Arena"]
+background_mode = 1
+background_color = Color(0.078, 0.039, 0.118, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.45, 0.35, 0.55, 1)
+ambient_light_energy = 0.55
+tonemap_mode = 3
+glow_enabled = true
+glow_intensity = 0.45
+fog_enabled = true
+fog_light_color = Color(0.2, 0.1, 0.25, 1)
+fog_density = 0.012
+
+[sub_resource type="StandardMaterial3D" id="Mat_Floor"]
+albedo_color = Color(0.1, 0.06, 0.14, 1)
+metallic_specular = 0.1
+roughness = 0.95
+
+[sub_resource type="PlaneMesh" id="Mesh_Floor"]
+size = Vector2(40, 40)
+
+[sub_resource type="StandardMaterial3D" id="Mat_PillarPurple"]
+albedo_color = Color(0.635, 0.29, 0.886, 1)
+roughness = 0.75
+emission_enabled = true
+emission = Color(0.635, 0.29, 0.886, 1)
+emission_energy_multiplier = 0.6
+
+[sub_resource type="BoxMesh" id="Mesh_Pillar"]
+size = Vector3(0.5, 2, 0.5)
+
+[sub_resource type="Resource" id="Shake_Default"]
+resource_path = "res://addons/sparkle_lite/samples/scenes/sparklelite_01_camera_shake.tscn::Shake_Default"
+script = ExtResource("3_shake")
+position_amplitude = Vector3(0.15, 0.15, 0)
+rotation_amplitude = Vector3(0, 0, 2.5)
+rotation_randomness = Vector3(0.5, 0.5, 0.6)
+label = "Shoot Shake"
+duration_ms = 400.0
+
+[node name="Demo" type="Node3D" unique_id=370007293]
+script = ExtResource("1_demo")
+
+[node name="WorldEnv" type="WorldEnvironment" parent="." unique_id=913242283]
+environment = SubResource("Env_Arena")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=237730851]
+transform = Transform3D(0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 0, 5, 0)
+light_color = Color(1, 0.95, 0.85, 1)
+light_energy = 1.1
+shadow_enabled = true
+
+[node name="Fill" type="DirectionalLight3D" parent="." unique_id=701384610]
+transform = Transform3D(-0.766044, -0.321394, 0.556671, 0, 0.866025, 0.5, -0.642788, 0.383022, -0.663414, 0, 4, 2)
+light_color = Color(1, 0.435, 0.659, 1)
+light_energy = 0.45
+
+[node name="Floor" type="MeshInstance3D" parent="." unique_id=385121683]
+material_override = SubResource("Mat_Floor")
+mesh = SubResource("Mesh_Floor")
+
+[node name="Scenery" type="Node3D" parent="." unique_id=962899969]
+
+[node name="PillarL1" type="MeshInstance3D" parent="Scenery" unique_id=811500203]
+transform = Transform3D(1, 0, 0, 0, 1.4, 0, 0, 0, 1, -3.2, 1.4, -2.5)
+material_override = SubResource("Mat_PillarPurple")
+mesh = SubResource("Mesh_Pillar")
+
+[node name="PillarL2" type="MeshInstance3D" parent="Scenery" unique_id=1374955327]
+transform = Transform3D(1, 0, 0, 0, 0.9, 0, 0, 0, 1, -4.5, 0.9, -4)
+material_override = SubResource("Mat_PillarPurple")
+mesh = SubResource("Mesh_Pillar")
+
+[node name="PillarL3" type="MeshInstance3D" parent="Scenery" unique_id=1620485780]
+transform = Transform3D(1, 0, 0, 0, 1.8, 0, 0, 0, 1, -2, 1.8, -5.5)
+material_override = SubResource("Mat_PillarPurple")
+mesh = SubResource("Mesh_Pillar")
+
+[node name="PillarR1" type="MeshInstance3D" parent="Scenery" unique_id=1851924084]
+transform = Transform3D(1, 0, 0, 0, 1.2, 0, 0, 0, 1, 3.2, 1.2, -2.5)
+material_override = SubResource("Mat_PillarPurple")
+mesh = SubResource("Mesh_Pillar")
+
+[node name="PillarR2" type="MeshInstance3D" parent="Scenery" unique_id=1876734526]
+transform = Transform3D(1, 0, 0, 0, 1.6, 0, 0, 0, 1, 4.5, 1.6, -4)
+material_override = SubResource("Mat_PillarPurple")
+mesh = SubResource("Mesh_Pillar")
+
+[node name="PillarR3" type="MeshInstance3D" parent="Scenery" unique_id=1759791948]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 1, -5.5)
+material_override = SubResource("Mat_PillarPurple")
+mesh = SubResource("Mesh_Pillar")
+
+[node name="Camera" type="Camera3D" parent="." unique_id=1722558710]
+transform = Transform3D(1, 0, 0, 0, 0.994, 0.113, 0, -0.113, 0.994, 0, 1.65, 3.6)
+current = true
+fov = 50.0
+
+[node name="FeedbackPlayer" type="Node" parent="." unique_id=1374173831]
+script = ExtResource("2_player")
+feedbacks = Array[ExtResource("3_n3gae")]([SubResource("Shake_Default")])

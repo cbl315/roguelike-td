@@ -20,6 +20,9 @@ signal died(enemy)
 @export var contact_dist: float = 40.0
 ## 接触后重新攻击的冷却（秒）
 @export var contact_cooldown: float = 1.0
+## Boss 回春之核：每 5s 回血比例（% max hp，0 = 无回血）
+var regen_pct_per_5s: float = 0.0
+var _regen_timer: float = 0.0
 
 var current_hp: float = 100.0:
 	set = set_current_hp
@@ -27,8 +30,10 @@ var armor: float = 20.0
 var _hero: Node2D = null
 var _dead: bool = false
 var _contact_cd: float = 0.0   # 接触冷却剩余
-var _flash_timer: float = 0.0   # #3: 受击闪白剩余
+var _flash_timer: float = 0.0   # #3: 受击闪白剩余（fallback 色块用）
 var _burst_timer: float = -1.0  # #3: 死亡爆裂动画（>=0 时播放，0.2s 后 queue_free）
+var _juice := Juice.new()
+var _prev_pos: Vector2 = Vector2.ZERO
 
 ## 房间边界（由 spawner 设置）
 var _room_rect: Rect2 = Rect2(80, 80, 2840, 1840)
@@ -45,12 +50,14 @@ func set_current_hp(value: float) -> void:
 	# #3: 受击闪白（非致命伤害）
 	if current_hp > 0.0:
 		_flash_timer = 0.08
+		_juice.play_flash()
 	queue_redraw()
 	if current_hp <= 0.0 and not _dead:
 		_dead = true
 		died.emit(self)
-		# #3: 不立即 queue_free，播放 0.2s 爆裂动画
+		# #3: 不立即 queue_free，播放死亡动画
 		_burst_timer = 0.0
+		_juice.play_death()
 
 
 func setup(hp: float, boss: bool, elite: bool, hero: Node2D, room_rect: Rect2) -> void:
@@ -68,18 +75,27 @@ func setup(hp: float, boss: bool, elite: bool, hero: Node2D, room_rect: Rect2) -
 	kill_reward = 8.0 if boss else (4.0 if elite else 2.0)
 	leak_damage = (60.0 + 10.0 * WaveCurves._current_wave) if boss else (40.0 + 5.0 * WaveCurves._current_wave) if elite else (30.0 + 5.0 * WaveCurves._current_wave)
 	contact_dist = 36.0 if boss else (32.0 if elite else 28.0)
+	_juice.play_spawn()   # 生成弹出动画
+	_prev_pos = global_position
 
 
 func _process(delta: float) -> void:
-	# #3: 死亡爆裂动画播放中 → 不再移动，只播动画
+	# #3: 死亡动画播放中 → 不再移动，只播动画
 	if _burst_timer >= 0.0:
 		_burst_timer += delta
+		_juice.tick(delta, false, 0.0)
 		queue_redraw()
 		if _burst_timer > 0.2:
 			queue_free()
 		return
 	if _hero == null or not is_instance_valid(_hero):
 		return
+	# Boss 回春之核：每 5s 回血
+	if regen_pct_per_5s > 0.0:
+		_regen_timer += delta
+		if _regen_timer >= 5.0:
+			_regen_timer = 0.0
+			current_hp = minf(max_hp, current_hp + max_hp * regen_pct_per_5s)
 	# #3: 受击闪白计时
 	if _flash_timer > 0.0:
 		_flash_timer -= delta
@@ -100,6 +116,11 @@ func _process(delta: float) -> void:
 	# 房间边界约束
 	global_position.x = clampf(global_position.x, _room_rect.position.x, _room_rect.position.x + _room_rect.size.x)
 	global_position.y = clampf(global_position.y, _room_rect.position.y, _room_rect.position.y + _room_rect.size.y)
+	# Juice：移动挤压
+	var moved: float = global_position.distance_to(_prev_pos)
+	var speed_ratio: float = clampf(moved / (move_speed * delta + 1.0), 0.0, 1.0)
+	_juice.tick(delta, moved > 0.5, speed_ratio)
+	_prev_pos = global_position
 	queue_redraw()
 
 
@@ -107,26 +128,55 @@ func take_damage(amount: float) -> void:
 	current_hp -= amount   # 走 setter，归零自动触发 died
 
 
+var _sprite_tex: Texture2D = null
+
+
+## 加载精灵贴图
+func set_sprite(tex: Texture2D) -> void:
+	_sprite_tex = tex
+	queue_redraw()
+
+
 func _draw() -> void:
-	# #3: 死亡爆裂动画（0→40px 放大圆环，透明度递减）
+	# 死亡爆裂动画（贴图/色块通用）
 	if _burst_timer >= 0.0:
-		var t: float = _burst_timer / 0.2   # 0→1
+		var t: float = _burst_timer / 0.2
 		var burst_r: float = radius + t * 40.0
 		var burst_a: float = 1.0 - t
+		# 先画本体（带 juice 死亡变换：放大+旋转+淡出）
+		draw_set_transform(_juice.offset, _juice.rotation, _juice.scale)
+		if _sprite_tex:
+			var ts: Vector2 = _sprite_tex.get_size()
+			draw_texture(_sprite_tex, -ts / 2)
+			if burst_a < 1.0:
+				draw_rect(Rect2(-ts / 2, ts), Color(0, 0, 0, (1.0 - burst_a) * 0.5), true)
+		draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
+		# 爆裂环
 		draw_circle(Vector2.ZERO, burst_r, Color(1.0, 0.8, 0.3, burst_a * 0.6))
 		draw_arc(Vector2.ZERO, burst_r, 0, TAU, 32, Color(1.0, 0.9, 0.4, burst_a), 3.0)
 		return
 	var hp_ratio := clampf(current_hp / max_hp, 0.0, 1.0)
-	var col := Color(1.0, 0.25 + 0.4 * (1.0 - hp_ratio), 0.3 + 0.3 * (1.0 - hp_ratio))
-	if is_boss:
-		col = Color(1.0, 0.4, 0.8)
-	elif is_elite:
-		col = Color(1.0, 0.6, 0.3)
-	# #3: 受击闪白（混入白色）
-	if _flash_timer > 0.0:
-		col = col.lerp(Color.WHITE, 0.6)
-	draw_circle(Vector2.ZERO, radius + 6, Color(col.r, col.g, col.b, 0.25))
-	draw_circle(Vector2.ZERO, radius, col)
+	# 本体：应用 juice 变换（idle呼吸 + 移动挤压 + 攻击/受击反馈）
+	draw_set_transform(_juice.offset, _juice.rotation, _juice.scale)
+	if _sprite_tex:
+		var ts: Vector2 = _sprite_tex.get_size()
+		draw_texture(_sprite_tex, -ts / 2)
+		# 命中闪白：贴图上叠加白色半透明
+		if _juice.get_flash() > 0.0:
+			draw_rect(Rect2(-ts / 2, ts), Color(1, 1, 1, _juice.get_flash() * 0.7), true)
+	else:
+		var col := Color(1.0, 0.25 + 0.4 * (1.0 - hp_ratio), 0.3 + 0.3 * (1.0 - hp_ratio))
+		if is_boss:
+			col = Color(1.0, 0.4, 0.8)
+		elif is_elite:
+			col = Color(1.0, 0.6, 0.3)
+		if _juice.get_flash() > 0.0:
+			col = col.lerp(Color.WHITE, _juice.get_flash())
+		draw_circle(Vector2.ZERO, radius + 6, Color(col.r, col.g, col.b, 0.25))
+		draw_circle(Vector2.ZERO, radius, col)
+	# 重置变换
+	draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
+	# 血条（贴图/色块通用，叠加在上方）
 	var bar_w := radius * 1.6
 	draw_rect(Rect2(-bar_w / 2, -radius - 12, bar_w, 4), Color(0.2, 0.2, 0.25), true)
 	draw_rect(Rect2(-bar_w / 2, -radius - 12, bar_w * hp_ratio, 4), Color(0.9, 0.2, 0.3), true)

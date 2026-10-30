@@ -23,6 +23,12 @@ const TRAIL_LEN := 6
 
 func _ready() -> void:
 	z_index = 50   # 置于顶层，不被路径/敌人体遮挡
+	# Additive 混合：黑色=透明、亮色=发光，天然消除特效贴图的抠图残留背景
+	var mat := CanvasItemMaterial.new()
+	mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	material = mat
+	_juice.play_spawn()
+	_juice.spawn_time = 0.08   # 弹道弹出比角色快
 
 
 ## from=发射点, target=锁定目标, damage=到达时结算的伤害
@@ -53,15 +59,33 @@ func _process(delta: float) -> void:
 	_life += delta
 	if _life > MAX_LIFE:
 		queue_free()
+	_juice.tick(delta, true, 1.0)   # 飞行中持续拉伸
+	queue_redraw()                  # juice 变换需要每帧重绘
+
+
+var _sprite_tex: Texture2D = null
+var _juice := Juice.new()
+
+
+## 加载弹道贴图
+func set_sprite(tex: Texture2D) -> void:
+	_sprite_tex = tex
 
 
 func _draw() -> void:
-	# #3: 拖尾（从旧到新，逐渐变亮变大）
+	# 拖尾（贴图/色块通用）
 	for i in range(_trail.size()):
-		var t: float = 1.0 - float(i) / float(TRAIL_LEN)   # 0=最旧, 1=最新
+		var t: float = 1.0 - float(i) / float(TRAIL_LEN)
 		var alpha: float = t * 0.5
 		var r: float = radius * (0.3 + t * 0.7)
 		draw_circle(_trail[i], r, Color(1.0, 0.9, 0.3, alpha))
-	# 发光 + 本体
-	draw_circle(Vector2.ZERO, radius + 3, Color(1.0, 0.9, 0.3, 0.4))
-	draw_circle(Vector2.ZERO, radius, Color(1.0, 0.95, 0.4))
+	# 本体：应用 juice 变换（生成弹出）
+	draw_set_transform(_juice.offset, _juice.rotation, _juice.scale)
+	if _sprite_tex:
+		var ts: Vector2 = _sprite_tex.get_size()
+		draw_texture(_sprite_tex, -ts / 2)
+	else:
+		# 发光 + 色块本体
+		draw_circle(Vector2.ZERO, radius + 3, Color(1.0, 0.9, 0.3, 0.4))
+		draw_circle(Vector2.ZERO, radius, Color(1.0, 0.95, 0.4))
+	draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)

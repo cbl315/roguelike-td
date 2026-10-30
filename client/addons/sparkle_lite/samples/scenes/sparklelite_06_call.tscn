@@ -1,0 +1,80 @@
+[gd_scene load_steps=7 format=4]
+
+[ext_resource type="Script" path="res://addons/sparkle_lite/samples/scenes/sparklelite_06_call.gd" id="1_demo"]
+[ext_resource type="Script" uid="uid://b432gm11skduw" path="res://addons/sparkle_lite/players/feedback_player_lite.gd" id="2_player"]
+[ext_resource type="Script" uid="uid://bia20fnpxa4d5" path="res://addons/sparkle_lite/feedbacks/feedback_call_lite.gd" id="3_call"]
+
+[sub_resource type="Resource" id="Call_Stage2"]
+script = ExtResource("3_call")
+label = "Stage 2"
+enabled = true
+delay_ms = 0.0
+duration_ms = 0.0
+intensity_multiplier = 1.0
+mode = 0
+target = NodePath("..")
+method_or_signal = &"set_stage_2"
+arguments = []
+
+[sub_resource type="Resource" id="Call_Stage3"]
+script = ExtResource("3_call")
+label = "Stage 3"
+enabled = true
+delay_ms = 220.0
+duration_ms = 0.0
+intensity_multiplier = 1.0
+mode = 0
+target = NodePath("..")
+method_or_signal = &"set_stage_3"
+arguments = []
+
+[sub_resource type="Resource" id="Call_StageRainbow"]
+script = ExtResource("3_call")
+label = "Stage Rainbow"
+enabled = true
+delay_ms = 440.0
+duration_ms = 0.0
+intensity_multiplier = 1.0
+mode = 0
+target = NodePath("..")
+method_or_signal = &"set_stage_rainbow"
+arguments = []
+
+[sub_resource type="Resource" id="Signal_StageRainbow"]
+script = ExtResource("3_call")
+label = "Pre-signal stage bump"
+enabled = true
+delay_ms = 0.0
+duration_ms = 0.0
+intensity_multiplier = 1.0
+mode = 0
+target = NodePath("..")
+method_or_signal = &"set_stage_rainbow"
+arguments = []
+
+[sub_resource type="Resource" id="Signal_Finished"]
+script = ExtResource("3_call")
+label = "Emit upgrade_finished(3)"
+enabled = true
+delay_ms = 500.0
+duration_ms = 0.0
+intensity_multiplier = 1.0
+mode = 1
+target = NodePath("..")
+method_or_signal = &"upgrade_finished"
+arguments = [3]
+
+[node name="Demo" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_demo")
+
+[node name="UpgradePlayer" type="Node" parent="."]
+script = ExtResource("2_player")
+feedbacks = Array[Resource]([SubResource("Call_Stage2"), SubResource("Call_Stage3"), SubResource("Call_StageRainbow")])
+
+[node name="SignalPlayer" type="Node" parent="."]
+script = ExtResource("2_player")
+feedbacks = Array[Resource]([SubResource("Signal_StageRainbow"), SubResource("Signal_Finished")])
