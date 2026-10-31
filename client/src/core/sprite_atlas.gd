@@ -26,6 +26,11 @@ func _ready() -> void:
 	summon_moxie_tex = _load_scaled("res://src/assets/characters/summon_moxie.png", 68)
 	summon_baiyanmeng_tex = _load_scaled("res://src/assets/characters/summon_baiyanmeng.png", 68)
 
+	# ── 行为怪贴图（远程=萨满 / 分裂=冰魂 / 奶妈=蛮兵）──
+	_kind_texs["ranged"] = _load_scaled("res://src/assets/enemies/enemy_shaman.png", 52)
+	_kind_texs["splitter"] = _load_scaled("res://src/assets/enemies/enemy_frost_wraith.png", 52)
+	_kind_texs["healer"] = _load_scaled("res://src/assets/enemies/enemy_brute.png", 58)
+
 	# ── 弹道（4 种元素特效，28px）──
 	for p in [
 		"res://src/assets/effects/fx_projectile_physical.png",
@@ -35,13 +40,10 @@ func _ready() -> void:
 	]:
 		projectile_texs.append(_load_scaled(p, 32))
 
-	# ── 普通敌人（5 种，50px）──
+	# ── 普通追击怪（2 种；shaman/frost_wraith/brute 已专属行为怪，避免视觉混淆）──
 	for p in [
 		"res://src/assets/enemies/enemy_grunt.png",
 		"res://src/assets/enemies/enemy_runner.png",
-		"res://src/assets/enemies/enemy_brute.png",
-		"res://src/assets/enemies/enemy_shaman.png",
-		"res://src/assets/enemies/enemy_frost_wraith.png",
 	]:
 		_normal_enemy_texs.append(_load_scaled(p, 52))
 
@@ -89,6 +91,21 @@ func get_normal_enemy_tex(rng: RandomNumberGenerator) -> Texture2D:
 	if _normal_enemy_texs.is_empty():
 		return null
 	return _normal_enemy_texs[rng.randi() % _normal_enemy_texs.size()]
+
+
+## 按行为类型取贴图（远程=萨满施法者 / 分裂=冰魂 / 奶妈=蛮兵）
+func get_enemy_tex_by_kind(kind: int) -> Texture2D:
+	match kind:
+		Enemy.Kind.RANGED:
+			return _kind_texs.get("ranged")
+		Enemy.Kind.SPLITTER:
+			return _kind_texs.get("splitter")
+		Enemy.Kind.HEALER:
+			return _kind_texs.get("healer")
+	return null
+
+
+var _kind_texs: Dictionary = {}
 
 
 ## 随机取一个精英敌人贴图

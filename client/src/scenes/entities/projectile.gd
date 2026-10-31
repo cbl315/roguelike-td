@@ -5,7 +5,7 @@
 extends Node2D
 class_name Projectile
 
-signal hit_target(target: Node, damage: float)
+signal hit_target(target: Node, damage: float, is_crit: bool)
 
 @export var speed: float = 1200.0
 @export var radius: float = 6.0
@@ -13,6 +13,7 @@ signal hit_target(target: Node, damage: float)
 
 var _target: Node2D = null
 var _damage: float = 0.0
+var _crit: bool = false
 var _life: float = 0.0
 const MAX_LIFE := 2.0
 
@@ -31,11 +32,12 @@ func _ready() -> void:
 	_juice.spawn_time = 0.08   # 弹道弹出比角色快
 
 
-## from=发射点, target=锁定目标, damage=到达时结算的伤害
-func setup(from: Vector2, target: Node2D, damage: float) -> void:
+## from=发射点, target=锁定目标, damage=到达时结算的伤害, crit=是否暴击（伤害数字用）
+func setup(from: Vector2, target: Node2D, damage: float, crit: bool = false) -> void:
 	global_position = from
 	_target = target
 	_damage = damage
+	_crit = crit
 
 
 func _process(delta: float) -> void:
@@ -48,7 +50,7 @@ func _process(delta: float) -> void:
 	if dist < arrive_dist:
 		# 到达：对锁定的原目标结算伤害（不会误伤途中敌人）
 		_target.take_damage(_damage)
-		hit_target.emit(_target, _damage)
+		hit_target.emit(_target, _damage, _crit)
 		queue_free()
 		return
 	global_position += dir.normalized() * speed * delta

@@ -4,7 +4,7 @@
 extends Node2D
 class_name SummonUnit
 
-signal fired_projectile(target: Node, damage: float)
+signal fired_projectile(target: Node, damage: float, is_crit: bool)
 
 ## 跟随的目标（英雄）
 var follow_target: Node2D = null
@@ -27,6 +27,7 @@ var follow_speed: float = 400.0
 var active: bool = true
 var _juice := Juice.new()
 var _prev_pos: Vector2 = Vector2.ZERO
+var _fire_rng := RandomNumberGenerator.new()
 
 # 占位精灵颜色（彩色圆形，不用美术资源）
 const COLOR_MOXIE := Color(0.95, 0.35, 0.15)       # 莫邪：橙红色
@@ -36,6 +37,7 @@ const DRAW_RADIUS := 22.0
 
 
 func _ready() -> void:
+	_fire_rng.randomize()
 	if stats == null:
 		stats = CombatStats.new()
 		stats.apply_atk_bonus()
@@ -100,11 +102,13 @@ func _fire(target: Node2D) -> void:
 	var enemy: Enemy = target as Enemy
 	if enemy == null:
 		return
-	var dmg: float = stats.expected_hit_dmg(enemy.armor)
+	# 掷骰版（与英雄一致，均值 == expected）
+	var rolled: Dictionary = stats.roll_hit_dmg(enemy.armor, _fire_rng)
+	var dmg: float = rolled["dmg"]
 	if dmg <= 0.0:
 		return
 	_juice.play_attack()
-	fired_projectile.emit(target, dmg)
+	fired_projectile.emit(target, dmg, rolled["crit"])
 
 
 ## 更新属性（羁绊变化时调用）

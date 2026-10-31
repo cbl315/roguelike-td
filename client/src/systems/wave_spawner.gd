@@ -64,12 +64,19 @@ func _spawn_one() -> void:
 	# Boss Debuff：急行之令（全怪移速）/ 不灭之躯（Boss 血量）/ 回春之核（Boss 回血）
 	if boss_debuffs != null:
 		boss_debuffs.modify_enemy(enemy, is_boss)
-	# 美术：按类型装载敌人贴图（随机选择增加视觉多样性）
+	# 行为分配：普通怪按配比（Boss/精英保持追击强化）
+	if not is_boss and not is_elite:
+		var kind := _pick_kind()
+		if kind != Enemy.Kind.CHASER:
+			_apply_kind(enemy, kind, hp)
+	# 美术：按类型装载敌人贴图
 	var tex: Texture2D = null
 	if is_boss:
 		tex = SpriteAtlas.get_boss_enemy_tex(_wave)
 	elif is_elite:
 		tex = SpriteAtlas.get_elite_enemy_tex(_rng)
+	elif enemy.kind != Enemy.Kind.CHASER:
+		tex = SpriteAtlas.get_enemy_tex_by_kind(enemy.kind)
 	else:
 		tex = SpriteAtlas.get_normal_enemy_tex(_rng)
 	if tex:
@@ -80,6 +87,59 @@ func _spawn_one() -> void:
 	enemy.died.connect(_on_enemy_died)
 	_active_enemies.append(enemy)
 	enemy_spawned.emit(enemy)
+
+
+# ── 行为配比（数值轮 2026-10：中等强度，模拟同步见 run_sim ENEMY_BEHAVIOR_*）──
+const KIND_MIX := [
+	{"kind": Enemy.Kind.RANGED, "from_wave": 5, "ratio": 0.15},
+	{"kind": Enemy.Kind.SPLITTER, "from_wave": 8, "ratio": 0.12},
+	{"kind": Enemy.Kind.HEALER, "from_wave": 12, "ratio": 0.07},
+]
+
+
+func _pick_kind() -> int:
+	for m in KIND_MIX:
+		if _wave >= m["from_wave"] and _rng.randf() < m["ratio"]:
+			return m["kind"]
+	return Enemy.Kind.CHASER
+
+
+## 行为特化属性（基础 setup 之后的覆盖）
+func _apply_kind(enemy: Enemy, kind: int, base_hp: float) -> void:
+	enemy.kind = kind
+	match kind:
+		Enemy.Kind.RANGED:
+			enemy.move_speed = 95.0          # 0.8×，风筝
+		Enemy.Kind.SPLITTER:
+			enemy.max_hp = base_hp * 1.15    # 大只耐打
+			enemy.current_hp = enemy.max_hp
+			enemy.radius = 22.0
+		Enemy.Kind.HEALER:
+			enemy.move_speed = 78.0          # 0.65×，慢随
+
+
+## 分裂怪死亡 → 裂 2 只 mini（30% 血、更快、不再分裂）
+func _on_enemy_died(enemy: Enemy) -> void:
+	if enemy.kind == Enemy.Kind.SPLITTER and not enemy.is_mini and not enemy.is_boss:
+		for i in 2:
+			var mini := Enemy.new()
+			add_child(mini)
+			mini.setup(enemy.max_hp / 1.15 * 0.30, false, false, _hero, _room_rect)
+			mini.is_mini = true
+			mini.radius = 13.0
+			mini.move_speed = enemy.move_speed * 1.35
+			mini.kill_reward = enemy.kill_reward * 0.5
+			if boss_debuffs != null:
+				boss_debuffs.modify_enemy(mini, false)
+			mini.global_position = enemy.global_position + Vector2(28 if i == 0 else -28, 12)
+			mini.reached_core.connect(_on_enemy_reached_core)
+			mini.died.connect(_on_enemy_died)
+			_active_enemies.append(mini)
+			var tex: Texture2D = SpriteAtlas.get_normal_enemy_tex(_rng)
+			if tex:
+				mini.set_sprite(tex)
+	_remove_enemy(enemy)
+	EventBus.enemy_killed.emit(enemy)
 
 
 ## 在房间边缘随机选一个出生点（离英雄至少 300px，避免贴脸刷）
@@ -106,11 +166,6 @@ func _random_edge_pos() -> Vector2:
 func _on_enemy_reached_core(enemy: Enemy, leak_damage: float) -> void:
 	# 敌人接触英雄造成伤害，但不移除敌人（持续追击）
 	EventBus.enemy_reached_core.emit(enemy, leak_damage)
-
-
-func _on_enemy_died(enemy: Enemy) -> void:
-	_remove_enemy(enemy)
-	EventBus.enemy_killed.emit(enemy)
 
 
 func _remove_enemy(enemy: Enemy) -> void:

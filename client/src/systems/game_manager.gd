@@ -35,6 +35,19 @@ var _fb_hit: FeedbackPlayerLite = null        # 英雄受击
 var _boss_debuffs := BossDebuffs.new()
 var _lobby_reroll_delta: int = 0   # 封印之手：Boss 波后大厅刷新次数增减
 
+# 大招系统（GDD §11）—— 数值定稿（2026-10 数值轮，模拟胜率 ~54%）
+const ULT_DMG_MULT := 8.0          # 倍率：expected_hit_dmg × 8（继承 build 乘区，前期全额生效）
+const ULT_PER_ENEMY_CAP := 0.22    # 每怪伤害上限 = 该怪当前血 ×22%（数值轮定稿）
+var _ult_energy: float = 0.0       # 0..1
+var _fb_ult: FeedbackPlayerLite = null
+
+# 局内统计（结算画面用）
+var _stats_damage: float = 0.0
+var _stats_kills: int = 0
+var _stats_boss_kills: int = 0
+var _stats_breakthroughs: int = 0
+var _stats_gold_earned: float = 0.0
+
 
 func _ready() -> void:
 	_spawner = $WaveSpawner
@@ -74,6 +87,8 @@ func _ready() -> void:
 	_hud.char_panel_toggled.connect(toggle_char_panel)
 	_hud.equipment_picker_requested.connect(open_equipment_picker)
 	_hud.restart_requested.connect(_on_restart_requested)
+	_hud.ult_requested.connect(_try_release_ult)
+	EventBus.bond_devoured.connect(func(_p, _r, _n): _stats_breakthroughs += 1)   # 局内统计
 	# 种子机制：开局直接开始第一波（体系种子在羁绊池里选）
 	_lobby.set_build_ref(_build, _pools)
 	# Boss Debuff：每局抽 3 个绑定 Boss 波
@@ -129,6 +144,23 @@ func _setup_feedbacks() -> void:
 	_fb_hit.feedbacks = [hit_shake, hit_flash]
 	add_child(_fb_hit)
 
+	# 大招释放：金色强闪 + 强震动 + 顿帧
+	_fb_ult = FeedbackPlayerLite.new()
+	_fb_ult.name = "FBUlt"
+	var ult_shake := FeedbackCameraShake2DLite.new()
+	ult_shake.position_amplitude = Vector2(20, 20)
+	ult_shake.rotation_amplitude = 5.0
+	ult_shake.duration_ms = 450.0
+	var ult_pause := FeedbackHitPauseLite.new()
+	ult_pause.duration_ms = 150.0
+	ult_pause.time_scale_during_pause = 0.05
+	var ult_flash := FeedbackScreenFlash2DLite.new()
+	ult_flash.flash_color = Color(1.0, 0.9, 0.55)
+	ult_flash.flash_intensity = 0.55
+	ult_flash.fade_out_duration_ms = 350.0
+	_fb_ult.feedbacks = [ult_shake, ult_pause, ult_flash]
+	add_child(_fb_ult)
+
 
 func _show_path_selection() -> void:
 	# 先把 build/pools 传给 lobby（体系选择需要调 build.choose_path）
@@ -142,6 +174,8 @@ func _show_path_selection() -> void:
 func _process(delta: float) -> void:
 	match state:
 		State.WAVE_IN_PROGRESS:
+			# 大招蓄能：基础时间充能（满槽 20s→35s 随波次；击杀/受击另加速）
+			_charge_ult(delta)
 			_hero.set_enemies(_spawner.active_enemies())
 			# 每帧给所有召唤单位推送敌人列表（和给 hero 推送一样）
 			var _active_enemies: Array = _spawner.active_enemies()
@@ -175,7 +209,7 @@ func _start_next_wave() -> void:
 	if current_wave > WaveCurves.main_quest_waves():
 		state = State.RUN_WON
 		EventBus.run_won.emit()
-		if _hud: _hud.show_result(true, current_wave - 1)
+		if _hud: _hud.show_result(true, current_wave - 1, _stats_snapshot())
 		return
 	state = State.WAVE_IN_PROGRESS
 	EventBus.wave_started.emit(current_wave)
@@ -214,6 +248,7 @@ func _on_wave_finished() -> void:
 	_wave_timer = 0.0
 	if _hud: _hud.update_timer(-1.0)   # 隐藏倒计时
 	var bonus := 30.0 + 5.0 * current_wave + time_bonus
+	_stats_gold_earned += bonus
 	_build.add_gold(bonus)
 	EventBus.gold_changed.emit(_build.gold)
 	if _hud: _hud.update_gold(_build.gold)
@@ -263,7 +298,7 @@ func _on_hero_destroyed() -> void:
 	get_tree().paused = true   # 暂停游戏，停止所有 _process
 	_hud.process_mode = Node.PROCESS_MODE_ALWAYS   # HUD 仍可交互（显示结果/重开）
 	EventBus.run_lost.emit(current_wave)
-	_hud.show_result(false, current_wave)
+	_hud.show_result(false, current_wave, _stats_snapshot())
 
 
 ## 结算画面按 R → 重载场景开新局（HUD 发信号，GameManager 执行）
@@ -272,12 +307,21 @@ func _on_restart_requested() -> void:
 	get_tree().reload_current_scene()
 
 
+func _stats_snapshot() -> Dictionary:
+	var bonds: int = _build.bond_pool.size() + _build.devoured_bonds.size()
+	return {
+		"damage": _stats_damage, "kills": _stats_kills, "boss_kills": _stats_boss_kills,
+		"breakthroughs": _stats_breakthroughs, "gold": _stats_gold_earned, "bonds": bonds,
+	}
+
+
 ## 怪走到英雄位置 → 扣英雄血（GDD：怪漏到核心）
 ## 伤害由 enemy.leak_damage 数据驱动传入（随波数/类型递增）
 func _on_enemy_reached_hero(enemy: Node, dmg: float) -> void:
 	# 受击音效只在实际掉血时响（无敌帧内不响）
 	if _hero._dmg_cooldown <= 0.0:
 		SoundManager.play("hero_hurt", -4.0)
+		_gain_ult(0.03)   # 受击加速充能 +3%
 	_hero.take_damage(dmg)
 	# Boss Debuff：反噬之力（受击额外掉核心血，绕过无敌帧）
 	var extra: float = _boss_debuffs.extra_core_loss(_hero.max_hp)
@@ -304,15 +348,73 @@ func _on_enemy_killed(enemy: Node) -> void:
 	# Sparkle Lite：击杀反馈（Boss 强震动+顿帧+闪屏，普通怪轻震动）
 	if _fb_kill_boss != null and e != null and e.is_boss:
 		_fb_kill_boss.play()
+		_stats_boss_kills += 1
 	elif _fb_kill != null:
 		_fb_kill.play()
+	_stats_kills += 1
+	_stats_gold_earned += reward
+	_gain_ult(0.015)   # 击杀加速充能 +1.5%
 
 
-func _on_hero_fired(target: Node, dmg: float) -> void:
+# ── 大招系统（GDD §11）──
+
+## 满槽所需基础时间：30s → 80s 随波次（后期约 1.1-1.5 波一发）；击杀/受击另加速
+func _ult_full_time() -> float:
+	return 30.0 + 50.0 * clampf(current_wave / 30.0, 0.0, 1.0)
+
+
+func _charge_ult(delta: float) -> void:
+	if _ult_energy >= 1.0:
+		return
+	_gain_ult(delta / _ult_full_time())
+
+
+func _gain_ult(amount: float) -> void:
+	if _ult_energy >= 1.0:
+		return   # 满了就停（不溢出，也不重复发信号）
+	_ult_energy = minf(1.0, _ult_energy + amount)
+	EventBus.ult_energy_changed.emit(_ult_energy)
+	if _ult_energy >= 1.0:
+		_hud.on_ult_ready()   # 就绪提示（音效+按钮点亮）
+
+
+## 释放大招：清屏 AOE（继承 build 乘区 expected×8）+ 冲击波演出
+func _try_release_ult() -> void:
+	if _ult_energy < 1.0 or state != State.WAVE_IN_PROGRESS:
+		return
+	if not is_instance_valid(_hero) or _hero._stats == null:
+		return
+	_ult_energy = 0.0
+	EventBus.ult_energy_changed.emit(0.0)
+	EventBus.ult_activated.emit()
+	# 演出：冲击波 + 金闪/强震/顿帧 + 音效
+	var sw := Shockwave.new()
+	sw.global_position = _hero.global_position
+	sw.z_index = 55
+	add_child(sw)
+	if _fb_ult != null:
+		_fb_ult.play()
+	SoundManager.play("boss_kill", -3.0)
+	_hero._juice.play_attack()
+	# 结算：全屏敌人受 min(expected×8, 单怪当前血×20%)——前期全额爽，中后期每发恒清 20% 波血
+	var killed := 0
+	for e in _spawner.active_enemies().duplicate():
+		if not is_instance_valid(e):
+			continue
+		var enemy: Enemy = e as Enemy
+		var dmg: float = minf(_hero._stats.expected_hit_dmg(enemy.armor) * ULT_DMG_MULT,
+			enemy.max_hp * ULT_PER_ENEMY_CAP)
+		_stats_damage += dmg
+		FloatingText.spawn(self, enemy.global_position, "%d" % int(round(dmg)), false, true)
+		enemy.take_damage(dmg)
+		killed += 1
+
+
+func _on_hero_fired(target: Node, dmg: float, is_crit: bool) -> void:
 	SoundManager.play("fire", -10.0)
 	var proj := Projectile.new()
 	add_child(proj)
-	proj.setup(_hero.global_position, target, dmg)
+	proj.setup(_hero.global_position, target, dmg, is_crit)
 	# 美术：弹道贴图（随机元素特效）
 	var ptex: Texture2D = SpriteAtlas.get_projectile_tex(_rng)
 	if ptex:
@@ -321,8 +423,13 @@ func _on_hero_fired(target: Node, dmg: float) -> void:
 	proj.hit_target.connect(_on_projectile_hit)
 
 
-func _on_projectile_hit(target: Node, damage: float) -> void:
+func _on_projectile_hit(target: Node, damage: float, is_crit: bool) -> void:
 	SoundManager.play("hit", -9.0)
+	_stats_damage += damage
+	# 伤害数字（普通白 / 暴击金大字）
+	if is_instance_valid(target):
+		FloatingText.spawn(self, (target as Node2D).global_position,
+			"%d" % int(round(damage)), is_crit)
 	if _hero == null or not is_instance_valid(_hero):
 		return
 	if _hero.build == null:
@@ -398,13 +505,13 @@ func _refresh_summon_stats() -> void:
 
 
 ## 召唤单位发射弹道（复用 _on_hero_fired 的逻辑，吸血也走 hero.heal）。
-## 信号 fired_projectile 自带 (target, dmg)；bind 追加 source 在末尾 → (target, dmg, source)。
-func _on_summon_fired(target: Node, dmg: float, source: Node) -> void:
+## 信号 fired_projectile 自带 (target, dmg, is_crit)；bind 追加 source → (target, dmg, is_crit, source)。
+func _on_summon_fired(target: Node, dmg: float, is_crit: bool, source: Node) -> void:
 	if not is_instance_valid(source):
 		return
 	var proj := Projectile.new()
 	add_child(proj)
-	proj.setup(source.global_position, target, dmg)
+	proj.setup(source.global_position, target, dmg, is_crit)
 	# 美术：弹道贴图
 	var ptex: Texture2D = SpriteAtlas.get_projectile_tex(_rng)
 	if ptex:
@@ -455,10 +562,13 @@ func _input(event: InputEvent) -> void:
 				return
 
 
-## Tab/C 键 → 角色面板
+## Tab/C 键 → 角色面板；Q → 大招
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
-		if event.keycode == KEY_TAB or event.keycode == KEY_C:
+		if event.keycode == KEY_Q:
+			_try_release_ult()
+			get_viewport().set_input_as_handled()
+		elif event.keycode == KEY_TAB or event.keycode == KEY_C:
 			if _lobby and not _lobby.visible:
 				toggle_char_panel()
 				get_viewport().set_input_as_handled()
@@ -466,3 +576,52 @@ func _unhandled_input(event: InputEvent) -> void:
 			if _hud and _hud.is_char_panel_open():
 				toggle_char_panel()
 				get_viewport().set_input_as_handled()
+		elif _handle_debug_keys(event.keycode):
+			get_viewport().set_input_as_handled()
+
+
+# ── 调试快捷键（发布前移除）──
+
+## N=跳过当前波  B=跳到下一个Boss波(10/20/30)  G=+500金
+func _handle_debug_keys(keycode: int) -> bool:
+	if state != State.WAVE_IN_PROGRESS and state != State.WAVE_CLEARED:
+		return false
+	match keycode:
+		KEY_N:
+			_dbg_clear_current_wave()
+			return true
+		KEY_B:
+			_dbg_jump_to_next_boss()
+			return true
+		KEY_G:
+			_build.add_gold(500.0)
+			_hud.update_gold(_build.gold)
+			return true
+	return false
+
+
+## 秒杀当前波全部敌人 → 走正常波结束流程（有击杀金币/反馈）
+func _dbg_clear_current_wave() -> void:
+	if _spawner:
+		_spawner.stop_spawning()
+	for e in _spawner.active_enemies().duplicate():
+		if is_instance_valid(e):
+			e.take_damage(1.0e9)
+
+
+## 跳到下一个 Boss 波：清场后把波次拨到 next_boss-1，
+## 波结束 → 1.5s 间歇 → _start_next_wave 自然进入 Boss 波（完整走预告/横幅/debuff 流程）
+func _dbg_jump_to_next_boss() -> void:
+	var next_boss: int = 0
+	for bw in [10, 20, 30]:
+		if bw > current_wave:
+			next_boss = bw
+			break
+	if next_boss == 0:
+		return   # 三个 Boss 波都打完了
+	if _spawner:
+		_spawner.stop_spawning()
+	for e in _spawner.active_enemies().duplicate():
+		if is_instance_valid(e):
+			e.take_damage(1.0e9)
+	current_wave = next_boss - 1

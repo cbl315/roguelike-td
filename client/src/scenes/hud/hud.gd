@@ -6,11 +6,18 @@ signal bond_picker_requested()
 signal char_panel_toggled()
 signal equipment_picker_requested()   # M3: 装备升级
 signal restart_requested()            # 结算画面按 R 重开
+signal ult_requested()                # 大招按钮（Q 键等价，移动端入口）
 
 var _char_panel: Control = null   # #6: Tab 角色面板（动态创建）
 var _toast_label: Label = null    # 居中临时提示（突破境界）
 var _toast_timer: float = 0.0     # Toast 剩余显示时间
 var _result_shown: bool = false   # 结算画面显示中（R 键重开用）
+var _ult_bar: ProgressBar = null  # 大招能量条
+var _ult_btn: Button = null       # 大招按钮（移动端）
+var _breakthrough_layer: CanvasLayer = null   # 突破演出层（大厅遮罩之上）
+var _breakthrough_label: Label = null
+var _breakthrough_timer: float = 0.0
+var _fb_breakthrough: FeedbackPlayerLite = null   # 金闪+顿帧
 
 @onready var _wave_label: Label = $WaveLabel
 @onready var _timer_label: Label = $TimerLabel
@@ -40,6 +47,9 @@ func _ready() -> void:
 	add_child(_toast_label)
 	# 连接信号
 	EventBus.bond_devoured.connect(_on_bond_devoured)
+	EventBus.ult_energy_changed.connect(update_ult_energy)
+	_setup_ult_ui()
+	_setup_breakthrough_ui()
 
 
 func _process(delta: float) -> void:
@@ -50,6 +60,16 @@ func _process(delta: float) -> void:
 			_toast_label.visible = false
 		elif _toast_timer < 0.5:
 			_toast_label.modulate.a = _toast_timer / 0.5
+	# 突破演出：大字弹入（1.6→1.0）+ 尾段淡出
+	if _breakthrough_timer > 0:
+		_breakthrough_timer -= delta
+		if _breakthrough_timer <= 0:
+			_breakthrough_label.visible = false
+		else:
+			var s: float = maxf(1.0, 1.0 + 0.6 * _breakthrough_timer / 2.2)   # 前 ~0.8s 从 1.6 收到 1.0
+			_breakthrough_label.scale = Vector2(s, s)
+			if _breakthrough_timer < 0.5:
+				_breakthrough_label.modulate.a = _breakthrough_timer / 0.5
 
 
 func _show_toast(text: String, color: Color, duration: float = 3.0) -> void:
@@ -67,10 +87,78 @@ func show_boss_debuff_banner(debuff_name: String, wave: int) -> void:
 
 
 func _on_bond_devoured(path_id: String, realm_idx: int, realm_name: String) -> void:
-	# 突破境界提示：realm_name 是刚完成的境界（如轮海），idx 是已完成数
-	var name_map := {"zhutian": "遮天"}
+	# 突破演出（GDD 情感爽点）：金光闪屏 + 境界大字 + 顿帧（音效 SoundManager 已接）
+	var name_map := {"zhutian": "遮天", "xingchenbian": "星辰变", "chongmei": "宠魅"}
 	var pname: String = name_map.get(path_id, path_id)
-	_show_toast("⚡ 突破！%s·%s 圆满（%d境）" % [pname, realm_name, realm_idx], Color(1.0, 0.85, 0.3))
+	_breakthrough_label.text = "⚡ %s · %s 圆满 ⚡\n（%d 境）" % [pname, realm_name, realm_idx]
+	_breakthrough_label.modulate.a = 1.0
+	_breakthrough_label.visible = true
+	_breakthrough_label.scale = Vector2(1.6, 1.6)   # 大字从 1.6 弹到 1.0
+	_breakthrough_timer = 2.2
+	if _fb_breakthrough != null:
+		_fb_breakthrough.play()
+
+
+func _setup_ult_ui() -> void:
+	# 能量条（核心血条正下方，金色）
+	_ult_bar = ProgressBar.new()
+	_ult_bar.position = Vector2(1500, 68)
+	_ult_bar.size = Vector2(390, 14)
+	_ult_bar.min_value = 0.0
+	_ult_bar.max_value = 1.0
+	_ult_bar.value = 0.0
+	_ult_bar.show_percentage = false
+	_ult_bar.modulate = Color(1.0, 0.85, 0.45)
+	add_child(_ult_bar)
+	# 大招按钮（SideButtons 第 4 个；Q 键等价）
+	_ult_btn = Button.new()
+	_ult_btn.custom_minimum_size = Vector2(280, 60)
+	_ult_btn.text = "大招 (Q) 蓄能中…"
+	_ult_btn.disabled = true
+	_ult_btn.focus_mode = Control.FOCUS_NONE
+	_ult_btn.pressed.connect(func(): ult_requested.emit())
+	get_node("SideButtons").add_child(_ult_btn)
+
+
+func _setup_breakthrough_ui() -> void:
+	# 演出层在大厅遮罩之上（UILayer=10 → 15）
+	_breakthrough_layer = CanvasLayer.new()
+	_breakthrough_layer.layer = 15
+	add_child(_breakthrough_layer)
+	_breakthrough_label = Label.new()
+	# 固定居中区域（anchors CENTER 会得 0 尺寸 Label）
+	_breakthrough_label.position = Vector2(360, 380)
+	_breakthrough_label.size = Vector2(1200, 200)
+	_breakthrough_label.pivot_offset = Vector2(600, 100)   # 中心为缩放轴
+	_breakthrough_label.add_theme_font_size_override("font_size", 52)
+	_breakthrough_label.add_theme_color_override("font_color", Color(1.0, 0.88, 0.4))
+	_breakthrough_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_breakthrough_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_breakthrough_label.visible = false
+	_breakthrough_layer.add_child(_breakthrough_label)
+	# 突破反馈：金光闪屏 + 顿帧
+	_fb_breakthrough = FeedbackPlayerLite.new()
+	var flash := FeedbackScreenFlash2DLite.new()
+	flash.flash_color = Color(1.0, 0.92, 0.6)
+	flash.flash_intensity = 0.5
+	flash.fade_out_duration_ms = 400.0
+	var pause := FeedbackHitPauseLite.new()
+	pause.duration_ms = 150.0
+	pause.time_scale_during_pause = 0.05
+	_fb_breakthrough.feedbacks = [flash, pause]
+	add_child(_fb_breakthrough)
+
+
+func update_ult_energy(ratio: float) -> void:
+	if _ult_bar != null:
+		_ult_bar.value = ratio
+	if _ult_btn != null:
+		_ult_btn.disabled = ratio < 1.0
+		_ult_btn.text = "⚡ 释放大招 (Q)" if ratio >= 1.0 else "大招 (Q) 蓄能中… %d%%" % int(ratio * 100)
+
+
+func on_ult_ready() -> void:
+	SoundManager.play("wave_clear", -4.0)   # 就绪提示音
 
 
 func _on_bond_btn() -> void:
@@ -93,8 +181,10 @@ func _on_char_btn() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_R and _result_shown:
-			restart_requested.emit()
+			# 顺序关键：先标记已处理再 emit——emit 同步触发 reload_current_scene，
+			# HUD 出树后 get_viewport() 会返回 null
 			get_viewport().set_input_as_handled()
+			restart_requested.emit()
 			return
 		if event.keycode == KEY_TAB or event.keycode == KEY_C:
 			char_panel_toggled.emit()
@@ -143,13 +233,32 @@ func update_equip_state(level: int, cost: float) -> void:
 	_equip_btn.disabled = false
 
 
-func show_result(won: bool, wave: int = 1) -> void:
+func show_result(won: bool, wave: int = 1, stats: Dictionary = {}) -> void:
 	_result_shown = true
 	_result_label.visible = true
+	# 加高结算区域容纳统计块（原 120 高只够两行）
+	_result_label.position = Vector2(560, 400)
+	_result_label.size = Vector2(800, 280)
+	_result_label.add_theme_font_size_override("font_size", 30)
+	var title := ""
 	if won:
-		_result_label.text = "🎉 通关！英雄！守住了全部 %d 波\n\n按 R 重新开始" % wave
+		title = "🎉 通关！英雄！守住全部 %d 波" % wave
 	else:
-		_result_label.text = "💀 核心被毁，第 %d 波失败\n\n按 R 重新开始" % wave
+		title = "💀 核心被毁，第 %d 波失败" % wave
+	var body := ""
+	if not stats.is_empty():
+		body = "\n\n总伤害 %s   击杀 %d（Boss %d）\n突破 %d 境   羁绊 %d 张   获取金币 %s" % [
+			_fmt_num(stats.get("damage", 0.0)), stats.get("kills", 0), stats.get("boss_kills", 0),
+			stats.get("breakthroughs", 0), stats.get("bonds", 0), _fmt_num(stats.get("gold", 0.0))]
+	_result_label.text = title + body + "\n\n按 R 重新开始"
+
+
+func _fmt_num(v: float) -> String:
+	if v >= 1000000.0:
+		return "%.1fM" % (v / 1000000.0)
+	if v >= 1000.0:
+		return "%.1fK" % (v / 1000.0)
+	return "%d" % int(v)
 
 
 # ── #6: Tab 角色面板 ──

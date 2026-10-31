@@ -72,7 +72,8 @@ func choose_path_effect(path_id: String) -> void:
 
 
 func add_gold(amount: float) -> void:
-	gold += amount
+	# 数值轮定稿：所有收入 ×1.03（敌人行为多样化后的玩家侧补偿，与模拟 PLAYER_ECON_MULT 一致）
+	gold += amount * 1.03
 	changed.emit()
 
 

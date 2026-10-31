@@ -102,6 +102,28 @@ func expected_hit_dmg(enemy_armor: float) -> float:
 	return after_def
 
 
+## 单发实际伤害（暴击掷骰版，供弹道结算+伤害数字用）。
+## 与 expected_hit_dmg 同管线，唯一差异：crit_factor 期望 → 真实掷骰
+## （is_crit 时乘 crit_dmg，否则 1.0）。大数定律下均值 == expected。
+func roll_hit_dmg(enemy_armor: float, rng: RandomNumberGenerator) -> Dictionary:
+	var rate: float = clampf(crit_rate, 0.0, CRIT_RATE_CAP)
+	var is_crit: bool = rng.randf() < rate
+	var cf: float = crit_dmg if is_crit else 1.0
+	var dm: float = defense_mult(enemy_armor, armor_pen)
+	var fm: float = final_mult(final_dmg_mults)
+	var dmg_type := 1.0 + physical_dmg_pct + magic_dmg_pct
+	var skill := 1.0 + skill_mult_pct
+	var elem := 1.0 + elemental_pct
+	var base := atk * atk_ratio
+	var pre_def := base * dmg_type * skill * fm * elem * cf
+	var after_def := pre_def * dm
+	if true_dmg_pct > 0.0:
+		var tp: float = clampf(true_dmg_pct, 0.0, 1.0)
+		var total: float = after_def * (1.0 - tp) + pre_def * tp
+		return {"dmg": total, "crit": is_crit}
+	return {"dmg": after_def, "crit": is_crit}
+
+
 func expected_dps(enemy_armor: float) -> float:
 	"""期望 DPS = 单发×攻速×弹数（含散射递减）。"""
 	var n := maxi(1, projectile_count)

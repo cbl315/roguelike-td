@@ -4,7 +4,7 @@ extends Node2D
 class_name Hero
 
 signal target_priority_changed(mode)
-signal fired_projectile(target: Node, damage: float)
+signal fired_projectile(target: Node, damage: float, is_crit: bool)
 signal hp_changed(hp: float, max_hp: float)
 signal destroyed()
 
@@ -23,6 +23,7 @@ var build: BuildState = null
 var _stats: CombatStats = null
 var _juice := Juice.new()
 var _prev_pos: Vector2 = Vector2.ZERO   # 上一帧位置（计算移动速度比）
+var _fire_rng := RandomNumberGenerator.new()   # 暴击掷骰专用（_ready 里 randomize）
 
 ## 房间边界（由 game_manager 设置）
 var room_rect: Rect2 = Rect2(80, 80, 2840, 1840)
@@ -35,6 +36,7 @@ func _ready() -> void:
 	hp_changed.emit(current_hp, max_hp)
 	_update_priority_label()
 	_prev_pos = global_position
+	_fire_rng.randomize()
 
 
 func set_enemies(enemies: Array) -> void:
@@ -149,10 +151,13 @@ func _fire(target: Node2D) -> void:
 	var enemy: Enemy = target as Enemy
 	if enemy == null:
 		return
-	var dmg: float = _stats.expected_hit_dmg(enemy.armor)
+	# 掷骰版伤害（暴击真实判定，均值 == expected；伤害数字需要区分暴击）
+	var rolled: Dictionary = _stats.roll_hit_dmg(enemy.armor, _fire_rng)
+	var dmg: float = rolled["dmg"]
+	var is_crit: bool = rolled["crit"]
 	_juice.play_attack()
 	# 伤害由弹道到达目标时结算（锁定式，不会误伤途中敌人）
-	fired_projectile.emit(target, dmg)
+	fired_projectile.emit(target, dmg, is_crit)
 	# 连锁弹射（联动 chain_extra_bounces）：命中后弹射到附近敌人
 	if _stats.chain_extra_bounces > 0:
 		_do_chain_bounce(target, dmg)
@@ -177,7 +182,7 @@ func _do_chain_bounce(initial_target: Node2D, base_dmg: float) -> void:
 		if nearest == null:
 			break
 		hit[nearest] = true
-		fired_projectile.emit(nearest, current_dmg)
+		fired_projectile.emit(nearest, current_dmg, false)
 		current_pos = nearest.global_position
 		current_dmg *= 0.7   # 每次递减
 
