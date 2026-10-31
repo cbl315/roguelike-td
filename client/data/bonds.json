@@ -332,6 +332,16 @@
       "note": "选择后解锁宠魅羁绊池，+30金币（不加属性）"
     },
     {
+      "id": "seed_doupo",
+      "name": "斗破·斗气种子",
+      "set": "seed",
+      "rarity": "SR",
+      "is_seed": true,
+      "seed_path": "doupo",
+      "seed_gold": 30,
+      "note": "选择后解锁斗破羁绊池，+30金币（不加属性）"
+    },
+    {
       "id": "zt_lunhai_daojing",
       "name": "道经",
       "set": "zhutian",
@@ -706,7 +716,7 @@
       "set": "zhutian",
       "rarity": "UR",
       "effect": {
-        "magic_dmg_pct_delta": 0.12
+        "physical_dmg_pct_delta": 0.12
       },
       "note": "九秘之一（仙台境）——AOE场控"
     },
@@ -957,7 +967,7 @@
       "set": "chongmei",
       "rarity": "SR",
       "effect": {
-        "magic_dmg_pct_delta": 0.1,
+        "physical_dmg_pct_delta": 0.1,
         "lifesteal_pct": 0.02
       }
     },
@@ -1045,7 +1055,7 @@
       "set": "chongmei",
       "rarity": "SSR",
       "effect": {
-        "magic_dmg_pct_delta": 0.12
+        "physical_dmg_pct_delta": 0.12
       }
     },
     {
@@ -1064,7 +1074,7 @@
       "set": "chongmei",
       "rarity": "UR",
       "effect": {
-        "magic_dmg_pct_delta": 0.15,
+        "physical_dmg_pct_delta": 0.15,
         "lifesteal_pct": 0.03
       }
     },
@@ -1145,7 +1155,7 @@
       "set": "chongmei",
       "rarity": "UR",
       "effect": {
-        "magic_dmg_pct_delta": 0.2,
+        "physical_dmg_pct_delta": 0.2,
         "lifesteal_pct": 0.03
       }
     },
@@ -1251,6 +1261,309 @@
         "final_dmg_mult": 0.3,
         "atk_pct_delta": 0.25,
         "hp_pct_delta": 0.2
+      }
+    },
+    {
+      "id": "dp_qi_xiaoyan",
+      "name": "萧炎·废柴崛起",
+      "set": "doupo",
+      "rarity": "SR",
+      "effect": {
+        "atk_pct_delta": 0.1
+      }
+    },
+    {
+      "id": "dp_qi_yaolao",
+      "name": "药老·戒指中的灵魂",
+      "set": "doupo",
+      "rarity": "SR",
+      "effect": {
+        "all_stats_pct_delta": 0.06
+      }
+    },
+    {
+      "id": "dp_qi_xuner",
+      "name": "萧薰儿·青梅竹马",
+      "set": "doupo",
+      "rarity": "SR",
+      "effect": {
+        "crit_rate_delta": 0.05
+      }
+    },
+    {
+      "id": "dp_qi_douzhi",
+      "name": "斗之气·九段",
+      "set": "doupo",
+      "rarity": "SR",
+      "effect": {
+        "attack_speed_delta": 0.08
+      }
+    },
+    {
+      "id": "dp_zhe_xizhang",
+      "name": "玄阶斗技·吸掌",
+      "set": "doupo",
+      "rarity": "SSR",
+      "effect": {
+        "atk_ratio_delta": 0.15
+      }
+    },
+    {
+      "id": "dp_zhe_bajibeng",
+      "name": "八极崩",
+      "set": "doupo",
+      "rarity": "SSR",
+      "effect": {
+        "crit_dmg_delta": 0.25
+      }
+    },
+    {
+      "id": "dp_zhe_qinglian",
+      "name": "青莲地心火·异火初拥",
+      "set": "doupo",
+      "rarity": "SSR",
+      "effect": {
+        "elemental_dmg_mult": 0.12
+      }
+    },
+    {
+      "id": "dp_zhe_yunyun",
+      "name": "云韵·云岚宗主",
+      "set": "doupo",
+      "rarity": "SSR",
+      "effect": {
+        "hp_pct_delta": 0.1
+      }
+    },
+    {
+      "id": "dp_shi_yunlan",
+      "name": "云岚宗·少宗主之路",
+      "set": "doupo",
+      "rarity": "SSR",
+      "effect": {
+        "magic_dmg_pct_delta": 0.12
+      }
+    },
+    {
+      "id": "dp_shi_qinglin",
+      "name": "青鳞·碧蛇三花瞳",
+      "set": "doupo",
+      "rarity": "SSR",
+      "effect": {
+        "chain_extra_bounces": 1
+      }
+    },
+    {
+      "id": "dp_shi_huoneng",
+      "name": "火能·猎魔队",
+      "set": "doupo",
+      "rarity": "SSR",
+      "effect": {
+        "attack_speed_delta": 0.1
+      }
+    },
+    {
+      "id": "dp_shi_moyan",
+      "name": "魔炎谷·火毒淬体",
+      "set": "doupo",
+      "rarity": "SSR",
+      "effect": {
+        "magic_dmg_pct_delta": 0.15
+      }
+    },
+    {
+      "id": "dp_ds_xinyan",
+      "name": "陨落心炎·第二异火",
+      "set": "doupo",
+      "rarity": "SSR",
+      "effect": {
+        "elemental_dmg_mult": 0.15
+      }
+    },
+    {
+      "id": "dp_ds_sanshou",
+      "name": "三兽荒野决",
+      "set": "doupo",
+      "rarity": "SSR",
+      "effect": {
+        "atk_pct_delta": 0.15
+      }
+    },
+    {
+      "id": "dp_ds_huiqi",
+      "name": "丹药·回气丹",
+      "set": "doupo",
+      "rarity": "SSR",
+      "effect": {
+        "lifesteal_pct": 0.02
+      }
+    },
+    {
+      "id": "dp_ds_qiangbang",
+      "name": "迦南学院·强榜之战",
+      "set": "doupo",
+      "rarity": "SSR",
+      "effect": {
+        "final_dmg_mult": 0.08
+      }
+    },
+    {
+      "id": "dp_ling_yiyao",
+      "name": "一品炼药师",
+      "set": "doupo",
+      "rarity": "UR",
+      "effect": {
+        "hp_pct_delta": 0.12,
+        "lifesteal_pct": 0.02
+      }
+    },
+    {
+      "id": "dp_ling_sanqian",
+      "name": "三千雷动",
+      "set": "doupo",
+      "rarity": "UR",
+      "effect": {
+        "attack_speed_delta": 0.15
+      }
+    },
+    {
+      "id": "dp_ling_guling",
+      "name": "骨灵冷火·第三异火",
+      "set": "doupo",
+      "rarity": "UR",
+      "effect": {
+        "elemental_dmg_mult": 0.18
+      }
+    },
+    {
+      "id": "dp_ling_jindi",
+      "name": "薰儿·金帝焚天炎",
+      "set": "doupo",
+      "rarity": "UR",
+      "effect": {
+        "magic_dmg_pct_delta": 0.15
+      }
+    },
+    {
+      "id": "dp_wang_huolian",
+      "name": "佛怒火莲·底牌",
+      "set": "doupo",
+      "rarity": "UR",
+      "effect": {
+        "true_dmg_pct_delta": 0.08
+      }
+    },
+    {
+      "id": "dp_wang_tianhuo",
+      "name": "天火尊者·残魂",
+      "set": "doupo",
+      "rarity": "UR",
+      "effect": {
+        "all_stats_pct_delta": 0.08
+      }
+    },
+    {
+      "id": "dp_wang_yaochen",
+      "name": "药尘·炼药宗师",
+      "set": "doupo",
+      "rarity": "UR",
+      "effect": {
+        "hp_pct_delta": 0.15,
+        "damage_reduction_delta": 0.03
+      }
+    },
+    {
+      "id": "dp_wang_binghuang",
+      "name": "冰皇·海波东",
+      "set": "doupo",
+      "rarity": "UR",
+      "effect": {
+        "armor_pen_delta": 0.3
+      }
+    },
+    {
+      "id": "dp_huang_xiaoyi",
+      "name": "小医仙·厄难毒体",
+      "set": "doupo",
+      "rarity": "UR",
+      "effect": {
+        "magic_dmg_pct_delta": 0.18
+      }
+    },
+    {
+      "id": "dp_huang_meidusha",
+      "name": "美杜莎·彩鳞女王",
+      "set": "doupo",
+      "rarity": "UR",
+      "effect": {
+        "crit_rate_delta": 0.08,
+        "crit_dmg_delta": 0.2
+      }
+    },
+    {
+      "id": "dp_huang_yanmeng",
+      "name": "炎盟·初立",
+      "set": "doupo",
+      "rarity": "UR",
+      "effect": {
+        "atk_pct_delta": 0.2
+      }
+    },
+    {
+      "id": "dp_zong_kongjian",
+      "name": "空间之力·虚空挪移",
+      "set": "doupo",
+      "rarity": "EX",
+      "effect": {
+        "attack_speed_delta": 0.2
+      }
+    },
+    {
+      "id": "dp_zong_jinglian",
+      "name": "净莲妖火·第四异火",
+      "set": "doupo",
+      "rarity": "EX",
+      "effect": {
+        "elemental_dmg_mult": 0.25
+      }
+    },
+    {
+      "id": "dp_zong_yanyan",
+      "name": "三千焱炎火",
+      "set": "doupo",
+      "rarity": "EX",
+      "effect": {
+        "final_dmg_mult": 0.25
+      }
+    },
+    {
+      "id": "dp_zun_xuwu",
+      "name": "虚无吞炎·异火榜第三",
+      "set": "doupo",
+      "rarity": "EX",
+      "effect": {
+        "true_dmg_pct_delta": 0.1,
+        "final_dmg_mult": 0.15
+      }
+    },
+    {
+      "id": "dp_zun_xuemo",
+      "name": "斗帝血脉·觉醒",
+      "set": "doupo",
+      "rarity": "EX",
+      "effect": {
+        "all_stats_pct_delta": 0.15,
+        "atk_pct_delta": 0.2
+      }
+    },
+    {
+      "id": "dp_zun_yandi",
+      "name": "炎帝之路",
+      "set": "doupo",
+      "rarity": "EX",
+      "effect": {
+        "crit_dmg_delta": 0.5,
+        "final_dmg_mult": 0.25
       }
     }
   ],
@@ -1634,6 +1947,136 @@
             "hp_pct_delta": 0.15
           },
           "note": "魔人完全体+万兽之主"
+        }
+      ]
+    },
+    {
+      "id": "doupo",
+      "name": "斗破",
+      "realms": [
+        {
+          "name": "斗之气",
+          "bonds": [
+            "dp_qi_xiaoyan",
+            "dp_qi_yaolao",
+            "dp_qi_xuner",
+            "dp_qi_douzhi"
+          ],
+          "reward": {
+            "atk_pct_delta": 0.25,
+            "attack_speed_delta": 0.05
+          },
+          "note": "废柴觉醒+药老认主"
+        },
+        {
+          "name": "斗者",
+          "bonds": [
+            "dp_zhe_xizhang",
+            "dp_zhe_bajibeng",
+            "dp_zhe_qinglian",
+            "dp_zhe_yunyun"
+          ],
+          "reward": {
+            "atk_pct_delta": 0.25,
+            "elemental_dmg_mult": 0.06
+          },
+          "note": "初拥异火+斗技小成"
+        },
+        {
+          "name": "斗师",
+          "bonds": [
+            "dp_shi_yunlan",
+            "dp_shi_qinglin",
+            "dp_shi_huoneng",
+            "dp_shi_moyan"
+          ],
+          "reward": {
+            "atk_pct_delta": 0.3,
+            "attack_speed_delta": 0.08
+          },
+          "note": "斗气外放+学院历练"
+        },
+        {
+          "name": "大斗师",
+          "bonds": [
+            "dp_ds_xinyan",
+            "dp_ds_sanshou",
+            "dp_ds_huiqi",
+            "dp_ds_qiangbang"
+          ],
+          "reward": {
+            "atk_pct_delta": 0.3,
+            "lifesteal_pct": 0.02
+          },
+          "note": "第二异火+强榜扬名"
+        },
+        {
+          "name": "斗灵",
+          "bonds": [
+            "dp_ling_yiyao",
+            "dp_ling_sanqian",
+            "dp_ling_guling",
+            "dp_ling_jindi"
+          ],
+          "reward": {
+            "atk_pct_delta": 0.35,
+            "elemental_dmg_mult": 0.1
+          },
+          "note": "斗晶凝成+炼药初成"
+        },
+        {
+          "name": "斗王",
+          "bonds": [
+            "dp_wang_huolian",
+            "dp_wang_tianhuo",
+            "dp_wang_yaochen",
+            "dp_wang_binghuang"
+          ],
+          "reward": {
+            "atk_pct_delta": 0.35,
+            "hp_pct_delta": 0.1
+          },
+          "note": "佛怒火莲成名+四方盟友"
+        },
+        {
+          "name": "斗皇",
+          "bonds": [
+            "dp_huang_xiaoyi",
+            "dp_huang_meidusha",
+            "dp_huang_yanmeng"
+          ],
+          "reward": {
+            "atk_pct_delta": 0.4,
+            "crit_rate_delta": 0.06
+          },
+          "note": "斗气化翼+炎盟之主"
+        },
+        {
+          "name": "斗宗",
+          "bonds": [
+            "dp_zong_kongjian",
+            "dp_zong_jinglian",
+            "dp_zong_yanyan"
+          ],
+          "reward": {
+            "atk_pct_delta": 0.4,
+            "final_dmg_mult": 0.1
+          },
+          "note": "空间之力+第四异火"
+        },
+        {
+          "name": "斗尊",
+          "bonds": [
+            "dp_zun_xuwu",
+            "dp_zun_xuemo",
+            "dp_zun_yandi"
+          ],
+          "reward": {
+            "final_dmg_mult": 0.35,
+            "atk_pct_delta": 0.25,
+            "hp_pct_delta": 0.15
+          },
+          "note": "异火榜第三+斗帝血脉（圆满=炎帝之姿）"
         }
       ]
     },

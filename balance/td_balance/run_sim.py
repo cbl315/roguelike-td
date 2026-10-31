@@ -71,9 +71,13 @@ def _enemy_armor(wave: int) -> float:
 
 
 # ── Boss Debuff 建模（GDD §12，与客户端 boss_debuffs.gd 一致）──
-# 与客户端 _UNSUPPORTED_KEYS 相同的过滤（对应系统未实装）
-_DEBUFF_UNSUPPORTED_KEYS = {"immune_cc", "ult_energy_mult",
-                            "magic_dmg_taken_mult", "physical_dmg_taken_mult"}
+# immune_cc（无控制）/ ult_energy_mult（无大招）仍过滤；
+# magic/physical_dmg_taken_mult 已随三伤害类型轮启用（2026-10）。
+_DEBUFF_UNSUPPORTED_KEYS = {"immune_cc", "ult_energy_mult"}
+
+# ── 三伤害类型：主体系 → 弹道类型（星辰变/斗破=法术，遮天/宠魅=物理）──
+_PATH_DAMAGE_TYPE = {"zhutian": "physical", "chongmei": "physical",
+                     "xingchenbian": "magic", "doupo": "magic"}
 
 
 def _pick_boss_debuffs(rng) -> list[dict]:
@@ -158,6 +162,13 @@ def _battle_outcome(pc: PlayerCombat, wave: int, p, core_hp_current: float,
         if d.get("bond_effect_mult_delta"):
             # 客户端语义：塞进 final 乘区 → 全伤害 ×(1+delta)
             dps *= (1.0 + float(d["bond_effect_mult_delta"]))
+        # 三伤害类型双抗：法术抗性削法术弹道，物理抗性削物理弹道（真伤不受影响）
+        if pc.offense.damage_type == "magic" and "magic_dmg_taken_mult" in d:
+            pc.offense.type_resist_mult = float(d["magic_dmg_taken_mult"])
+            dps *= pc.offense.type_resist_mult
+        elif pc.offense.damage_type == "physical" and "physical_dmg_taken_mult" in d:
+            pc.offense.type_resist_mult = float(d["physical_dmg_taken_mult"])
+            dps *= pc.offense.type_resist_mult
         reflect_pct = float(d.get("reflect_pct", 0.0))
         extra_core_pct_per_hit = float(d.get("core_hp_loss_per_hit", 0.0))
 
@@ -269,6 +280,8 @@ def simulate_run(seed: int, strategy=None, n_waves: int | None = None) -> RunRes
         # 3) 解算 PlayerCombat（羁绊 + 境界 reward + 联动）
         pc = resolve_player(state, pools)
         synergies_final = apply_synergies(pc, state, pools, engine)
+        # 三伤害类型：主体系决定弹道类型（物伤卡只乘物理，法伤卡只乘法术）
+        pc.offense.damage_type = _PATH_DAMAGE_TYPE.get(getattr(state, "_main_path", ""), "physical")
         # 属性类 Boss Debuff（暴伤/暴率/穿甲/弹数/禁疗）——与客户端 modify_stats 一致
         if deb is not None:
             _apply_debuff_to_combat(pc, deb)

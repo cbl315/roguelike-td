@@ -68,6 +68,13 @@ class CombatStats:
     armor_pen: float = 0.0           # 穿甲 0..1（减免护甲减伤的比例）
     true_dmg_pct: float = 0.0        # 0..1，伤害按此比例转真伤（跳过护甲）
 
+    # ── 伤害类型（物理/法术分化，2026-10 三类型轮）──
+    # 主体系决定：星辰变/斗破=magic，遮天/宠魅=physical；generic 弹道默认 physical。
+    # physical_dmg_pct 只乘物理弹道，magic_dmg_pct 只乘法术弹道（流派真分化）。
+    damage_type: str = "physical"    # "physical" | "magic"
+    # Boss Debuff 双抗：怪受该类型伤害的额外倍率（法术/物理抗性 0.5；真伤不受影响）
+    type_resist_mult: float = 1.0
+
     def with_final_mult(self, x: float) -> "CombatStats":
         """链式追加一条最终伤害乘区（联动用）。返回新实例。"""
         s = CombatStats(**self.__dict__)
@@ -112,37 +119,37 @@ def final_mult(mults: list[float]) -> float:
     return result
 
 
+def _type_mult(stats: CombatStats) -> float:
+    """伤害类型乘区（三类型轮）：物理弹道只吃物伤%，法术弹道只吃法伤%。"""
+    if stats.damage_type == "magic":
+        return 1.0 + stats.magic_dmg_pct
+    return 1.0 + stats.physical_dmg_pct
+
+
 def expected_hit_dmg(stats: CombatStats, enemy: EnemyStats) -> float:
     """单发命中期望伤害（含暴击期望、含护甲、含真伤拆分）。
 
-    真伤部分跳过 defense_mult；其余部分正常结算。两部分相加。
+    三伤害类型：physical/magic 各吃自己增伤乘区 + Boss Debuff 双抗
+    （type_resist_mult）；真伤部分跳过 defense_mult 与双抗（无视一切减免）。
     """
-    # 普通部分（受护甲影响）
-    normal = (
+    common = (
         stats.atk
         * stats.atk_ratio
-        * (1.0 + stats.physical_dmg_pct + stats.magic_dmg_pct)  # dmg_type
         * (1.0 + stats.skill_mult_pct)                          # skill_mult
         * final_mult(stats.final_dmg_mults)                     # final
         * (1.0 + stats.elemental_pct)                           # elemental
         * crit_factor(stats.crit_rate, stats.crit_dmg)          # crit
-        * defense_mult(enemy.armor, stats.armor_pen)            # defense
     )
-    # 真伤部分（跳过护甲，按比例切出）
+    # 普通部分（受护甲 + 双抗）
+    normal = (
+        common
+        * _type_mult(stats)                                     # 类型专属增伤
+        * defense_mult(enemy.armor, stats.armor_pen)            # defense
+        * stats.type_resist_mult                                # Boss Debuff 双抗
+    )
+    # 真伤部分（跳过护甲与双抗，按比例切出）
     if stats.true_dmg_pct > 0:
-        # 真伤的基数：同样的前置乘区，但不乘 defense_mult
-        true_base = (
-            stats.atk
-            * stats.atk_ratio
-            * (1.0 + stats.physical_dmg_pct + stats.magic_dmg_pct)
-            * (1.0 + stats.skill_mult_pct)
-            * final_mult(stats.final_dmg_mults)
-            * (1.0 + stats.elemental_pct)
-            * crit_factor(stats.crit_rate, stats.crit_dmg)
-        )
-        # 把"若没有真伤切分时的整段"按比例拆：普通×(1-tp) + 真伤×tp
-        # 这里用更直观的重算：normal 已含 defense，真伤不含
-        # 为避免重复，重新统一为：total = normal_full_def * (1-tp) + no_def * tp
+        true_base = common * _type_mult(stats)
         tp = max(0.0, min(1.0, stats.true_dmg_pct))
         return normal * (1.0 - tp) + true_base * tp
     return normal

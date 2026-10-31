@@ -19,11 +19,11 @@ func _init() -> void:
 	else:
 		print("  PASS: 抽取 3 个 debuff（池 %d 个可用）" % pool.size())
 
-	# 测试2：池里没有 unsupported key
+	# 测试2：池里没有 unsupported key（双抗已随三伤害类型轮启用）
 	var bad: Array = []
 	for b in pool:
 		for k in b.get("debuff", {}).keys():
-			if k in ["immune_cc", "ult_energy_mult", "magic_dmg_taken_mult", "physical_dmg_taken_mult"]:
+			if k in ["immune_cc", "ult_energy_mult"]:
 				bad.append(k)
 	if not bad.is_empty():
 		print("  FAIL: 池中有未支持 key: %s" % bad)
@@ -59,6 +59,30 @@ func _init() -> void:
 	# 测试5：预告 next_boss
 	var nb: Dictionary = bd.next_boss(1)
 	print("  %s: next_boss(1) = %s" % ["PASS" if int(nb.get("wave", 0)) in [10, 20, 30] else "FAIL", nb])
+
+	# 测试6：应对道具——换（reroll 槽位后 name 属于池、结构合法）
+	var idx: int = int(nb.get("idx", 0))
+	var before: String = nb.get("name", "")
+	var rerolled: Dictionary = bd.reroll_slot(idx, rng)
+	if rerolled.has("debuff") and rerolled.has("name"):
+		print("  PASS: reroll_slot →『%s』（换前『%s』）" % [rerolled.get("name"), before])
+	else:
+		print("  FAIL: reroll 返回结构非法 %s" % rerolled)
+		fails += 1
+
+	# 测试7：应对道具——删（remove 后 next_boss 标记 removed，波不激活）
+	bd.remove_slot(idx)
+	var nb2: Dictionary = bd.next_boss(1)
+	if nb2.get("removed", false):
+		var wave_after_remove: Dictionary = bd.on_wave_started(int(nb2.get("wave", 0)))
+		if wave_after_remove.is_empty() or not bd.is_active():
+			print("  PASS: remove → 预告标记 removed 且 Boss 波无 debuff 生效")
+		else:
+			print("  FAIL: 删除后 Boss 波仍有 debuff 激活")
+			fails += 1
+	else:
+		print("  FAIL: remove 未标记 removed")
+		fails += 1
 
 	print("\n========================================")
 	if fails == 0:

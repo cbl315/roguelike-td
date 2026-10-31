@@ -74,9 +74,9 @@ def test_all_synergies_require_devoured_set():
 
 
 def test_synergy_count():
-    """联动总数 = 9（遮天3 + 星辰变3 + 宠魅3）。"""
+    """联动总数 = 11（遮天3 + 星辰变3 + 宠魅3 + 斗破2）。"""
     engine = SynergyEngine()
-    assert len(engine.synergies) == 9
+    assert len(engine.synergies) == 11
 
 
 # ── Bug 回归测试 ──

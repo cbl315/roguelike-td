@@ -120,3 +120,29 @@ synergies:
       final_dmg_mult: 1.0
       atk_pct_delta: 0.30
     note: 召唤流天花板——魔人+紫帝双终极
+
+  # ── 斗破体系联动 ──
+  # ── 炎帝之路（修满斗破）──
+  - id: doupo_yandi
+    name: 炎帝·万火之主
+    rarity: SSR
+    trigger:
+      all:
+        - bond_devoured_set: doupo        # 修满斗破
+    effect:
+      final_dmg_mult: 1.0                 # 最终伤害 +100%
+    note: 异火尽收，斗帝之姿——修满斗破自动触发
+
+  # ── 药老传承（斗破中期 + 装备联动增幅）──
+  - id: doupo_yaolao_legacy
+    name: 药老传承·炼药之道
+    rarity: EX
+    trigger:
+      all:
+        - bond_devoured_set: doupo
+        - equipment_affix: synergy_amp
+    effect:
+      final_dmg_mult: 2.0
+      hp_pct_delta: 0.20
+      lifesteal_pct: 0.04
+    note: 三重终极——斗破满境+炎帝+联动增幅

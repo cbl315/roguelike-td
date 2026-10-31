@@ -19,6 +19,10 @@ var atk_ratio: float = 1.0
 var atk_pct_bonus: float = 0.0          # Σ atk% 加成（resolve 时乘 base）
 var physical_dmg_pct: float = 0.0
 var magic_dmg_pct: float = 0.0
+## 三伤害类型（2026-10）：主体系决定弹道类型（星辰变/斗破=magic，遮天/宠魅=physical）
+## 物伤%只乘物理弹道，法伤%只乘法术弹道；双抗（Boss Debuff）按类型削，真伤不受影响。
+var damage_type: String = "physical"    # "physical" | "magic"
+var type_resist_mult: float = 1.0       # Boss Debuff 法术/物理抗性倍率
 var skill_mult_pct: float = 0.0
 var elemental_pct: float = 0.0
 var final_dmg_mults: Array = []          # Array[float]，每条 Π(1+x)
@@ -84,39 +88,45 @@ static func final_mult(mults: Array) -> float:
 	return result
 
 
+## 类型专属增伤乘区：物理弹道吃物伤%，法术弹道吃法伤%
+func type_mult() -> float:
+	if damage_type == "magic":
+		return 1.0 + magic_dmg_pct
+	return 1.0 + physical_dmg_pct
+
+
 func expected_hit_dmg(enemy_armor: float) -> float:
-	"""单发期望伤害（含暴击期望、护甲、真伤拆分）。"""
+	"""单发期望伤害（三类型：类型增伤 × 护甲 × 双抗；真伤跳过护甲与双抗）。"""
 	var cf: float = crit_factor(crit_rate, crit_dmg)
 	var dm: float = defense_mult(enemy_armor, armor_pen)
 	var fm: float = final_mult(final_dmg_mults)
-	var dmg_type := 1.0 + physical_dmg_pct + magic_dmg_pct
+	var tm: float = type_mult()
 	var skill := 1.0 + skill_mult_pct
 	var elem := 1.0 + elemental_pct
 	var base := atk * atk_ratio
-	var pre_def := base * dmg_type * skill * fm * elem * cf
-	var after_def := pre_def * dm
+	var pre_def := base * tm * skill * fm * elem * cf
+	var after_def := pre_def * dm * type_resist_mult   # 双抗（Boss Debuff）
 	if true_dmg_pct > 0.0:
 		var tp: float = clampf(true_dmg_pct, 0.0, 1.0)
-		# 真伤部分跳过护甲
+		# 真伤部分跳过护甲与双抗
 		return after_def * (1.0 - tp) + pre_def * tp
 	return after_def
 
 
 ## 单发实际伤害（暴击掷骰版，供弹道结算+伤害数字用）。
-## 与 expected_hit_dmg 同管线，唯一差异：crit_factor 期望 → 真实掷骰
-## （is_crit 时乘 crit_dmg，否则 1.0）。大数定律下均值 == expected。
+## 与 expected_hit_dmg 同管线（三类型），唯一差异：暴击期望 → 真实掷骰。
 func roll_hit_dmg(enemy_armor: float, rng: RandomNumberGenerator) -> Dictionary:
 	var rate: float = clampf(crit_rate, 0.0, CRIT_RATE_CAP)
 	var is_crit: bool = rng.randf() < rate
 	var cf: float = crit_dmg if is_crit else 1.0
 	var dm: float = defense_mult(enemy_armor, armor_pen)
 	var fm: float = final_mult(final_dmg_mults)
-	var dmg_type := 1.0 + physical_dmg_pct + magic_dmg_pct
+	var tm: float = type_mult()
 	var skill := 1.0 + skill_mult_pct
 	var elem := 1.0 + elemental_pct
 	var base := atk * atk_ratio
-	var pre_def := base * dmg_type * skill * fm * elem * cf
-	var after_def := pre_def * dm
+	var pre_def := base * tm * skill * fm * elem * cf
+	var after_def := pre_def * dm * type_resist_mult
 	if true_dmg_pct > 0.0:
 		var tp: float = clampf(true_dmg_pct, 0.0, 1.0)
 		var total: float = after_def * (1.0 - tp) + pre_def * tp

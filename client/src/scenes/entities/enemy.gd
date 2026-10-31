@@ -188,9 +188,12 @@ func _spit_projectile() -> void:
 	proj.setup(global_position, _hero, leak_damage * 0.8)
 	proj.speed = RANGED_PROJ_SPEED
 	proj.modulate = Color(1.0, 0.5, 0.45)   # 红色 tint 区分敌方弹
-	var tex: Texture2D = SpriteAtlas.get_projectile_tex(_fire_rng)
-	if tex:
-		proj.set_sprite(tex)
+	# 运行时取 SpriteAtlas（--script 独立测试模式无 autoload，跳过贴图）
+	var atlas := get_node_or_null("/root/SpriteAtlas")
+	if atlas != null:
+		var tex: Texture2D = atlas.get_projectile_tex(_fire_rng)
+		if tex:
+			proj.set_sprite(tex)
 
 
 ## 奶妈：慢速追随 + 每 3s 治疗半径内其他怪（8% max hp）+ 绿色脉冲

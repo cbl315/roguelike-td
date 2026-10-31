@@ -65,6 +65,12 @@ func refresh_stats() -> void:
 	else:
 		_stats = CombatStats.new()
 		_stats.apply_atk_bonus()
+	# 三伤害类型：主体系决定弹道类型（星辰变/斗破=法术，遮天/宠魅=物理）
+	if _stats != null and build != null:
+		for pid in build.path_realm.keys():
+			if pid != "generic_fusion":
+				_stats.damage_type = "magic" if pid in ["xingchenbian", "doupo"] else "physical"
+				break
 	# 从 CombatStats 更新 max_hp（hp_pct_delta 生效）
 	var new_max: float = _stats.effective_max_hp() if _stats != null else 1000.0
 	if new_max != max_hp:

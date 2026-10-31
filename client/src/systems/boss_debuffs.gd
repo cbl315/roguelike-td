@@ -14,10 +14,10 @@ class_name BossDebuffs
 
 const DATA_PATH := "res://data/boss_debuffs.json"
 
-## 依赖系统未落地、暂不进入抽取池的效果 key（后续启用）：
+## 依赖系统未落地、暂不进入抽取池的效果 key：
 ##   immune_cc（无控制技能）ult_energy_mult（无大招）
-##   magic/physical_dmg_taken_mult（无伤害类型系统）
-const _UNSUPPORTED_KEYS := ["immune_cc", "ult_energy_mult", "magic_dmg_taken_mult", "physical_dmg_taken_mult"]
+## magic/physical_dmg_taken_mult 已随三伤害类型轮启用（2026-10）。
+const _UNSUPPORTED_KEYS := ["immune_cc", "ult_energy_mult"]
 
 var _pool: Array = []            # 可抽取的 boss debuff 定义（过滤后）
 var _picked: Array = []          # 本局抽中的 3 个（顺序=波次顺序）
@@ -91,8 +91,32 @@ func next_boss(wave: int) -> Dictionary:
 	for i in _picked.size():
 		var bw: int = int(_boss_waves[i])
 		if bw > wave:
-			return {"wave": bw, "name": _picked[i].get("name", ""), "id": _picked[i].get("id", "")}
+			var slot: Dictionary = _picked[i]
+			return {
+				"wave": bw,
+				"idx": i,
+				"name": slot.get("name", "（已消除）"),
+				"id": slot.get("id", ""),
+				"removed": slot.is_empty(),
+			}
 	return {}
+
+
+# ── 应对道具（GDD §13：换/删，波间大厅操作即将到来的 debuff）──
+
+## 换：重抽该槽位（不排除更糟的，赌博定位）。返回新 debuff。
+func reroll_slot(idx: int, rng: RandomNumberGenerator) -> Dictionary:
+	if _pool.is_empty() or idx < 0 or idx >= _picked.size():
+		return {}
+	var new_deb: Dictionary = _pool[rng.randi() % _pool.size()]
+	_picked[idx] = new_deb
+	return new_deb
+
+
+## 删：该槽位 debuff 完全失效（Boss 波无 debuff）。不可逆。
+func remove_slot(idx: int) -> void:
+	if idx >= 0 and idx < _picked.size():
+		_picked[idx] = {}
 
 
 # ── 效果应用（Boss 波内 game_manager/spawner 调用，非 Boss 波全部空操作）──
@@ -104,7 +128,7 @@ func _d(key: String, default: Variant = null) -> Variant:
 	return deb.get("debuff", {}).get(key, default)
 
 
-## 属性类：叠加到 CombatStats（暴伤/暴率/穿甲/弹数/羁绊压制乘区）
+## 属性类：叠加到 CombatStats（暴伤/暴率/穿甲/弹数/羁绊压制乘区/双抗）
 func modify_stats(stats: CombatStats) -> void:
 	if not is_active():
 		return
@@ -123,6 +147,15 @@ func modify_stats(stats: CombatStats) -> void:
 	var be: float = _d("bond_effect_mult_delta", 0.0)
 	if be != 0.0:
 		stats.final_dmg_mults.append(1.0 + be)   # -0.3 → ×0.7 乘区
+	# 三伤害类型双抗：法术抗性削法术弹道，物理抗性削物理弹道（真伤不受影响）
+	if stats.damage_type == "magic":
+		var mr: float = _d("magic_dmg_taken_mult", 0.0)
+		if mr > 0.0:
+			stats.type_resist_mult = mr
+	else:
+		var pr: float = _d("physical_dmg_taken_mult", 0.0)
+		if pr > 0.0:
+			stats.type_resist_mult = pr
 
 
 ## 经济类：贪婪之噬（Boss 波内击杀金币）

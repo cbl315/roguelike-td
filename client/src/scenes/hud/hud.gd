@@ -7,6 +7,8 @@ signal char_panel_toggled()
 signal equipment_picker_requested()   # M3: 装备升级
 signal restart_requested()            # 结算画面按 R 重开
 signal ult_requested()                # 大招按钮（Q 键等价，移动端入口）
+signal boss_debuff_reroll_requested() # 应对道具：换（GDD §13）
+signal boss_debuff_remove_requested() # 应对道具：删
 
 var _char_panel: Control = null   # #6: Tab 角色面板（动态创建）
 var _toast_label: Label = null    # 居中临时提示（突破境界）
@@ -14,6 +16,10 @@ var _toast_timer: float = 0.0     # Toast 剩余显示时间
 var _result_shown: bool = false   # 结算画面显示中（R 键重开用）
 var _ult_bar: ProgressBar = null  # 大招能量条
 var _ult_btn: Button = null       # 大招按钮（移动端）
+var _forecast_label: Label = null # 下一个 Boss debuff 预告
+var _forecast_reroll: Button = null
+var _forecast_remove: Button = null
+var _forecast_cache: Dictionary = {}   # 最近一次预告数据（金币变化时刷新按钮态）
 var _breakthrough_layer: CanvasLayer = null   # 突破演出层（大厅遮罩之上）
 var _breakthrough_label: Label = null
 var _breakthrough_timer: float = 0.0
@@ -50,6 +56,7 @@ func _ready() -> void:
 	EventBus.ult_energy_changed.connect(update_ult_energy)
 	_setup_ult_ui()
 	_setup_breakthrough_ui()
+	_setup_forecast_ui()
 
 
 func _process(delta: float) -> void:
@@ -88,7 +95,7 @@ func show_boss_debuff_banner(debuff_name: String, wave: int) -> void:
 
 func _on_bond_devoured(path_id: String, realm_idx: int, realm_name: String) -> void:
 	# 突破演出（GDD 情感爽点）：金光闪屏 + 境界大字 + 顿帧（音效 SoundManager 已接）
-	var name_map := {"zhutian": "遮天", "xingchenbian": "星辰变", "chongmei": "宠魅"}
+	var name_map := {"zhutian": "遮天", "xingchenbian": "星辰变", "chongmei": "宠魅", "doupo": "斗破"}
 	var pname: String = name_map.get(path_id, path_id)
 	_breakthrough_label.text = "⚡ %s · %s 圆满 ⚡\n（%d 境）" % [pname, realm_name, realm_idx]
 	_breakthrough_label.modulate.a = 1.0
@@ -157,6 +164,59 @@ func update_ult_energy(ratio: float) -> void:
 		_ult_btn.text = "⚡ 释放大招 (Q)" if ratio >= 1.0 else "大招 (Q) 蓄能中… %d%%" % int(ratio * 100)
 
 
+## 下一个 Boss debuff 预告 + 换/删道具（GDD §13，game_manager 波间刷新）
+func _setup_forecast_ui() -> void:
+	_forecast_label = Label.new()
+	_forecast_label.position = Vector2(1500, 100)
+	_forecast_label.size = Vector2(390, 26)
+	_forecast_label.add_theme_font_size_override("font_size", 17)
+	_forecast_label.add_theme_color_override("font_color", Color(0.95, 0.7, 0.55))
+	add_child(_forecast_label)
+	_forecast_reroll = Button.new()
+	_forecast_reroll.position = Vector2(1500, 128)
+	_forecast_reroll.size = Vector2(130, 34)
+	_forecast_reroll.add_theme_font_size_override("font_size", 15)
+	_forecast_reroll.focus_mode = Control.FOCUS_NONE
+	_forecast_reroll.pressed.connect(func(): boss_debuff_reroll_requested.emit())
+	add_child(_forecast_reroll)
+	_forecast_remove = Button.new()
+	_forecast_remove.position = Vector2(1640, 128)
+	_forecast_remove.size = Vector2(130, 34)
+	_forecast_remove.add_theme_font_size_override("font_size", 15)
+	_forecast_remove.focus_mode = Control.FOCUS_NONE
+	_forecast_remove.pressed.connect(func(): boss_debuff_remove_requested.emit())
+	add_child(_forecast_remove)
+	_forecast_label.visible = false
+	_forecast_reroll.visible = false
+	_forecast_remove.visible = false
+
+
+func update_boss_forecast(nb: Dictionary, gold: float) -> void:
+	_forecast_cache = {"nb": nb, "gold": gold}
+	var show: bool = not nb.is_empty()
+	_forecast_label.visible = show
+	_forecast_reroll.visible = show
+	_forecast_remove.visible = show
+	if not show:
+		return
+	var removed: bool = nb.get("removed", false)
+	if removed:
+		_forecast_label.text = "下一 BOSS（第 %d 波）：✅ debuff 已消除" % int(nb["wave"])
+	else:
+		_forecast_label.text = "下一 BOSS（第 %d 波）：%s" % [int(nb["wave"]), nb.get("name", "?")]
+	_forecast_reroll.text = "换 40金"
+	_forecast_remove.text = "删 120金"
+	_forecast_reroll.disabled = removed or gold < 40.0
+	_forecast_remove.disabled = removed or gold < 120.0
+
+
+func update_gold(g: float) -> void:
+	_gold_label.text = "金币: %d" % int(g)
+	# 金币变化联动预告按钮禁用态（缓存数据重算）
+	if not _forecast_cache.is_empty():
+		update_boss_forecast(_forecast_cache.get("nb", {}), g)
+
+
 func on_ult_ready() -> void:
 	SoundManager.play("wave_clear", -4.0)   # 就绪提示音
 
@@ -215,10 +275,6 @@ func update_core_hp(hp: float, max_hp: float) -> void:
 	_hp_bar.max_value = max_hp
 	_hp_bar.value = hp
 	_hp_label.text = "核心 %d / %d" % [int(hp), int(max_hp)]
-
-
-func update_gold(g: float) -> void:
-	_gold_label.text = "金币: %d" % int(g)
 
 
 ## 更新羁绊按钮：显示当前抽取成本

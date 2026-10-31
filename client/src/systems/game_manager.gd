@@ -88,6 +88,8 @@ func _ready() -> void:
 	_hud.equipment_picker_requested.connect(open_equipment_picker)
 	_hud.restart_requested.connect(_on_restart_requested)
 	_hud.ult_requested.connect(_try_release_ult)
+	_hud.boss_debuff_reroll_requested.connect(_on_reroll_debuff)
+	_hud.boss_debuff_remove_requested.connect(_on_remove_debuff)
 	EventBus.bond_devoured.connect(func(_p, _r, _n): _stats_breakthroughs += 1)   # 局内统计
 	# 种子机制：开局直接开始第一波（体系种子在羁绊池里选）
 	_lobby.set_build_ref(_build, _pools)
@@ -219,6 +221,7 @@ func _start_next_wave() -> void:
 	if not deb.is_empty():
 		EventBus.boss_debuff_revealed.emit(deb.get("id", ""), current_wave)
 		if _hud: _hud.show_boss_debuff_banner(deb.get("name", ""), current_wave)
+	_refresh_boss_forecast()
 	# #2: 设置波次倒计时
 	_wave_timer = WaveCurves.wave_duration(current_wave)
 	_lobby.set_build_ref(_build, _pools)
@@ -250,6 +253,7 @@ func _on_wave_finished() -> void:
 	var bonus := 30.0 + 5.0 * current_wave + time_bonus
 	_stats_gold_earned += bonus
 	_build.add_gold(bonus)
+	_refresh_boss_forecast()   # 波间：更新下一个 Boss 预告（换/删道具入口）
 	EventBus.gold_changed.emit(_build.gold)
 	if _hud: _hud.update_gold(_build.gold)
 	_break_timer = wave_break
@@ -313,6 +317,48 @@ func _stats_snapshot() -> Dictionary:
 		"damage": _stats_damage, "kills": _stats_kills, "boss_kills": _stats_boss_kills,
 		"breakthroughs": _stats_breakthroughs, "gold": _stats_gold_earned, "bonds": bonds,
 	}
+
+
+# ── 应对道具（GDD §13：换 40 金 / 删 120 金，作用于下一个 Boss 波）──
+
+const DEBUFF_REROLL_COST := 40.0
+const DEBUFF_REMOVE_COST := 120.0
+
+
+func _on_reroll_debuff() -> void:
+	var nb: Dictionary = _boss_debuffs.next_boss(current_wave)
+	if nb.is_empty() or nb.get("removed", false):
+		return
+	if _build.gold < DEBUFF_REROLL_COST:
+		SoundManager.play("error")
+		return
+	_build.spend(DEBUFF_REROLL_COST)
+	_boss_debuffs.reroll_slot(int(nb["idx"]), _rng)
+	SoundManager.play("card_pick")
+	_hud.update_gold(_build.gold)
+	_refresh_boss_forecast()
+
+
+func _on_remove_debuff() -> void:
+	var nb: Dictionary = _boss_debuffs.next_boss(current_wave)
+	if nb.is_empty() or nb.get("removed", false):
+		return
+	if _build.gold < DEBUFF_REMOVE_COST:
+		SoundManager.play("error")
+		return
+	_build.spend(DEBUFF_REMOVE_COST)
+	_boss_debuffs.remove_slot(int(nb["idx"]))
+	SoundManager.play("breakthrough", -3.0)
+	_hud.update_gold(_build.gold)
+	_refresh_boss_forecast()
+
+
+## 波间 Boss 预告条（HUD）：下一个 Boss 的 debuff + 换/删按钮状态
+func _refresh_boss_forecast() -> void:
+	if _hud == null:
+		return
+	var nb: Dictionary = _boss_debuffs.next_boss(current_wave)
+	_hud.update_boss_forecast(nb, _build.gold)
 
 
 ## 怪走到英雄位置 → 扣英雄血（GDD：怪漏到核心）

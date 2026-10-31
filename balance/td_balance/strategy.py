@@ -76,7 +76,13 @@ class Strategy:
 
 
 class SimpleStrategy(Strategy):
-    """贪心策略：实装吞噬循环 + 刷新作为金币 sink。"""
+    """贪心策略：实装吞噬循环 + 刷新作为金币 sink。
+
+    fixed_path: 固定开局选择的体系（强度对照测试用；None=随机）。
+    """
+
+    def __init__(self, fixed_path: str | None = None) -> None:
+        self.fixed_path = fixed_path
 
     def spend_lobby(
         self,
@@ -100,8 +106,11 @@ class SimpleStrategy(Strategy):
             state.__dict__["_seeds_taken"] = True
             import random as _r
             available_paths = [p.id for p in pools.paths if p.id != "generic_fusion"]
-            # 随机选 2 个体系
-            chosen = pools.rng.sample(available_paths, min(1, len(available_paths)))
+            if self.fixed_path is not None and self.fixed_path in available_paths:
+                chosen = [self.fixed_path]
+            else:
+                # 随机选 1 个体系
+                chosen = pools.rng.sample(available_paths, min(1, len(available_paths)))
             for path_id in chosen:
                 state.path_realm[path_id] = 0
             # generic_fusion 默认解锁
