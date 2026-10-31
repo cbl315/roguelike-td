@@ -43,12 +43,15 @@ ENEMY_ARMOR: float = 20.0             # 敌人基础护甲
 ENEMY_ARMER_GROWTH: float = 1.5       # 每波护甲增长
 ENEMY_HP_SCALE: float = 1.0           # 敌人血量全局缩放（大招/debuff 引入后的难度再平衡）
 # 敌人行为多样化（远程/分裂/奶妈）宏观近似（wave 5+ 生效，与客户端 KIND_MIX 对应）：
-#   splitter 波血 +12%（本体耐打 + mini 增敌）× healer 波血 +8%（有效血抬升）复合 ≈ ×1.21
-#   ranged 核心压力 ×1.15（弹雨消耗，等效漏怪系数上浮）
-ENEMY_BEHAVIOR_HP_MULT: float = 1.05
-ENEMY_BEHAVIOR_PRESSURE: float = 1.05
+#   splitter/healer 使有效波血抬升、ranged 使核心压力上浮。
+#   数值轮 2026-11：1.05→1.03（w5 死亡尖峰 28% 过陡，配 count per_wave 1.5→1.4 一起回调）
+ENEMY_BEHAVIOR_HP_MULT: float = 1.03
+ENEMY_BEHAVIOR_PRESSURE: float = 1.03
 ENEMY_BEHAVIOR_FROM_WAVE: int = 5
 PLAYER_ECON_MULT: float = 1.03        # 玩家经济全局加成（行为怪难度再平衡）
+# 宠魅召唤单位（莫邪/白魇魔/六尾妖狐）宏观近似：客户端召唤是独立输出实体，
+# 模拟不逐实体建模，主体系=宠魅时 DPS 乘此系数（≈两只常驻召唤 35% 输出占比）。
+CHONGMEI_SUMMON_DPS_MULT: float = 1.10
 
 
 @dataclass
@@ -127,7 +130,7 @@ def _ult_full_time(wave: int) -> float:
 
 def _battle_outcome(pc: PlayerCombat, wave: int, p, core_hp_current: float,
                     deb: dict | None = None, use_ult: bool = False,
-                    ult_carry: float = 0.0) -> dict:
+                    ult_carry: float = 0.0, main_path: str = "") -> dict:
     """单波战斗判定。返回 {cleared, core_damage, dps, clear_time, ult_carry}。
 
     deb: 本波 Boss Debuff 定义（None=无）；use_ult: 是否计入大招贡献。
@@ -143,6 +146,9 @@ def _battle_outcome(pc: PlayerCombat, wave: int, p, core_hp_current: float,
     ult_carry_out: float = ult_carry
 
     dps = expected_dps(pc.offense, enemy)
+    # 宠魅召唤单位宏观近似（常量注释见上）
+    if main_path == "chongmei":
+        dps *= CHONGMEI_SUMMON_DPS_MULT
     if dps <= 0:
         return {"cleared": False, "core_damage": core_hp_current,
                 "dps": 0.0, "clear_time": duration}
@@ -290,7 +296,7 @@ def simulate_run(seed: int, strategy=None, n_waves: int | None = None) -> RunRes
         death_max_hp = pc.survival.effective_max_hp   # 记录本波 max_hp（死亡时用）
         outcome = _battle_outcome(pc, wave, wave_params, core_hp_current=state.survival_hp,
                                   deb=deb, use_ult=run_sim_flags.ENABLE_ULT,
-                                  ult_carry=ult_carry)
+                                  ult_carry=ult_carry, main_path=getattr(state, "_main_path", ""))
         ult_carry = float(outcome["ult_carry"])
         dps_per_wave.append(round(outcome["dps"], 1))
         # 反噬之力：受击额外掉核心血（怪接触频率≈1/s，上限 10 次）

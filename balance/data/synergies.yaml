@@ -52,7 +52,7 @@ synergies:
       all:
         - bond_devoured_set: xingchenbian
     effect:
-      magic_dmg_pct_delta: 0.50
+      magic_dmg_pct_delta: 0.35
     note: 修满星辰变境界，法伤 +50%
 
   # ── 黑洞·吞噬万物（法术终极，三重联动）──
@@ -64,8 +64,8 @@ synergies:
         - bond_devoured_set: xingchenbian
         - equipment_affix: magic_amp
     effect:
-      final_dmg_mult: 1.5
-      magic_dmg_pct_delta: 0.50
+      final_dmg_mult: 1.0
+      magic_dmg_pct_delta: 0.40
     note: 法术流终极——星辰变+黑洞+法术增幅
 
   # ── 宇宙诞生（法术流天花板）──
@@ -77,7 +77,7 @@ synergies:
         - bond_devoured_set: xingchenbian
         - equipment_affix: synergy_amp
     effect:
-      final_dmg_mult: 1.0
+      final_dmg_mult: 0.6
       lifesteal_pct: 0.10
     note: 自成宇宙，万法归一——法术吸血终极续航
 

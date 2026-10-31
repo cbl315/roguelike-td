@@ -766,7 +766,7 @@
       "set": "xingchenbian",
       "rarity": "SR",
       "effect": {
-        "magic_dmg_pct_delta": 0.1
+        "magic_dmg_pct_delta": 0.072
       }
     },
     {
@@ -775,7 +775,7 @@
       "set": "xingchenbian",
       "rarity": "SR",
       "effect": {
-        "magic_dmg_pct_delta": 0.05
+        "magic_dmg_pct_delta": 0.037
       }
     },
     {
@@ -793,7 +793,7 @@
       "set": "xingchenbian",
       "rarity": "SSR",
       "effect": {
-        "attack_speed_delta": 0.15
+        "attack_speed_delta": 0.109
       }
     },
     {
@@ -821,7 +821,7 @@
       "set": "xingchenbian",
       "rarity": "SSR",
       "effect": {
-        "magic_dmg_pct_delta": 0.15
+        "magic_dmg_pct_delta": 0.109
       }
     },
     {
@@ -830,7 +830,7 @@
       "set": "xingchenbian",
       "rarity": "SSR",
       "effect": {
-        "final_dmg_mult": 0.08
+        "final_dmg_mult": 0.058
       }
     },
     {
@@ -848,7 +848,7 @@
       "set": "xingchenbian",
       "rarity": "SSR",
       "effect": {
-        "attack_speed_delta": 0.12
+        "attack_speed_delta": 0.087
       }
     },
     {
@@ -857,7 +857,7 @@
       "set": "xingchenbian",
       "rarity": "SSR",
       "effect": {
-        "elemental_dmg_mult": 0.15
+        "elemental_dmg_mult": 0.109
       }
     },
     {
@@ -875,7 +875,7 @@
       "set": "xingchenbian",
       "rarity": "UR",
       "effect": {
-        "elemental_dmg_mult": 0.2
+        "elemental_dmg_mult": 0.145
       }
     },
     {
@@ -884,7 +884,7 @@
       "set": "xingchenbian",
       "rarity": "UR",
       "effect": {
-        "final_dmg_mult": 0.12
+        "final_dmg_mult": 0.087
       }
     },
     {
@@ -893,7 +893,7 @@
       "set": "xingchenbian",
       "rarity": "UR",
       "effect": {
-        "magic_dmg_pct_delta": 0.2
+        "magic_dmg_pct_delta": 0.145
       }
     },
     {
@@ -902,7 +902,7 @@
       "set": "xingchenbian",
       "rarity": "UR",
       "effect": {
-        "elemental_dmg_mult": 0.15
+        "elemental_dmg_mult": 0.109
       }
     },
     {
@@ -911,7 +911,7 @@
       "set": "xingchenbian",
       "rarity": "UR",
       "effect": {
-        "final_dmg_mult": 0.15
+        "final_dmg_mult": 0.109
       }
     },
     {
@@ -929,7 +929,7 @@
       "set": "xingchenbian",
       "rarity": "EX",
       "effect": {
-        "final_dmg_mult": 0.2,
+        "final_dmg_mult": 0.145,
         "lifesteal_pct": 0.05
       }
     },
@@ -939,7 +939,7 @@
       "set": "xingchenbian",
       "rarity": "EX",
       "effect": {
-        "magic_dmg_pct_delta": 0.25
+        "magic_dmg_pct_delta": 0.18
       }
     },
     {
@@ -948,7 +948,7 @@
       "set": "xingchenbian",
       "rarity": "EX",
       "effect": {
-        "final_dmg_mult": 0.25
+        "final_dmg_mult": 0.18
       }
     },
     {
@@ -957,8 +957,8 @@
       "set": "xingchenbian",
       "rarity": "EX",
       "effect": {
-        "final_dmg_mult": 0.3,
-        "magic_dmg_pct_delta": 0.2
+        "final_dmg_mult": 0.217,
+        "magic_dmg_pct_delta": 0.145
       }
     },
     {
@@ -1582,7 +1582,8 @@
             "zt_jm_jie"
           ],
           "reward": {
-            "atk_pct_delta": 0.15
+            "atk_pct_delta": 0.22,
+            "attack_speed_delta": 0.1
           },
           "note": "苦海聚精气，肉身筑基"
         },
@@ -1597,8 +1598,8 @@
             "zt_jm_dou"
           ],
           "reward": {
-            "atk_pct_delta": 0.2,
-            "crit_rate_delta": 0.05
+            "atk_pct_delta": 0.24,
+            "crit_rate_delta": 0.08
           },
           "note": "五脏神觉醒，build 第一个分支点"
         },
@@ -1612,8 +1613,8 @@
             "zt_jm_xing"
           ],
           "reward": {
-            "atk_pct_delta": 0.2,
-            "attack_speed_delta": 0.15
+            "atk_pct_delta": 0.26,
+            "attack_speed_delta": 0.18
           },
           "note": "淬炼四肢，装备槽/属性成型"
         },
@@ -1626,8 +1627,8 @@
             "zt_jm_bing"
           ],
           "reward": {
-            "atk_pct_delta": 0.25,
-            "final_dmg_mult": 0.08
+            "atk_pct_delta": 0.3,
+            "final_dmg_mult": 0.1
           },
           "note": "脊柱化龙，中期爆发"
         },
@@ -1640,8 +1641,8 @@
             "zt_jm_zu"
           ],
           "reward": {
-            "atk_pct_delta": 0.3,
-            "final_dmg_mult": 0.12
+            "atk_pct_delta": 0.34,
+            "final_dmg_mult": 0.13
           },
           "note": "仙台三重（斩道/圣人/大圣）"
         },
@@ -1653,8 +1654,8 @@
             "zt_jm_qian"
           ],
           "reward": {
-            "final_dmg_mult": 0.15,
-            "crit_dmg_delta": 0.3
+            "final_dmg_mult": 0.17,
+            "crit_dmg_delta": 0.32
           },
           "note": "圣体破诅咒成准帝，全书最大爽点"
         },
@@ -1718,7 +1719,7 @@
             "xc_xy_linggen"
           ],
           "reward": {
-            "magic_dmg_pct_delta": 0.15
+            "magic_dmg_pct_delta": 0.12
           },
           "note": "气态凝聚，法术萌芽"
         },
@@ -1730,8 +1731,8 @@
             "xc_lx_poeng"
           ],
           "reward": {
-            "magic_dmg_pct_delta": 0.2,
-            "attack_speed_delta": 0.1
+            "magic_dmg_pct_delta": 0.16,
+            "attack_speed_delta": 0.08
           },
           "note": "破空而出，速度爆发"
         },
@@ -1743,8 +1744,8 @@
             "xc_xh_yuanshen"
           ],
           "reward": {
-            "magic_dmg_pct_delta": 0.2,
-            "final_dmg_mult": 0.08
+            "magic_dmg_pct_delta": 0.16,
+            "final_dmg_mult": 0.06
           },
           "note": "凝聚核心，法术成型"
         },
@@ -1756,8 +1757,8 @@
             "xc_xx_dunjia"
           ],
           "reward": {
-            "magic_dmg_pct_delta": 0.25,
-            "elemental_dmg_mult": 0.1
+            "magic_dmg_pct_delta": 0.2,
+            "elemental_dmg_mult": 0.08
           },
           "note": "稳定轨道，全面成长"
         },
@@ -1768,8 +1769,8 @@
             "xc_dj_duomie"
           ],
           "reward": {
-            "final_dmg_mult": 0.15,
-            "elemental_dmg_mult": 0.1
+            "final_dmg_mult": 0.12,
+            "elemental_dmg_mult": 0.08
           },
           "note": "天劫洗礼，质变门槛"
         },
@@ -1780,8 +1781,8 @@
             "xc_hx_taoyang"
           ],
           "reward": {
-            "magic_dmg_pct_delta": 0.25,
-            "elemental_dmg_mult": 0.1
+            "magic_dmg_pct_delta": 0.2,
+            "elemental_dmg_mult": 0.08
           },
           "note": "自身发光，法术巅峰"
         },
@@ -1804,7 +1805,7 @@
             "xc_hd_xumie"
           ],
           "reward": {
-            "final_dmg_mult": 0.2,
+            "final_dmg_mult": 0.16,
             "lifesteal_pct": 0.03
           },
           "note": "吞噬万物，终极法术"
@@ -1816,8 +1817,8 @@
             "xc_yz_hongmeng"
           ],
           "reward": {
-            "final_dmg_mult": 0.25,
-            "magic_dmg_pct_delta": 0.2
+            "final_dmg_mult": 0.2,
+            "magic_dmg_pct_delta": 0.15
           },
           "note": "自成一界，造物之主"
         }
@@ -1849,8 +1850,8 @@
             "cm_hs_xiashou"
           ],
           "reward": {
-            "atk_pct_delta": 0.2,
-            "final_dmg_mult": 0.08
+            "atk_pct_delta": 0.21,
+            "final_dmg_mult": 0.09
           },
           "note": "六尾妖狐+半魔首觉，击败夏广寒"
         },
@@ -1863,8 +1864,8 @@
             "cm_hs_hundian"
           ],
           "reward": {
-            "atk_pct_delta": 0.2,
-            "elemental_dmg_mult": 0.1
+            "atk_pct_delta": 0.22,
+            "elemental_dmg_mult": 0.11
           },
           "note": "九尾炎狐+囚岛淬炼+魂殿赐技"
         },

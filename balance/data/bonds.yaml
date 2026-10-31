@@ -514,13 +514,13 @@ bonds:
   set: xingchenbian
   rarity: SR
   effect:
-    magic_dmg_pct_delta: 0.10
+    magic_dmg_pct_delta: 0.072
 - id: xc_xy_yunqi
   name: 云气
   set: xingchenbian
   rarity: SR
   effect:
-    magic_dmg_pct_delta: 0.05
+    magic_dmg_pct_delta: 0.037
 - id: xc_xy_linggen
   name: 灵根
   set: xingchenbian
@@ -534,7 +534,7 @@ bonds:
   set: xingchenbian
   rarity: SSR
   effect:
-    attack_speed_delta: 0.15
+    attack_speed_delta: 0.109
 - id: xc_lx_liuxinglei
   name: 流星泪
   set: xingchenbian
@@ -555,13 +555,13 @@ bonds:
   set: xingchenbian
   rarity: SSR
   effect:
-    magic_dmg_pct_delta: 0.15
+    magic_dmg_pct_delta: 0.109
 - id: xc_xh_faize
   name: 六九天劫
   set: xingchenbian
   rarity: SSR
   effect:
-    final_dmg_mult: 0.08
+    final_dmg_mult: 0.058
 - id: xc_xh_yuanshen
   name: 星力凝核
   set: xingchenbian
@@ -575,13 +575,13 @@ bonds:
   set: xingchenbian
   rarity: SSR
   effect:
-    attack_speed_delta: 0.12
+    attack_speed_delta: 0.087
 - id: xc_xx_wuxing
   name: 五行
   set: xingchenbian
   rarity: SSR
   effect:
-    elemental_dmg_mult: 0.15
+    elemental_dmg_mult: 0.109
 - id: xc_xx_dunjia
   name: 遁甲
   set: xingchenbian
@@ -595,13 +595,13 @@ bonds:
   set: xingchenbian
   rarity: UR
   effect:
-    elemental_dmg_mult: 0.20
+    elemental_dmg_mult: 0.145
 - id: xc_dj_duomie
   name: 渡灭
   set: xingchenbian
   rarity: UR
   effect:
-    final_dmg_mult: 0.12
+    final_dmg_mult: 0.087
 
 # ── 恒星（境5，rarity UR）──
 - id: xc_hx_hengguang
@@ -609,13 +609,13 @@ bonds:
   set: xingchenbian
   rarity: UR
   effect:
-    magic_dmg_pct_delta: 0.20
+    magic_dmg_pct_delta: 0.145
 - id: xc_hx_taoyang
   name: 太阳
   set: xingchenbian
   rarity: UR
   effect:
-    elemental_dmg_mult: 0.15
+    elemental_dmg_mult: 0.109
 
 # ── 暗星（境6，rarity UR）──
 - id: xc_ax_ansu
@@ -623,7 +623,7 @@ bonds:
   set: xingchenbian
   rarity: UR
   effect:
-    final_dmg_mult: 0.15
+    final_dmg_mult: 0.109
 - id: xc_ax_xuanying
   name: 玄影
   set: xingchenbian
@@ -637,14 +637,14 @@ bonds:
   set: xingchenbian
   rarity: EX
   effect:
-    final_dmg_mult: 0.20
+    final_dmg_mult: 0.145
     lifesteal_pct: 0.05
 - id: xc_hd_xumie
   name: 虚灭
   set: xingchenbian
   rarity: EX
   effect:
-    magic_dmg_pct_delta: 0.25
+    magic_dmg_pct_delta: 0.18
 
 # ── 宇宙（境8，rarity EX）──
 - id: xc_yz_yuzhou
@@ -652,14 +652,14 @@ bonds:
   set: xingchenbian
   rarity: EX
   effect:
-    final_dmg_mult: 0.25
+    final_dmg_mult: 0.18
 - id: xc_yz_hongmeng
   name: 鸿蒙
   set: xingchenbian
   rarity: EX
   effect:
-    final_dmg_mult: 0.30
-    magic_dmg_pct_delta: 0.20
+    final_dmg_mult: 0.217
+    magic_dmg_pct_delta: 0.145
 
 # ══ 宠魅体系（修炼 path: chongmei）══
 # 主打：召唤养成 + 半魔化变身
@@ -1140,7 +1140,8 @@ paths:
     - zt_lunhai_shenqiao
     - zt_jm_jie
     reward:
-      atk_pct_delta: 0.15
+      atk_pct_delta: 0.22
+      attack_speed_delta: 0.10
     note: 苦海聚精气，肉身筑基
   - name: 道宫
     bonds:
@@ -1151,8 +1152,8 @@ paths:
     - zt_daogong_kidney
     - zt_jm_dou
     reward:
-      atk_pct_delta: 0.20
-      crit_rate_delta: 0.05
+      atk_pct_delta: 0.24
+      crit_rate_delta: 0.08
     note: 五脏神觉醒，build 第一个分支点
   - name: 四极
     bonds:
@@ -1162,8 +1163,8 @@ paths:
     - zt_siji_right_leg
     - zt_jm_xing
     reward:
-      atk_pct_delta: 0.20
-      attack_speed_delta: 0.15
+      atk_pct_delta: 0.26
+      attack_speed_delta: 0.18
     note: 淬炼四肢，装备槽/属性成型
   - name: 化龙
     bonds:
@@ -1172,8 +1173,8 @@ paths:
     - zt_hualong_spine_3
     - zt_jm_bing
     reward:
-      atk_pct_delta: 0.25
-      final_dmg_mult: 0.08
+      atk_pct_delta: 0.30
+      final_dmg_mult: 0.10
     note: 脊柱化龙，中期爆发
   - name: 仙台
     bonds:
@@ -1182,8 +1183,8 @@ paths:
     - zt_xiantai_dasheng
     - zt_jm_zu
     reward:
-      atk_pct_delta: 0.30
-      final_dmg_mult: 0.12
+      atk_pct_delta: 0.34
+      final_dmg_mult: 0.13
     note: 仙台三重（斩道/圣人/大圣）
   - name: 准帝
     bonds:
@@ -1191,8 +1192,8 @@ paths:
     - zt_zhundi_curse_break
     - zt_jm_qian
     reward:
-      final_dmg_mult: 0.15
-      crit_dmg_delta: 0.30
+      final_dmg_mult: 0.17
+      crit_dmg_delta: 0.320
     note: 圣体破诅咒成准帝，全书最大爽点
   - name: 大帝
     bonds:
@@ -1239,7 +1240,7 @@ paths:
     - xc_xy_yunqi
     - xc_xy_linggen
     reward:
-      magic_dmg_pct_delta: 0.15
+      magic_dmg_pct_delta: 0.12
     note: 气态凝聚，法术萌芽
   - name: 流星
     bonds:
@@ -1247,8 +1248,8 @@ paths:
     - xc_lx_liuxinglei
     - xc_lx_poeng
     reward:
-      magic_dmg_pct_delta: 0.20
-      attack_speed_delta: 0.10
+      magic_dmg_pct_delta: 0.16
+      attack_speed_delta: 0.08
     note: 破空而出，速度爆发
   - name: 星核
     bonds:
@@ -1256,8 +1257,8 @@ paths:
     - xc_xh_faize
     - xc_xh_yuanshen
     reward:
-      magic_dmg_pct_delta: 0.20
-      final_dmg_mult: 0.08
+      magic_dmg_pct_delta: 0.16
+      final_dmg_mult: 0.06
     note: 凝聚核心，法术成型
   - name: 行星
     bonds:
@@ -1265,24 +1266,24 @@ paths:
     - xc_xx_wuxing
     - xc_xx_dunjia
     reward:
-      magic_dmg_pct_delta: 0.25
-      elemental_dmg_mult: 0.10
+      magic_dmg_pct_delta: 0.20
+      elemental_dmg_mult: 0.08
     note: 稳定轨道，全面成长
   - name: 渡劫
     bonds:
     - xc_dj_leijie
     - xc_dj_duomie
     reward:
-      final_dmg_mult: 0.15
-      elemental_dmg_mult: 0.10
+      final_dmg_mult: 0.12
+      elemental_dmg_mult: 0.08
     note: 天劫洗礼，质变门槛
   - name: 恒星
     bonds:
     - xc_hx_hengguang
     - xc_hx_taoyang
     reward:
-      magic_dmg_pct_delta: 0.25
-      elemental_dmg_mult: 0.10
+      magic_dmg_pct_delta: 0.20
+      elemental_dmg_mult: 0.08
     note: 自身发光，法术巅峰
   - name: 暗星
     bonds:
@@ -1297,7 +1298,7 @@ paths:
     - xc_hd_tunshi
     - xc_hd_xumie
     reward:
-      final_dmg_mult: 0.20
+      final_dmg_mult: 0.16
       lifesteal_pct: 0.03
     note: 吞噬万物，终极法术
   - name: 宇宙
@@ -1305,8 +1306,8 @@ paths:
     - xc_yz_yuzhou
     - xc_yz_hongmeng
     reward:
-      final_dmg_mult: 0.25
-      magic_dmg_pct_delta: 0.20
+      final_dmg_mult: 0.20
+      magic_dmg_pct_delta: 0.15
     note: 自成一界，造物之主
 
 # ══ 宠魅修炼路径 ══
@@ -1329,8 +1330,8 @@ paths:
     - cm_hs_banmo_first
     - cm_hs_xiashou
     reward:
-      atk_pct_delta: 0.20
-      final_dmg_mult: 0.08
+      atk_pct_delta: 0.21
+      final_dmg_mult: 0.09
     note: 六尾妖狐+半魔首觉，击败夏广寒
   - name: 魂师
     bonds:
@@ -1339,8 +1340,8 @@ paths:
     - cm_hs_baiyanmeng_gain
     - cm_hs_hundian
     reward:
-      atk_pct_delta: 0.20
-      elemental_dmg_mult: 0.10
+      atk_pct_delta: 0.22
+      elemental_dmg_mult: 0.110
     note: 九尾炎狐+囚岛淬炼+魂殿赐技
   - name: 魂主
     bonds:

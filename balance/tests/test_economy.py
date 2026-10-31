@@ -29,10 +29,10 @@ def test_load_params_from_yaml():
 
 
 def test_wave_income_normal_wave():
-    """wave 5（精英波）收入 = 3×30 + 1.5×16 + 60 + 30 = 204。"""
+    """wave 5（精英波）收入 = 3×30 + 1.5×15 + 60 + 30 = 202.5（count per_wave 1.4 轮调）。"""
     e = load_economy_params()
     d = wave_income(5, e)
-    assert abs(d["total"] - 204.0) < 1.0
+    assert abs(d["total"] - 202.5) < 1.0
     assert d["is_elite"] is True
     assert d["is_boss"] is False
 
@@ -44,7 +44,8 @@ def test_wave_income_boss_wave():
     duration = curves.wave_duration(10)
     count = curves.enemy_count(10)
     expected = 3 * duration + 1.5 * count + 60 + 120
-    assert abs(d["total"] - expected) < 1.0
+    assert count == 22   # count per_wave 1.4 轮调后 wave10 = 22 只
+    assert abs(d["total"] - 318.0) < 1.0
     assert d["is_boss"] is True
 
 
