@@ -82,6 +82,8 @@ func _ready() -> void:
 	# 召唤单位（宠魅体系）：build_state 通过信号通知生成/吞噬
 	_build.summon_unit_requested.connect(_on_summon_requested)
 	_build.summon_unit_devoured.connect(_on_summon_devoured)
+	# 境界吞噬桥接（build_state 不引 EventBus autoload，保持 headless -s 可测）
+	_build.realm_devoured.connect(func(p: String, r: int, n: String): EventBus.bond_devoured.emit(p, r, n))
 	_lobby.confirmed.connect(_on_lobby_confirmed)
 	_hud.bond_picker_requested.connect(open_bond_picker)
 	_hud.char_panel_toggled.connect(toggle_char_panel)

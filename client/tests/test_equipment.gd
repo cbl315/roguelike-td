@@ -1,5 +1,6 @@
 ## test_equipment.gd — 客户端装备系统测试（Godot headless 或编辑器运行）
 ## 验证：升级曲线、里程碑词条抽取、经济效果汇总。
+## 数值对齐 equipment.json：cost 20+8×n、milestones [5,10,15,20]、max_level 20。
 extends SceneTree
 
 
@@ -17,13 +18,13 @@ func _init():
 	var passed := 0
 	var failed := 0
 
-	# ── 测试 1：初始等级 0，升级成本 15 ──
+	# ── 测试 1：初始等级 0，升级成本与 equipment.json 曲线一致（20+8×n）──
 	print("\n[测试1] 初始状态")
-	if build.equip_level == 0 and pools.equip_upgrade_cost(0) == 15.0:
-		print("  ✅ PASS: equip_level=0, cost=15")
+	if build.equip_level == 0 and pools.equip_upgrade_cost(0) == 20.0 and pools.equip_upgrade_cost(2) == 36.0:
+		print("  ✅ PASS: equip_level=0, cost=20（+8/级）")
 		passed += 1
 	else:
-		print("  ❌ FAIL: level=%d cost=%.0f" % [build.equip_level, pools.equip_upgrade_cost(0)])
+		print("  ❌ FAIL: level=%d cost0=%.0f cost2=%.0f" % [build.equip_level, pools.equip_upgrade_cost(0), pools.equip_upgrade_cost(2)])
 		failed += 1
 
 	# ── 测试 2：升级到 +1，获得 gold_per_sec ──
@@ -47,31 +48,40 @@ func _init():
 		print("  ❌ FAIL: level=%d pkb=%.1f" % [build.equip_level, build.per_kill_bonus()])
 		failed += 1
 
-	# ── 测试 4：升级到 +3（里程碑），抽到词条 ──
-	print("\n[测试4] 升级到 +3（里程碑）→ 抽词条")
-	var r3: Dictionary = build.equip_upgrade()
-	var ms3: Dictionary = r3.get("milestone", {})
-	if build.equip_level == 3 and not ms3.is_empty():
-		print("  ✅ PASS: level=3, milestone=%s (%s)" % [ms3.get("name", "?"), ms3.get("polarity", "?")])
+	# ── 测试 4：升级到 +5（里程碑）→ 出 3 选 1 词条候选（milestones=5/10/15/20）──
+	print("\n[测试4] 升级到 +5（里程碑）→ 词条三选一")
+	var ms5_opts: Array = []
+	while build.equip_level < 5:
+		build.add_gold(1000)
+		var r: Dictionary = build.equip_upgrade()
+		if build.equip_level == 5:
+			ms5_opts = r.get("milestone_options", [])
+	if build.equip_level == 5 and ms5_opts.size() == 3:
+		var pick0: Dictionary = ms5_opts[0]
+		build.take_milestone_affix(pick0)
+		print("  ✅ PASS: level=5, 3 候选, 已选 %s (%s)" % [pick0.get("name", "?"), pick0.get("polarity", "?")])
 		passed += 1
 	else:
-		print("  ❌ FAIL: level=%d milestone=%s" % [build.equip_level, str(ms3)])
+		print("  ❌ FAIL: level=%d opts=%d" % [build.equip_level, ms5_opts.size()])
 		failed += 1
 
-	# ── 测试 5：升满 +9 ──
-	print("\n[测试5] 升满到 +9")
-	while build.equip_level < 9:
+	# ── 测试 5：升满 +20（max_level=20），每个里程碑选一个词条 ──
+	print("\n[测试5] 升满到 +20")
+	while build.equip_level < pools.equip_max_level():
 		build.add_gold(1000)
 		var r := build.equip_upgrade()
 		if r.is_empty():
 			print("  ❌ FAIL: upgrade failed at level %d" % build.equip_level)
 			failed += 1
 			break
-	if build.equip_level == 9:
+		var opts: Array = r.get("milestone_options", [])
+		if not opts.is_empty():
+			build.take_milestone_affix(opts[0])
+	if build.equip_level == pools.equip_max_level():
 		# 尝试再升级应失败
-		var r10: Dictionary = build.equip_upgrade()
-		if r10.is_empty():
-			print("  ✅ PASS: max level 9, upgrade blocked")
+		var r21: Dictionary = build.equip_upgrade()
+		if r21.is_empty():
+			print("  ✅ PASS: max level %d, upgrade blocked" % pools.equip_max_level())
 			passed += 1
 		else:
 			print("  ❌ FAIL: exceeded max level")
@@ -79,7 +89,7 @@ func _init():
 	else:
 		failed += 1
 
-	# ── 测试 6：里程碑词条数 ≥ 3（+3/+6/+9 各抽一个）──
+	# ── 测试 6：里程碑词条数 ≥ 3（+5/+10/+15/+20 各选一个）──
 	print("\n[测试6] 里程碑词条数")
 	if build.equip_affixes.size() >= 3:
 		print("  ✅ PASS: %d affixes from milestones" % build.equip_affixes.size())
@@ -115,7 +125,7 @@ func _init():
 	# ── 测试 9：Bug回归 — 升级奖励不含非effect字段 ──
 	print("\n[测试9] Bug回归: 升级奖励过滤非effect字段")
 	var raw_reward: Dictionary = pools.equip_level_reward(3)
-	# level 3 的 per_level_income 含 milestone: true 等非effect字段
+	# per_level_income 条目含 level/milestone 等非effect字段
 	# _clean_reward 应该过滤掉它们
 	# 直接检查 build 的 accumulated_effects 没有混入 level/milestone 字段
 	var has_junk := false

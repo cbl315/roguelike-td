@@ -68,3 +68,14 @@ client/src/assets/
 - CogView-3-Flash 免费但有速率限制，脚本默认每次调用间隔 1 秒（`RATE_LIMIT_SEC`）
 - 失败自动重试 3 次，指数退避（4s → 8s → 16s）
 - 全部 76 张约需 2-3 分钟跑完
+
+---
+
+# gmcp — godot_mcp 游戏自动化工具集
+
+驱动编辑器 godot_mcp 插件（WebSocket 6550）做游戏内交互实测：按键注入、
+GDScript exec、截图、ZCode 原生 MCP 工具桥。详见 [`gmcp/README.md`](gmcp/README.md)。
+
+```bash
+python3 tools/gmcp/regression.py   # 一键交互回归（种子→吞噬→Boss→道具→大招）
+```

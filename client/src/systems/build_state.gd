@@ -10,6 +10,9 @@ signal changed
 # 召唤单位（宠魅体系）：build_state 不直接创建节点，通过信号通知 game_manager
 signal summon_unit_requested(unit_id: String, unit_name: String)
 signal summon_unit_devoured(unit_id: String)   # 白魇魔被吞噬
+# 境界吞噬完成（不直接引用 EventBus autoload——headless -s 测试模式不加载 autoload，
+# 由 game_manager 桥接到 EventBus.bond_devoured）
+signal realm_devoured(path_id: String, realm_idx: int, realm_name: String)
 
 var gold: float = 0.0
 var accumulated_effects: Array = []    # Array[Dictionary] 累积的 effect（境界 reward + 装备词条）
@@ -143,7 +146,7 @@ func _try_devour() -> void:
 		var reward: Dictionary = pools.realm_reward(pid, idx)
 		if not reward.is_empty():
 			accumulated_effects.append(reward)
-		EventBus.bond_devoured.emit(pid, idx + 1, pools.realm_name(pid, idx))
+		realm_devoured.emit(pid, idx + 1, pools.realm_name(pid, idx))
 		# 宠魅体系境界 → 召唤单位生命周期
 		if pid == "chongmei":
 			# 魂师境（realm==2）：白魇魔降生（设计文档：魂师境界自动获得）
