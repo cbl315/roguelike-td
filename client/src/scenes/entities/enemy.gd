@@ -185,8 +185,9 @@ func _spit_projectile() -> void:
 		return
 	var proj := Projectile.new()
 	get_parent().add_child(proj)
-	proj.setup(global_position, _hero, leak_damage * 0.8)
-	proj.speed = RANGED_PROJ_SPEED
+	# 敌方弹道 = 直线飞行 + 碰撞命中（可躲避）：方向在吐弹瞬间锁定，
+	# 英雄走位可躲开（原来复用 setup 追踪弹道导致必中，难度过高）。
+	proj.setup_enemy(global_position, _hero, leak_damage * 0.8, RANGED_PROJ_SPEED)
 	proj.modulate = Color(1.0, 0.5, 0.45)   # 红色 tint 区分敌方弹
 	# 运行时取 SpriteAtlas（--script 独立测试模式无 autoload，跳过贴图）
 	var atlas := get_node_or_null("/root/SpriteAtlas")

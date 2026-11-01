@@ -17,6 +17,13 @@ var _crit: bool = false
 var _life: float = 0.0
 const MAX_LIFE := 2.0
 
+# ── 敌方直线弹道（可躲避）：发射瞬间锁定方向，飞行中不再追踪英雄 ──
+var _enemy_linear := false
+var _hero: Node2D = null
+var _vel_dir: Vector2 = Vector2.ZERO
+const ENEMY_MAX_LIFE := 3.0      # 超时消失（飞出有效范围）
+const HERO_HIT_DIST := 40.0      # 弹心-英雄中心命中判定（radius 32 + 弹体余量）
+
 ## #3: 拖尾历史位置（最近 6 帧）
 var _trail: Array = []
 const TRAIL_LEN := 6
@@ -40,7 +47,21 @@ func setup(from: Vector2, target: Node2D, damage: float, crit: bool = false) -> 
 	_crit = crit
 
 
+## 敌方弹道（可躲避）：直线飞行 + 碰撞命中。方向在发射瞬间锁定，
+## 英雄走位可躲开（飞过头即落空）；命中才结算伤害。
+func setup_enemy(from: Vector2, hero: Node2D, damage: float, spd: float) -> void:
+	global_position = from
+	_hero = hero
+	_damage = damage
+	speed = spd
+	_enemy_linear = true
+	_vel_dir = (hero.global_position - from).normalized()   # 只取发射瞬间的方向
+
+
 func _process(delta: float) -> void:
+	if _enemy_linear:
+		_process_enemy_linear(delta)
+		return
 	# 目标已失效（死亡/释放）→ 弹道直接消失（伤害不结算）
 	if _target == null or not is_instance_valid(_target):
 		queue_free()
@@ -63,6 +84,28 @@ func _process(delta: float) -> void:
 		queue_free()
 	_juice.tick(delta, true, 1.0)   # 飞行中持续拉伸
 	queue_redraw()                  # juice 变换需要每帧重绘
+
+
+## 敌方直线弹道：直线飞行 → 碰撞命中 / 超时消失（可躲避的核心）
+func _process_enemy_linear(delta: float) -> void:
+	if _hero == null or not is_instance_valid(_hero):
+		queue_free()   # 英雄失效（重开等）→ 弹道清场
+		return
+	global_position += _vel_dir * speed * delta
+	_life += delta
+	# 命中判定：弹心与英雄中心足够近才结算（走位躲开 = 落空）
+	if global_position.distance_to(_hero.global_position) <= HERO_HIT_DIST:
+		_hero.take_damage(_damage)
+		queue_free()
+		return
+	if _life > ENEMY_MAX_LIFE:
+		queue_free()
+		return
+	_trail.push_front(Vector2.ZERO)
+	if _trail.size() > TRAIL_LEN:
+		_trail.pop_back()
+	_juice.tick(delta, true, 1.0)
+	queue_redraw()
 
 
 var _sprite_tex: Texture2D = null
