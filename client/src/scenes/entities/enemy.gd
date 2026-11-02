@@ -37,6 +37,10 @@ const RANGED_KEEP_MAX := 330.0    # 远于此距离靠近
 const RANGED_FIRE_CD := 2.8       # 吐弹间隔（秒）
 const RANGED_PROJ_SPEED := 480.0
 var _ranged_cd: float = 1.2       # 首发延迟
+# ── Boss 专属 AI（2026-11 Boss 设计轮）──
+var _boss_phase2: bool = false          # 血<50% 狂暴阶段
+var _boss_summon_cd: float = 6.0        # 召唤小怪间隔
+var _boss_barrage_cd: float = 4.0       # 环形弹幕间隔
 # HEALER：治疗光环
 const HEAL_RADIUS := 220.0
 const HEAL_CD := 3.0
@@ -69,6 +73,9 @@ func _ready() -> void:
 ## 血量 setter：归零自动触发死亡 + 爆裂动画（参考 quiver-td set_health 模式）
 func set_current_hp(value: float) -> void:
 	current_hp = maxf(0.0, value)
+	# Boss 阶段转换：血 <50% → 狂暴（受击/回血必经此路径，判定稳定）
+	if is_boss and not _boss_phase2 and current_hp < max_hp * 0.5:
+		_enter_boss_phase2()
 	# #3: 受击闪白（非致命伤害）
 	if current_hp > 0.0:
 		_flash_timer = 0.08
@@ -129,13 +136,17 @@ func _process(delta: float) -> void:
 	# 朝英雄移动（按行为分派）
 	var dir: Vector2 = (_hero.global_position - global_position)
 	var dist: float = dir.length()
-	match kind:
-		Kind.RANGED:
-			_move_ranged(delta, dir, dist)
-		Kind.HEALER:
-			_move_healer(delta, dir, dist)
-		_:
-			_move_chaser(delta, dir, dist)
+	if is_boss:
+		_boss_ai(delta, dir, dist)   # Boss 专属行为（含移动/阶段/召唤/弹幕）
+		_ultimo_boss_hp_notify()
+	else:
+		match kind:
+			Kind.RANGED:
+				_move_ranged(delta, dir, dist)
+			Kind.HEALER:
+				_move_healer(delta, dir, dist)
+			_:
+				_move_chaser(delta, dir, dist)
 	# 接触英雄：造成伤害 + 进冷却（HEALER 不近身输出，半径外游走）
 	_contact_cd -= delta
 	if kind != Kind.HEALER and dist <= contact_dist and _contact_cd <= 0.0:
@@ -157,6 +168,77 @@ func take_damage(amount: float) -> void:
 
 
 # ── 行为实现 ──
+
+## Boss 狂暴阶段：移速+40%、接触伤+50%、变红 + 红色冲击波（视觉/数值双反馈）
+func _enter_boss_phase2() -> void:
+	_boss_phase2 = true
+	move_speed *= 1.4
+	leak_damage *= 1.5
+	modulate = Color(1.0, 0.45, 0.35)
+	var sw := Shockwave.new()
+	sw.global_position = global_position
+	sw.ring_color = Color(1.0, 0.35, 0.25)
+	if get_parent() != null:
+		get_parent().add_child(sw)
+
+
+## ── Boss AI：缓速逼近 + 血<50% 狂暴 + 周期召唤 + 环形弹幕 ──
+const BOSS_SUMMON_INTERVAL := 8.0
+const BOSS_BARRAGE_INTERVAL := 5.0
+const BOSS_BARRAGE_COUNT := 8
+const BOSS_BARRAGE_SPEED := 260.0
+
+func _boss_ai(delta: float, dir: Vector2, dist: float) -> void:
+	# 阶段转换：血 <50% → 狂暴（移速+40%、接触伤+50%、变红）
+	# 阶段转换在 set_current_hp（受击/回血必经）判定——_process 帧内条件读数
+	# 曾现异常（1283 帧不触发、手动同方法即触发），受击路径更稳定可靠
+	# 缓速逼近（Boss 威压感：比普通怪慢但稳定压迫）
+	if dist > contact_dist:
+		global_position += dir.normalized() * move_speed * delta
+	# 周期召唤：2 只普通追击小怪（30% 常规血量）
+	_boss_summon_cd -= delta
+	if _boss_summon_cd <= 0.0:
+		_boss_summon_cd = BOSS_SUMMON_INTERVAL
+		_boss_summon_minions()
+	# 环形弹幕：8 向直线弹（慢速可躲避——复用敌方直线弹道）
+	_boss_barrage_cd -= delta
+	if _boss_barrage_cd <= 0.0:
+		_boss_barrage_cd = BOSS_BARRAGE_INTERVAL if not _boss_phase2 else BOSS_BARRAGE_INTERVAL * 0.7
+		_boss_fire_barrage()
+
+
+func _boss_summon_minions() -> void:
+	if get_parent() == null or _hero == null:
+		return
+	for i in range(2):
+		var mini := Enemy.new()
+		get_parent().add_child(mini)
+		mini.setup(max_hp * 0.02, false, false, _hero, _room_rect)
+		mini.global_position = global_position + Vector2(60, 0).rotated(PI * i)
+		mini.leak_damage = leak_damage * 0.25
+		mini.kill_reward = 3.0
+
+
+func _boss_fire_barrage() -> void:
+	if get_parent() == null or _hero == null:
+		return
+	for i in range(BOSS_BARRAGE_COUNT):
+		var proj := Projectile.new()
+		get_parent().add_child(proj)
+		var angle := TAU * i / BOSS_BARRAGE_COUNT
+		proj.setup_enemy(global_position, _hero, leak_damage * 0.35, BOSS_BARRAGE_SPEED)
+		# 覆盖方向为环形（setup_enemy 默认朝英雄——Boss 弹幕要全向）
+		proj._vel_dir = Vector2.RIGHT.rotated(angle)
+		proj.modulate = Color(1.0, 0.4, 0.3)
+
+
+## Boss 大血条通知（自带信号——实体不引 EventBus autoload，保持 headless -s 可测；
+## game_manager 订阅后桥接到 EventBus）
+signal boss_hp_changed(hp: float, max_hp: float)
+
+func _ultimo_boss_hp_notify() -> void:
+	boss_hp_changed.emit(current_hp, max_hp)
+
 
 ## 默认：直追英雄
 func _move_chaser(delta: float, dir: Vector2, dist: float) -> void:

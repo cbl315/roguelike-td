@@ -49,6 +49,7 @@ ENEMY_BEHAVIOR_HP_MULT: float = 1.03
 ENEMY_BEHAVIOR_PRESSURE: float = 1.03
 ENEMY_BEHAVIOR_FROM_WAVE: int = 5
 PLAYER_ECON_MULT: float = 1.03        # 玩家经济全局加成（行为怪难度再平衡）
+BOSS_AI_SUMMON_BONUS: float = 1.08    # Boss 召唤小怪的额外波血宏观近似
 # 宠魅召唤：显式三区建模（resolve_pets：本体/莫邪/白魇魔独立 stats，
 # 魂朽境 realm6 吞噬后白魇魔并入本体），原宏观乘区已删除。
 
@@ -136,6 +137,9 @@ def _battle_outcome(pc: PlayerCombat, wave: int, p, core_hp_current: float,
     ult_carry: 跨波累积的大招能量（秒），与客户端一致不清零。
     """
     total_hp = curves.wave_total_hp(wave, p) * ENEMY_HP_SCALE
+    # Boss AI 宏观近似（2026-11 Boss 设计轮）：Boss 波额外召唤小怪（≈Boss 血 12-16%）
+    if wave % 10 == 0:
+        total_hp *= BOSS_AI_SUMMON_BONUS
     duration = curves.wave_duration(wave, p)
     # 敌人行为多样化宏观近似（wave 5+）：分裂+奶妈 → 有效波血抬升；远程 → 核心压力上浮
     pressure_mult = ENEMY_BEHAVIOR_PRESSURE if wave >= ENEMY_BEHAVIOR_FROM_WAVE else 1.0

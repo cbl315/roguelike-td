@@ -41,3 +41,7 @@ signal ult_activated()
 signal boss_debuff_revealed(debuff_id: String, next_boss_wave: int)
 signal debuff_rerolled(new_debuff_id: String)
 signal debuff_removed()
+# Boss 波演出（2026-11 Boss 设计轮）
+signal boss_spawned(boss_name: String, max_hp: float)      # 出场：横幅/震屏/大血条
+signal boss_hp_changed(hp: float, max_hp: float)            # 大血条刷新
+signal boss_defeated(boss_name: String)                     # 击杀：慢动作/金爆/大字

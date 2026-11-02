@@ -78,6 +78,11 @@ func _ready() -> void:
 	_hero.refresh_stats()
 	# 信号
 	_spawner.wave_finished.connect(_on_wave_finished)
+	# Boss 演出桥接（spawner/enemy 不引 EventBus autoload，headless 可测）
+	_spawner.boss_spawned.connect(func(bname: String, bmax: float, benemy: Node):
+		EventBus.boss_spawned.emit(bname, bmax)
+		if benemy != null and benemy.has_signal("boss_hp_changed"):
+			benemy.boss_hp_changed.connect(func(hp: float, mx: float): EventBus.boss_hp_changed.emit(hp, mx)))
 	_hero.hp_changed.connect(_on_hero_hp_changed)
 	_hero.destroyed.connect(_on_hero_destroyed)
 	EventBus.enemy_reached_core.connect(_on_enemy_reached_hero)
@@ -254,6 +259,8 @@ func _on_wave_finished() -> void:
 		return   # 防重复（超时 + 全清可能同时触发）
 	state = State.WAVE_CLEARED
 	_breakthrough.withdraw()   # 守关者活到波末 → 撤退（pending 保留）
+	if _hud:
+		_hud.hide_boss_ui()   # Boss 波结束：清氛围/血条
 	EventBus.wave_cleared.emit(current_wave)
 	# Boss Debuff：波结束 → 停用效果；封印之手作用于之后的大厅
 	var was_debuff_wave: bool = _boss_debuffs.is_active()
@@ -332,6 +339,35 @@ func _stats_snapshot() -> Dictionary:
 	return {
 		"damage": _stats_damage, "kills": _stats_kills, "boss_kills": _stats_boss_kills,
 		"breakthroughs": _stats_breakthroughs, "gold": _stats_gold_earned, "bonds": bonds,
+		"diagnosis": _build_death_diagnosis(),
+	}
+
+
+## 结算差距诊断（GDD §48：差多少伤害 + 建议补什么乘区——驱动"再来一局"）
+func _build_death_diagnosis() -> Dictionary:
+	var st: CombatStats = _hero.get_stats() if is_instance_valid(_hero) and _hero.get_stats() != null else null
+	if st == null:
+		return {}
+	var hero_dps: float = st.expected_dps(20.0 + 1.5 * current_wave)
+	var req_dps: float = WaveCurves.required_dps(current_wave)
+	var gap_pct: float = (req_dps - hero_dps) / maxf(req_dps, 1.0) * 100.0
+	# 乘区短板：各项贡献 vs 健康基准（同波次应达水平），取最弱 2 项
+	var advice: Array = []
+	if st.projectile_count <= 1:
+		advice.append("弹数只有 1——多重射/弹数类羁绊收益最大")
+	if st.attack_speed < 1.2:
+		advice.append("攻速仅 ×%.2f——迅捷/攻速类符文或体系攻速卡" % st.attack_speed)
+	if st.crit_rate < 0.15:
+		advice.append("暴击率仅 %.0f%%——暴击符文/暴击体系卡便宜量大" % (st.crit_rate * 100))
+	if CombatStats.final_mult(st.final_dmg_mults) < 1.4:
+		advice.append("最终伤害乘区薄（×%.2f）——吞噬升境拿 reward、UR+ 体系卡" % CombatStats.final_mult(st.final_dmg_mults))
+	if st.atk < 80.0:
+		advice.append("基础攻击 %.0f 偏低——多抽攻击加成羁绊" % st.atk)
+	if _build.bond_pool.size() + _build.devoured_bonds.size() < 6 and current_wave >= 8:
+		advice.append("羁绊仅 %d 张——金币优先抽羁绊而非囤积" % (_build.bond_pool.size() + _build.devoured_bonds.size()))
+	return {
+		"hero_dps": hero_dps, "req_dps": req_dps, "gap_pct": gap_pct,
+		"advice": advice.slice(0, 2),   # 最多两条，避免信息过载
 	}
 
 
@@ -411,6 +447,7 @@ func _on_enemy_killed(enemy: Node) -> void:
 	if _fb_kill_boss != null and e != null and e.is_boss:
 		_fb_kill_boss.play()
 		_stats_boss_kills += 1
+		_boss_defeat_performance(e)
 	elif _fb_kill != null:
 		_fb_kill.play()
 	_stats_kills += 1
@@ -551,6 +588,25 @@ func _on_summon_requested(unit_id: String, unit_name: String) -> void:
 
 
 ## 白魇魔被吞噬 → 停用对应召唤单位。
+## Boss 击杀演出：全局慢动作 0.45s + 双金色冲击波 + HUD 大字（Boss 波收尾记忆点）
+func _boss_defeat_performance(e: Enemy) -> void:
+	EventBus.boss_defeated.emit("boss")
+	# 慢动作由 _fb_kill_boss（FeedbackHitPauseLite，自动恢复）承担——
+	# SceneTree.time_scale 运行中不可赋值，自写 tween 曾每帧报错已删
+	# 双金色冲击波（大 + 延迟小）
+	for i in range(2):
+		var sw := Shockwave.new()
+		sw.global_position = e.global_position
+		sw.ring_color = Color(1.0, 0.85, 0.3) if i == 0 else Color(1.0, 0.6, 0.2)
+		sw.z_index = 56
+		add_child(sw)
+		if i == 1:
+			sw.scale = Vector2(0.6, 0.6)
+	SoundManager.play("boss_kill", -2.0)
+	if _hud:
+		_hud.show_boss_defeated_banner()
+
+
 ## ── 突破守关者（委托 BreakthroughController，单一职责剥离）──
 
 func challenge_breakthrough() -> void:

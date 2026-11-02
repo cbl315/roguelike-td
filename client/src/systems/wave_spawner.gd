@@ -4,6 +4,7 @@ extends Node
 class_name WaveSpawner
 
 signal enemy_spawned(enemy)
+signal boss_spawned(boss_name: String, max_hp: float, boss_enemy: Node)   # Boss 出场（gm 桥接 EventBus）
 signal wave_finished()
 
 @export var spawn_interval: float = 0.8   # 每只怪间隔秒数
@@ -17,6 +18,7 @@ var _active_enemies: Array = []   # 当前波活跃敌人
 var _rng := RandomNumberGenerator.new()
 ## Boss Debuff 系统（game_manager 注入；急行之令/不灭之躯/回春之核作用于怪）
 var boss_debuffs: BossDebuffs = null
+var _boss_pending: bool = false   # Boss 波：待生成唯一大 Boss（第一只；其余为普通怪）
 
 @onready var _spawn_timer: Timer = $SpawnTimer
 
@@ -33,6 +35,7 @@ func start_wave(wave: int) -> void:
 	var count: int = WaveCurves.enemy_count(wave)
 	_enemies_to_spawn = count
 	_spawning = true
+	_boss_pending = WaveCurves.is_boss_wave(wave)
 	# #7: 渐进式刷怪 — 间隔 = 波次时长 / 敌人数量（均匀铺满整波，波越大刷越快）
 	var dur: float = WaveCurves.wave_duration(wave)
 	spawn_interval = maxf(0.3, dur / float(count))
@@ -57,9 +60,16 @@ func _on_spawn_timer_timeout() -> void:
 func _spawn_one() -> void:
 	var enemy: Enemy = Enemy.new()
 	add_child(enemy)
-	var hp: float = WaveCurves.enemy_hp(_wave)
-	var is_boss: bool = WaveCurves.is_boss_wave(_wave)
-	var is_elite: bool = WaveCurves.is_elite_wave(_wave)
+	# Boss 波结构（对齐模拟模型）：唯一大 Boss（波总血×share）+ 其余普通怪
+	var is_boss: bool = _boss_pending
+	var is_elite: bool = not is_boss and WaveCurves.is_elite_wave(_wave)
+	var hp: float
+	if is_boss:
+		var total: float = WaveCurves.wave_total_hp(_wave)
+		hp = total * WaveCurves.boss_share()
+		_boss_pending = false
+	else:
+		hp = WaveCurves.enemy_hp(_wave)
 	enemy.setup(hp, is_boss, is_elite, _hero, _room_rect)
 	# Boss Debuff：急行之令（全怪移速）/ 不灭之躯（Boss 血量）/ 回春之核（Boss 回血）
 	if boss_debuffs != null:
@@ -69,6 +79,14 @@ func _spawn_one() -> void:
 		var kind := _pick_kind()
 		if kind != Enemy.Kind.CHASER:
 			_apply_kind(enemy, kind, hp)
+	# Boss 出场：演出信号（HUD 横幅/大血条/氛围）+ 出场冲击波
+	if is_boss:
+		var boss_name: String = boss_debuffs.active().get("name", "???") if boss_debuffs != null and boss_debuffs.is_active() else "BOSS"
+		boss_spawned.emit(boss_name, enemy.max_hp, enemy)
+		var sw := Shockwave.new()
+		sw.global_position = enemy.global_position
+		sw.ring_color = Color(0.95, 0.3, 0.25)
+		add_child(sw)
 	# 美术：按类型装载敌人贴图
 	var tex: Texture2D = null
 	if is_boss:

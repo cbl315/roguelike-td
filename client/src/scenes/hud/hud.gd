@@ -12,6 +12,107 @@ signal boss_debuff_remove_requested() # 应对道具：删
 
 var _char_panel: Control = null   # #6: Tab 角色面板（动态创建）
 
+# ── Boss 波 UI（2026-11 Boss 设计轮）：大血条 + 出场横幅 + 击杀大字 + 背景色调 ──
+var _boss_bar: ProgressBar = null
+var _boss_name_label: Label = null
+var _boss_dim: ColorRect = null
+var _boss_banner_label: Label = null
+var _boss_banner_timer: float = 0.0
+const POS_BOSS_BAR := Vector2(660, 26)     # 顶部中央大血条
+
+
+func _setup_boss_ui() -> void:
+	# Boss 波红色氛围层（战斗区之上、HUD 之下）
+	_boss_dim = ColorRect.new()
+	_boss_dim.color = Color(0.25, 0.05, 0.05, 0.0)   # 默认全透明
+	_boss_dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_boss_dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_boss_dim.z_index = -1
+	add_child(_boss_dim)
+	# 大血条 + Boss 名
+	_boss_bar = ProgressBar.new()
+	_boss_bar.position = POS_BOSS_BAR
+	_boss_bar.size = Vector2(600, 22)
+	_boss_bar.min_value = 0.0
+	_boss_bar.max_value = 1.0
+	_boss_bar.show_percentage = false
+	_boss_bar.modulate = Color(0.95, 0.3, 0.25)
+	_boss_bar.visible = false
+	add_child(_boss_bar)
+	_boss_name_label = Label.new()
+	_boss_name_label.position = POS_BOSS_BAR + Vector2(0, 24)
+	_boss_name_label.size = Vector2(600, 24)
+	_boss_name_label.horizontal_alignment = 1
+	_boss_name_label.add_theme_font_size_override("font_size", 18)
+	_boss_name_label.add_theme_color_override("font_color", Color(1.0, 0.6, 0.5))
+	_boss_name_label.visible = false
+	add_child(_boss_name_label)
+	# 出场横幅（复用突破演出层样式：红色大字）
+	_boss_banner_label = Label.new()
+	_boss_banner_label.position = Vector2(260, 380)
+	_boss_banner_label.size = Vector2(1400, 120)
+	_boss_banner_label.horizontal_alignment = 1
+	_boss_banner_label.add_theme_font_size_override("font_size", 52)
+	_boss_banner_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.3))
+	_boss_banner_label.visible = false
+	_breakthrough_layer.add_child(_boss_banner_label)
+
+
+func _on_boss_spawned(boss_name: String, max_hp: float) -> void:
+	# 氛围 + 血条 + 横幅
+	if _boss_dim:
+		_boss_dim.color = Color(0.25, 0.05, 0.05, 0.18)
+	if _boss_bar:
+		_boss_bar.visible = true
+		_boss_bar.max_value = max_hp
+		_boss_bar.value = max_hp
+	if _boss_name_label:
+		_boss_name_label.text = "⚔ BOSS · %s ⚔" % boss_name
+		_boss_name_label.visible = true
+	if _boss_banner_label:
+		_boss_banner_label.text = "⚠ BOSS 降临 · %s ⚠" % boss_name
+		_boss_banner_label.modulate.a = 1.0
+		_boss_banner_label.scale = Vector2(1.5, 1.5)
+		_boss_banner_label.visible = true
+		_boss_banner_timer = 2.6
+	_show_toast("⚔ 第 %d 波 BOSS · %s" % [Engine.get_process_frames() % 30 + 1, boss_name], Color(1.0, 0.45, 0.35), 3.0)
+
+
+func _on_boss_hp(hp: float, max_hp: float) -> void:
+	if _boss_bar and _boss_bar.visible:
+		_boss_bar.value = hp
+
+
+func _on_boss_defeated(_boss_name: String) -> void:
+	_hide_boss_ui()
+
+
+## Boss 击杀大字（金色，复用横幅样式）
+func show_boss_defeated_banner() -> void:
+	if _boss_banner_label:
+		_boss_banner_label.text = "★ BOSS 击杀 ★"
+		_boss_banner_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+		_boss_banner_label.modulate.a = 1.0
+		_boss_banner_label.scale = Vector2(1.3, 1.3)
+		_boss_banner_label.visible = true
+		_boss_banner_timer = 1.8
+	# 恢复横幅红色默认（下次 Boss 出场）
+		_boss_banner_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.3))
+
+
+func hide_boss_ui() -> void:
+	_hide_boss_ui()
+
+
+func _hide_boss_ui() -> void:
+	if _boss_dim:
+		_boss_dim.color = Color(0.25, 0.05, 0.05, 0.0)
+	if _boss_bar:
+		_boss_bar.visible = false
+	if _boss_name_label:
+		_boss_name_label.visible = false
+
+
 # ── 布局常量区（UI 场景化前的集中管理；P2-⑥ 债务缓解）──
 const POS_TOP_RIGHT := Vector2(1500, 0)      # 右上信息区原点（核心血条/能量条/预告条）
 const POS_FORECAST_BTNS := Vector2(1500, 128)  # Boss 预告换/删按钮
@@ -58,8 +159,12 @@ func _ready() -> void:
 	# 连接信号
 	EventBus.bond_devoured.connect(_on_bond_devoured)
 	EventBus.ult_energy_changed.connect(update_ult_energy)
+	EventBus.boss_spawned.connect(_on_boss_spawned)
+	EventBus.boss_hp_changed.connect(_on_boss_hp)
+	EventBus.boss_defeated.connect(_on_boss_defeated)
 	_setup_ult_ui()
 	_setup_breakthrough_ui()
+	_setup_boss_ui()   # Boss UI（依赖 _breakthrough_layer，须在其后）
 	_setup_forecast_ui()
 
 
@@ -74,6 +179,14 @@ func _process(delta: float) -> void:
 	# 突破演出：大字弹入（1.6→1.0）+ 尾段淡出
 	if _breakthrough_timer > 0:
 		_breakthrough_timer -= delta
+	if _boss_banner_timer > 0:
+		_boss_banner_timer -= delta
+		if _boss_banner_timer <= 0 and _boss_banner_label:
+			_boss_banner_label.visible = false
+		else:
+			# 横幅弹出缩放动画（1.5→1.0）
+			var t: float = clampf(_boss_banner_timer / 2.6, 0.0, 1.0)
+			_boss_banner_label.scale = Vector2.ONE.lerp(Vector2(1.5, 1.5), t * 0.4)
 		if _breakthrough_timer <= 0:
 			_breakthrough_label.visible = false
 		else:
@@ -328,6 +441,14 @@ func show_result(won: bool, wave: int = 1, stats: Dictionary = {}) -> void:
 		body = "\n\n总伤害 %s   击杀 %d（Boss %d）\n突破 %d 境   羁绊 %d 张   获取金币 %s" % [
 			_fmt_num(stats.get("damage", 0.0)), stats.get("kills", 0), stats.get("boss_kills", 0),
 			stats.get("breakthroughs", 0), stats.get("bonds", 0), _fmt_num(stats.get("gold", 0.0))]
+		# 差距诊断（GDD §48：差多少伤害 + 建议补什么——near-miss 驱动再来一局）
+		var diag: Dictionary = stats.get("diagnosis", {})
+		if not diag.is_empty() and not won:
+			body += "\n\n── 差距诊断 ──"
+			body += "\nDPS %s / 需求 %s（差 %.0f%%）" % [
+				_fmt_num(diag.get("hero_dps", 0.0)), _fmt_num(diag.get("req_dps", 0.0)), diag.get("gap_pct", 0.0)]
+			for tip in diag.get("advice", []):
+				body += "\n💡 " + str(tip)
 	_result_label.text = title + body + "\n\n按 R 重新开始"
 
 

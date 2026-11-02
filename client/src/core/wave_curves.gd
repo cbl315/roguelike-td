@@ -53,6 +53,11 @@ static func wave_total_hp(wave: int) -> float:
 
 
 ## 是否 Boss 波
+static func required_dps(wave: int) -> float:
+	## 通关该波所需 DPS = 波总血量 / 时长（与 Python curves.required_dps 同式）
+	return wave_total_hp(wave) / maxf(wave_duration(wave), 1.0)
+
+
 static func is_boss_wave(wave: int) -> bool:
 	_ensure_loaded()
 	var n: int = int(_params.get("boss", {}).get("every_n_waves", 10))
