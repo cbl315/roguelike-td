@@ -13,6 +13,9 @@ signal summon_unit_devoured(unit_id: String)   # 白魇魔被吞噬
 # 境界吞噬完成（不直接引用 EventBus autoload——headless -s 测试模式不加载 autoload，
 # 由 game_manager 桥接到 EventBus.bond_devoured）
 signal realm_devoured(path_id: String, realm_idx: int, realm_name: String)
+# 突破怪机制：集齐境界卡 → pending（卡池锁定）→ 打赢突破怪 → apply_breakthrough 才升境
+signal breakthrough_ready(path_id: String, realm_idx: int)
+var pending_breakthrough: Dictionary = {}   # {path_id, realm_idx, needed}
 
 var gold: float = 0.0
 var accumulated_effects: Array = []    # Array[Dictionary] 累积的 effect（境界 reward + 装备词条）
@@ -136,25 +139,37 @@ func _try_devour() -> void:
 		var pid: String = dev_d.get("path_id")
 		var idx: int = int(dev_d.get("realm_idx"))
 		var needed: Array = dev_d.get("needed", [])
-		# 吞噬：从池中移除，但记录到 devoured_bonds（联动仍算 owned）
-		for b in needed:
-			bond_pool.erase(b)
-			if not devoured_bonds.has(b):
-				devoured_bonds.append(b)
-		# 升境 + 累加 reward
-		path_realm[pid] = idx + 1
-		var reward: Dictionary = pools.realm_reward(pid, idx)
-		if not reward.is_empty():
-			accumulated_effects.append(reward)
-		realm_devoured.emit(pid, idx + 1, pools.realm_name(pid, idx))
-		# 宠魅体系境界 → 召唤单位生命周期
-		if pid == "chongmei":
-			# 魂士境（realm==1）：白魇魔降生（第三魂约是开局魂约，实测 realm 2 太晚玩不到）
-			if idx + 1 == 1:
-				summon_unit_requested.emit("baiyanmeng", "白魇魔")
-			# 魂朽境（realm==6）：白魇魔被吞噬
-			elif idx + 1 == 6:
-				summon_unit_devoured.emit("baiyanmeng")
+		# 突破怪机制：集齐只挂 pending（卡池锁定=path_realm 不推进，抽不到下一境界卡），
+		# 打赢突破守关者（game_manager 生成）才 apply_breakthrough 真正升境。
+		if pending_breakthrough.is_empty():
+			pending_breakthrough = {"path_id": pid, "realm_idx": idx, "needed": needed.duplicate()}
+			breakthrough_ready.emit(pid, idx)
+			break
+		break   # 已有待突破的境界：卡住（先打赢当前守关者）
+
+
+## 打赢突破守关者 → 真正升境（原吞噬逻辑：移卡/reward/演出/召唤事件）
+func apply_breakthrough() -> void:
+	if pending_breakthrough.is_empty():
+		return
+	var pid: String = pending_breakthrough.get("path_id")
+	var idx: int = int(pending_breakthrough.get("realm_idx"))
+	var needed: Array = pending_breakthrough.get("needed", [])
+	pending_breakthrough = {}
+	for b in needed:
+		bond_pool.erase(b)
+		if not devoured_bonds.has(b):
+			devoured_bonds.append(b)
+	path_realm[pid] = idx + 1
+	var reward: Dictionary = pools.realm_reward(pid, idx)
+	if not reward.is_empty():
+		accumulated_effects.append(reward)
+	realm_devoured.emit(pid, idx + 1, pools.realm_name(pid, idx))
+	if pid == "chongmei":
+		if idx + 1 == 1:
+			summon_unit_requested.emit("baiyanmeng", "白魇魔")
+		elif idx + 1 == 6:
+			summon_unit_devoured.emit("baiyanmeng")
 
 
 ## 宠魅三区：宠物基础攻击系数（与 Python 端 SUMMON_BASE_ATK_RATIO 一致）

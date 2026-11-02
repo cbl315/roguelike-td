@@ -25,6 +25,7 @@ var _rng := RandomNumberGenerator.new()
 
 # 召唤单位（宠魅体系）
 var _summon_units: Array = []   # Array[SummonUnit]
+var _breakthrough_guard: Enemy = null   # 突破守关者（活着=卡池锁定）
 
 # Sparkle Lite game feel：场景级反馈（震动/顿帧/闪屏）
 var _fb_kill: FeedbackPlayerLite = null       # 击杀普通怪
@@ -36,6 +37,7 @@ var _boss_debuffs := BossDebuffs.new()
 var _lobby_reroll_delta: int = 0   # 封印之手：Boss 波后大厅刷新次数增减
 
 # 大招系统（GDD §11）—— 数值定稿（2026-10 数值轮，模拟胜率 ~54%）
+const BREAKTHROUGH_HP_PER_WAVE := 16.0   # 突破守关者 HP = 当前波怪血 ×16（扫参对应 Python R=0.65：混修 12-20s 击杀，单体系勉强差一点）
 const ULT_DMG_MULT := 8.0          # 倍率：expected_hit_dmg × 8（继承 build 乘区，前期全额生效）
 const ULT_PER_ENEMY_FLOOR := 0.18  # 每怪保底 = max_hp×18%（后期单发缩小后大招不清屏的修复）
 const ULT_PER_ENEMY_CAP := 0.45    # 每怪上限 = max_hp×45%（防一刀秒 Boss，前期由 hit×8 主导）
@@ -86,6 +88,9 @@ func _ready() -> void:
 	_build.summon_unit_devoured.connect(_on_summon_devoured)
 	# 境界吞噬桥接（build_state 不引 EventBus autoload，保持 headless -s 可测）
 	_build.realm_devoured.connect(func(p: String, r: int, n: String): EventBus.bond_devoured.emit(p, r, n))
+	# 突破怪：集齐境界 → 挑战守关者 → 赢了才升境（强制多修的考核压力）
+	_build.breakthrough_ready.connect(_on_breakthrough_ready)
+	_lobby.breakthrough_challenge_requested.connect(challenge_breakthrough)
 	_lobby.confirmed.connect(_on_lobby_confirmed)
 	_hud.bond_picker_requested.connect(open_bond_picker)
 	_hud.char_panel_toggled.connect(toggle_char_panel)
@@ -242,6 +247,7 @@ func _on_wave_finished() -> void:
 	if state != State.WAVE_IN_PROGRESS:
 		return   # 防重复（超时 + 全清可能同时触发）
 	state = State.WAVE_CLEARED
+	_withdraw_breakthrough_guard()   # 守关者活到波末 → 撤退（pending 保留）
 	EventBus.wave_cleared.emit(current_wave)
 	# Boss Debuff：波结束 → 停用效果；封印之手作用于之后的大厅
 	var was_debuff_wave: bool = _boss_debuffs.is_active()
@@ -539,9 +545,69 @@ func _on_summon_requested(unit_id: String, unit_name: String) -> void:
 
 
 ## 白魇魔被吞噬 → 停用对应召唤单位。
+## ── 突破守关者（打赢才能升境；波间大厅按钮挑战）──
+
+func _on_breakthrough_ready(path_id: String, realm_idx: int) -> void:
+	SoundManager.play("wave_start", -2.0)
+	if _hud:
+		_hud.show_toast("⚔ 境界圆满！波间可挑战【突破守关者】— 击杀后才升境")
+
+
+func challenge_breakthrough() -> void:
+	if _build == null or _build.pending_breakthrough.is_empty():
+		return
+	if _breakthrough_guard != null and is_instance_valid(_breakthrough_guard):
+		return   # 守关者已在场
+	# 波间挑战：关面板、开打（战斗状态注入）
+	if _lobby and _lobby.visible:
+		_lobby.close()
+	get_tree().paused = false
+	var pd: Dictionary = _build.pending_breakthrough
+	var realm_idx: int = int(pd.get("realm_idx", 0))
+	# HP 随波次与境界深度双缩放（单体系贴线打不完，混修 12-20s 击杀）
+	var hp: float = WaveCurves.enemy_hp(current_wave) * BREAKTHROUGH_HP_PER_WAVE * (1.0 + realm_idx * 0.06)
+	var guard_enemy := Enemy.new()
+	add_child(guard_enemy)
+	guard_enemy.setup(hp, false, true, _hero, Rect2(80, 80, 2840, 1840))
+	guard_enemy.global_position = _hero.global_position + Vector2(420, -160)
+	guard_enemy.modulate = Color(0.8, 0.55, 1.0)      # 紫色标识
+	guard_enemy.kill_reward = 60.0                     # 击杀奖励（回血经济）
+	guard_enemy.died.connect(_on_breakthrough_guard_down)
+	_spawner._active_enemies.append(guard_enemy)
+	_breakthrough_guard = guard_enemy
+	if _hud:
+		_hud.show_toast("⚔ 突破守关者降临！击杀它完成突破")
+
+
+func _on_breakthrough_guard_down(_enemy: Node = null) -> void:
+	_breakthrough_guard = null
+	if _build == null or _build.pending_breakthrough.is_empty():
+		return
+	_build.apply_breakthrough()   # 真正升境（演出走 realm_devoured → HUD 大字）
+
+
+## 波结束守关者还活着 → 撤退（pending 保留，波间可再挑战）
+func _withdraw_breakthrough_guard() -> void:
+	if _breakthrough_guard != null and is_instance_valid(_breakthrough_guard):
+		_breakthrough_guard.died.disconnect(_on_breakthrough_guard_down)
+		_breakthrough_guard.deactivate()
+		_spawner._active_enemies.erase(_breakthrough_guard)
+		_breakthrough_guard = null
+		if _hud:
+			_hud.show_toast("突破失败…守关者撤退，波间可再次挑战")
+
+
 func _on_summon_devoured(unit_id: String) -> void:
 	for su in _summon_units:
 		if is_instance_valid(su) and su.unit_id == unit_id:
+			# 吞噬演出：白魇魔位置紫色冲击波 + HUD 大字（玩家此前完全无感）
+			var sw := Shockwave.new()
+			sw.global_position = su.global_position
+			sw.z_index = 55
+			sw.ring_color = Color(0.55, 0.3, 0.85)   # 暗紫（吞噬·半魔）
+			add_child(sw)
+			if _hud:
+				_hud.show_summon_devoured(su.unit_name if "unit_name" in su else unit_id)
 			su.deactivate()
 
 

@@ -79,6 +79,11 @@ func _process(delta: float) -> void:
 				_breakthrough_label.modulate.a = _breakthrough_timer / 0.5
 
 
+## 公开 toast（game_manager 突破怪等流程用）
+func show_toast(text: String, color: Color = Color(0.95, 0.85, 0.55), duration: float = 3.0) -> void:
+	_show_toast(text, color, duration)
+
+
 func _show_toast(text: String, color: Color, duration: float = 3.0) -> void:
 	_toast_label.text = text
 	_toast_label.add_theme_color_override("font_color", color)
@@ -93,11 +98,24 @@ func show_boss_debuff_banner(debuff_name: String, wave: int) -> void:
 	_show_toast("⚠ 第 %d 波 BOSS · %s" % [wave, debuff_name], Color(1.0, 0.45, 0.35), 4.0)
 
 
+## 吞噬召唤单位演出（白魇魔→半魔）：暗紫大字 + 顿帧（复用突破层）
+func show_summon_devoured(unit_name: String) -> void:
+	_breakthrough_label.text = "🌑 %s 被吞噬 · 半魔觉醒 🌑\n（加成并入本体）" % unit_name
+	_breakthrough_label.modulate.a = 1.0
+	_breakthrough_label.visible = true
+	_breakthrough_label.scale = Vector2(1.6, 1.6)
+	_breakthrough_label.add_theme_color_override("font_color", Color(0.75, 0.5, 0.95))
+	_breakthrough_timer = 2.2
+	if _fb_breakthrough != null:
+		_fb_breakthrough.play()
+
+
 func _on_bond_devoured(path_id: String, realm_idx: int, realm_name: String) -> void:
 	# 突破演出（GDD 情感爽点）：金光闪屏 + 境界大字 + 顿帧（音效 SoundManager 已接）
 	var name_map := {"zhutian": "遮天", "xingchenbian": "星辰变", "chongmei": "宠魅", "doupo": "斗破"}
 	var pname: String = name_map.get(path_id, path_id)
 	_breakthrough_label.text = "⚡ %s · %s 圆满 ⚡\n（%d 境）" % [pname, realm_name, realm_idx]
+	_breakthrough_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.5))   # 金色（吞噬演出可能改过）
 	_breakthrough_label.modulate.a = 1.0
 	_breakthrough_label.visible = true
 	_breakthrough_label.scale = Vector2(1.6, 1.6)   # 大字从 1.6 弹到 1.0

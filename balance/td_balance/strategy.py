@@ -25,7 +25,13 @@ from .economy import (
     equip_upgrade_cost,
 )
 from .player import Action, ActionType, PlayerState
+from .combat import damage as _dmg_mod   # 突破守关者 DPS 考核用
 from .rogue_pools import RoguePools
+
+# 突破守关者考核：波间 DPS ≥ 下一波 required_dps × 此系数才允许吞噬升境
+# （客户端是真实怪物战斗；模拟用 DPS 阈值等价建模。设计意图：纯单体系卡打不过，
+# 需搭配散卡/多体系加成才稳过——强制构筑多样性）
+BREAKTHROUGH_DPS_REQ = 0.55   # 扫参定稿：当前波基准×0.55（星辰变对 gate 过敏，留宽限）
 
 # 装备里程碑（与 data/equipment.yaml 对齐；max_level 也从中读）
 EQUIP_MILESTONES = (5, 10, 15, 20)
@@ -109,6 +115,7 @@ class SimpleStrategy(Strategy):
         state: PlayerState,
         pools: RoguePools,
         econ: EconomyParams,
+        wave: int = 1,
     ) -> list[Action]:
         reroll_cap = econ.reroll_cap_per_wave
         actions: list[Action] = []
@@ -152,12 +159,20 @@ class SimpleStrategy(Strategy):
         guard = 0
         while state.gold > 0 and guard < 100:
             guard += 1
-            # 1) 检查是否可吞噬（当前境界凑齐）
+            # 1) 检查是否可吞噬（当前境界凑齐）——突破守关者考核：
+            #    波间 DPS ≥ 下一波需求×系数才放行（纯单体系卡打不过，混修才稳）
             dev = pools.find_devourable(state.bond_pool, state.path_realm)
             if dev:
                 path_id, realm_idx, needed = dev
+                from .combat_stats import resolve_player
+                from .curves import required_dps
+                from .loader import load_wave_params
+                pc = resolve_player(state, pools)
+                armor = 20.0 + 1.5 * wave   # 与 run_sim._enemy_armor 同式（避免循环 import）
+                dps = _dmg_mod.expected_dps(pc.offense, _dmg_mod.EnemyStats(armor=armor))
+                req = required_dps(wave, load_wave_params()) * BREAKTHROUGH_DPS_REQ   # 当前波基准（避开 Boss 波需求尖峰）
                 cost = devour_cost(econ)
-                if state.spend(cost):
+                if dps >= req and state.spend(cost):
                     pools.devour(state.bond_pool, needed)
                     state.path_realm[path_id] = realm_idx + 1  # 升境
                     do(Action(ActionType.DEVOUR, cost=cost, detail=f"{path_id} realm{realm_idx}→{realm_idx+1}"))

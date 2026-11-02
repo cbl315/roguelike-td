@@ -284,7 +284,7 @@ def simulate_run(seed: int, strategy=None, n_waves: int | None = None) -> RunRes
         state.add_gold(income_total * PLAYER_ECON_MULT)
         # 2) 大厅花金
         state.begin_wave()
-        strat.spend_lobby(state, pools, econ)
+        strat.spend_lobby(state, pools, econ, wave=wave)
 
         # 3) 解算 PlayerCombat（羁绊 + 境界 reward + 联动）
         pc = resolve_player(state, pools)
