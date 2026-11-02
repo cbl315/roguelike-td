@@ -32,10 +32,10 @@ def test_build_crit_and_speed():
 
 
 def test_wave15_required_dps_anchor():
-    """平衡调参后曲线 1.072 + count per_wave 1.42（2026-11 轮终版），wave15 required_dps ≈ 192。"""
+    """平衡调参后曲线 1.075 + count per_wave 1.44（2026-11 宠魅三区轮），wave15 required_dps ≈ 206。"""
     p = load_wave_params()
     need = curves.required_dps(15, p)
-    assert math.isclose(need, 191.9, rel_tol=0.02)
+    assert math.isclose(need, 206.4, rel_tol=0.02)
 
 
 def test_mid_build_dps_above_required():

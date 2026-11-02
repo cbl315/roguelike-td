@@ -23,7 +23,7 @@ import yaml
 from . import curves
 from . import run_sim_flags
 from .combat.damage import EnemyStats, expected_dps, expected_hit_dmg
-from .combat_stats import PlayerCombat, resolve_player
+from .combat_stats import PlayerCombat, resolve_player, resolve_pets
 from .economy import load_economy_params, wave_income
 from .loader import load_wave_params
 from .player import PlayerState
@@ -49,9 +49,8 @@ ENEMY_BEHAVIOR_HP_MULT: float = 1.03
 ENEMY_BEHAVIOR_PRESSURE: float = 1.03
 ENEMY_BEHAVIOR_FROM_WAVE: int = 5
 PLAYER_ECON_MULT: float = 1.03        # 玩家经济全局加成（行为怪难度再平衡）
-# 宠魅召唤单位（莫邪/白魇魔/六尾妖狐）宏观近似：客户端召唤是独立输出实体，
-# 模拟不逐实体建模，主体系=宠魅时 DPS 乘此系数（≈两只常驻召唤 35% 输出占比）。
-CHONGMEI_SUMMON_DPS_MULT: float = 1.10
+# 宠魅召唤：显式三区建模（resolve_pets：本体/莫邪/白魇魔独立 stats，
+# 魂朽境 realm6 吞噬后白魇魔并入本体），原宏观乘区已删除。
 
 
 @dataclass
@@ -130,7 +129,7 @@ def _ult_full_time(wave: int) -> float:
 
 def _battle_outcome(pc: PlayerCombat, wave: int, p, core_hp_current: float,
                     deb: dict | None = None, use_ult: bool = False,
-                    ult_carry: float = 0.0, main_path: str = "") -> dict:
+                    ult_carry: float = 0.0, pet_pcs: dict | None = None) -> dict:
     """单波战斗判定。返回 {cleared, core_damage, dps, clear_time, ult_carry}。
 
     deb: 本波 Boss Debuff 定义（None=无）；use_ult: 是否计入大招贡献。
@@ -146,9 +145,6 @@ def _battle_outcome(pc: PlayerCombat, wave: int, p, core_hp_current: float,
     ult_carry_out: float = ult_carry
 
     dps = expected_dps(pc.offense, enemy)
-    # 宠魅召唤单位宏观近似（常量注释见上）
-    if main_path == "chongmei":
-        dps *= CHONGMEI_SUMMON_DPS_MULT
     if dps <= 0:
         return {"cleared": False, "core_damage": core_hp_current,
                 "dps": 0.0, "clear_time": duration}
@@ -177,6 +173,12 @@ def _battle_outcome(pc: PlayerCombat, wave: int, p, core_hp_current: float,
             dps *= pc.offense.type_resist_mult
         reflect_pct = float(d.get("reflect_pct", 0.0))
         extra_core_pct_per_hit = float(d.get("core_hp_loss_per_hit", 0.0))
+
+    # 宠魅宠物独立输出（莫邪常驻 / 白魇魔 realm2-5；不吃本体特殊效果与大招，
+    # 双抗跟随本体 type_resist_mult——宠魅宠物为物理弹道）
+    if pet_pcs:
+        pet_dps = sum(expected_dps(pp.offense, enemy) for pp in pet_pcs.values())
+        dps += pet_dps * pc.offense.type_resist_mult
 
     # 大招：清屏 AOE（×8 单发期望 × 敌数 × 次数），先扣 total_hp
     if use_ult:
@@ -294,9 +296,10 @@ def simulate_run(seed: int, strategy=None, n_waves: int | None = None) -> RunRes
 
         # 4) 战斗判定（传当前核心血量，用于 near-miss 残血计算）
         death_max_hp = pc.survival.effective_max_hp   # 记录本波 max_hp（死亡时用）
+        pet_pcs = resolve_pets(state, pools)
         outcome = _battle_outcome(pc, wave, wave_params, core_hp_current=state.survival_hp,
                                   deb=deb, use_ult=run_sim_flags.ENABLE_ULT,
-                                  ult_carry=ult_carry, main_path=getattr(state, "_main_path", ""))
+                                  ult_carry=ult_carry, pet_pcs=pet_pcs)
         ult_carry = float(outcome["ult_carry"])
         dps_per_wave.append(round(outcome["dps"], 1))
         # 反噬之力：受击额外掉核心血（怪接触频率≈1/s，上限 10 次）

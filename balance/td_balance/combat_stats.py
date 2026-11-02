@@ -202,20 +202,26 @@ class PlayerCombat:
 # ── 从 PlayerState 构造完整 PlayerCombat ──
 
 def resolve_player(state, pools) -> PlayerCombat:
-    """从 PlayerState + RoguePools 构造完整 PlayerCombat。
+    """从 PlayerState + RoguePools 构造完整 PlayerCombat（本体区）。
 
     汇总来源：
-    - 羁绊池里每个羁绊的 effect（BondDef.effect）
+    - 羁绊池里每个羁绊的 effect（宠魅三区卡除外：moxie/baiyanmeng 进 resolve_pets）
     - 已修炼境界的 reward（path_realm[id] 累积所有已过境界的 reward）
+    - 宠魅魂朽境（realm 6）吞噬白魇魔 → 白魇魔加成合并进本体
     - 装备词条（state.equip_affixes，若 PlayerState 有；当前简化为空）
     """
     pc = PlayerCombat()
     bond_map = {b.id: b for b in pools.bonds}
+    devoured_bym = state.path_realm.get("chongmei", 0) >= 6   # 魂朽境：白魇魔已吞噬
 
-    # 1) 羁绊池羁绊 effect
+    # 1) 羁绊池羁绊 effect（本体区 = pet_scope body + 已吞噬的白魇魔）
     for bid in state.bond_pool:
         b = bond_map.get(bid)
         if b and b.effect:
+            if b.pet_scope == "moxie":
+                continue   # 莫邪：独立实体（resolve_pets）
+            if b.pet_scope == "baiyanmeng" and not devoured_bym:
+                continue   # 白魇魔：realm 2-5 独立实体；吞噬后并入本体
             pc.accumulate(b.effect)
 
     # 2) 已修炼境界的 reward（path_realm[id] = 已通过的境界数；reward 是 0..idx-1）
@@ -233,3 +239,37 @@ def resolve_player(state, pools) -> PlayerCombat:
         pc.offense.atk = CombatStats().atk * (1.0 + atk_pct)
 
     return pc
+
+
+# 宠物基础攻击系数（宠物是副输出单位：基础 = 英雄裸基础 × 此系数，
+# 客户端 summon_unit.gd 同步使用同一比例）
+SUMMON_BASE_ATK_RATIO = 0.6
+
+
+def resolve_pets(state, pools) -> dict:
+    """宠魅宠物区 stats（独立于本体）。
+
+    - moxie 莫邪：选宠魅种子即存在（realm 0 起）
+    - baiyanmeng 白魇魔：魂师境（realm 2）降生 → 魂朽境（realm 6）被吞噬
+    - 基础 = 裸 CombatStats × SUMMON_BASE_ATK_RATIO，叠加各自 pet_scope 池的 effect
+    """
+    if "chongmei" not in state.path_realm:
+        return {}
+    bond_map = {b.id: b for b in pools.bonds}
+    realm = state.path_realm.get("chongmei", 0)
+
+    def _pet(scope: str) -> "PlayerCombat":
+        p = PlayerCombat()
+        for bid in state.bond_pool:
+            b = bond_map.get(bid)
+            if b and b.effect and b.pet_scope == scope:
+                p.accumulate(b.effect)
+        atk_pct = getattr(p.offense, "_atk_pct_bonus", 0.0)
+        base = CombatStats().atk * SUMMON_BASE_ATK_RATIO
+        p.offense.atk = base * (1.0 + atk_pct)
+        return p
+
+    pets: dict = {"moxie": _pet("moxie")}
+    if 2 <= realm < 6:
+        pets["baiyanmeng"] = _pet("baiyanmeng")
+    return pets

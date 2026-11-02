@@ -157,20 +157,50 @@ func _try_devour() -> void:
 				summon_unit_devoured.emit("baiyanmeng")
 
 
-## 组装当前 CombatStats（完整管线 + 联动重算）。
+## 宠魅三区：宠物基础攻击系数（与 Python 端 SUMMON_BASE_ATK_RATIO 一致）
+const SUMMON_BASE_ATK_RATIO := 0.6
+
+
+## 卡的 pet_scope（宠魅三区；非宠魅卡恒为 body）
+func _bond_scope(bid: String) -> String:
+	if pools == null:
+		return "body"
+	var b: Dictionary = pools._find_bond(bid)
+	return str(b.get("pet_scope", "body"))
+
+
+## 白魇魔是否已被吞噬（魂朽境 realm 6 → 半魔，加成并入本体）
+func baiyanmeng_devoured() -> bool:
+	return int(path_realm.get("chongmei", 0)) >= 6
+
+
+## 组装当前 CombatStats（完整管线 + 联动重算）——本体区。
+## 宠魅三区卡不进本体：莫邪恒为独立实体；白魇魔在 realm 2-5 独立，
+## 魂朽境（realm 6）吞噬后并入本体（半魔）。
 func assemble_stats() -> CombatStats:
 	var stats := CombatStats.new()
 	# 累加所有 effect（技能词条 + 境界 reward + 装备词条）
 	EffectResolver.accumulate_all(stats, accumulated_effects)
 	# 羁绊 effect 从 bond_pool + devoured_bonds 实时查（吞噬后属性保留）
 	if pools != null:
+		var bym_merged := baiyanmeng_devoured()
 		for bid in bond_pool:
+			var scope := _bond_scope(bid)
+			if scope == "moxie":
+				continue   # 莫邪：独立实体
+			if scope == "baiyanmeng" and not bym_merged:
+				continue   # 白魇魔：realm 2-5 独立；吞噬后并入本体
 			var b: Dictionary = pools._find_bond(bid)
 			if not b.is_empty():
 				var eff: Dictionary = b.get("effect", {})
 				if not eff.is_empty():
 					EffectResolver.accumulate_all(stats, [eff])
 		for bid in devoured_bonds:
+			var scope := _bond_scope(bid)
+			if scope == "moxie":
+				continue
+			if scope == "baiyanmeng" and not bym_merged:
+				continue
 			var b: Dictionary = pools._find_bond(bid)
 			if not b.is_empty():
 				var eff: Dictionary = b.get("effect", {})
@@ -186,6 +216,31 @@ func assemble_stats() -> CombatStats:
 				EffectResolver.accumulate_all(stats, [eff])
 	# 应用 ATK 百分比加成
 	stats.apply_atk_bonus()
+	return stats
+
+
+## 组装宠物区 CombatStats（宠魅三区独立数值）。
+## pet: "moxie"（莫邪，常驻）| "baiyanmeng"（白魇魔，realm 2-5；吞噬后返回 null stats → 实体已被移除）
+## 基础 = 裸 CombatStats × SUMMON_BASE_ATK_RATIO + 该 pet_scope 池（bond_pool + devoured_bonds）的 effect。
+## 不吃境界 reward / 装备词条 / 联动（那些是本体的）。
+func assemble_pet_stats(pet: String) -> CombatStats:
+	var stats := CombatStats.new()
+	if pools != null:
+		for bid in bond_pool:
+			if _bond_scope(bid) == pet:
+				var b: Dictionary = pools._find_bond(bid)
+				var eff: Dictionary = b.get("effect", {})
+				if not eff.is_empty():
+					EffectResolver.accumulate_all(stats, [eff])
+		for bid in devoured_bonds:
+			if _bond_scope(bid) == pet:
+				var b: Dictionary = pools._find_bond(bid)
+				var eff: Dictionary = b.get("effect", {})
+				if not eff.is_empty():
+					EffectResolver.accumulate_all(stats, [eff])
+	# apply_atk_bonus 会重置为 BASE_ATK×(1+Σ)——先加成、再乘宠物基础比例
+	stats.apply_atk_bonus()
+	stats.atk = stats.atk * SUMMON_BASE_ATK_RATIO
 	return stats
 
 

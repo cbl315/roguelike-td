@@ -143,6 +143,7 @@ def load_bonds() -> list[BondDef]:
             is_seed=b.get("is_seed", False),
             seed_path=b.get("seed_path", ""),
             seed_gold=b.get("seed_gold", 0.0),
+            pet_scope=b.get("pet_scope", "body"),
         )
         for b in d["bonds"]
     ]

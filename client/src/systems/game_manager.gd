@@ -545,11 +545,18 @@ func _on_summon_devoured(unit_id: String) -> void:
 func _refresh_summon_stats() -> void:
 	if _build == null:
 		return
-	var stats: CombatStats = _build.assemble_stats()
-	_boss_debuffs.modify_stats(stats)
+	# 宠魅三区：召唤单位吃自己的 pet_scope 池（莫邪/白魇魔独立数值，
+	# 基础 × SUMMON_BASE_ATK_RATIO），不再复用本体全套 stats
+	var pet_stats: Dictionary = {}
 	for su in _summon_units:
-		if is_instance_valid(su) and su.active:
-			su.refresh_stats(stats)
+		if not is_instance_valid(su) or not su.active:
+			continue
+		var uid: String = su.unit_id
+		if not pet_stats.has(uid):
+			var ps: CombatStats = _build.assemble_pet_stats(uid)
+			_boss_debuffs.modify_stats(ps)
+			pet_stats[uid] = ps
+		su.refresh_stats(pet_stats[uid])
 
 
 ## 召唤单位发射弹道（复用 _on_hero_fired 的逻辑，吸血也走 hero.heal）。

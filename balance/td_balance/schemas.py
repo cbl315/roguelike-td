@@ -39,6 +39,7 @@ class BondDef:
     is_seed: bool = False       # 是否体系种子（点了解锁体系）
     seed_path: str = ""         # 种子解锁的体系 path id
     seed_gold: float = 0.0      # 选了种子给的金币奖励
+    pet_scope: str = "body"     # 宠魅三区：body 本体 / moxie 莫邪 / baiyanmeng 白魇魔（吞噬后并入本体）
 
 
 @dataclass(frozen=True)
