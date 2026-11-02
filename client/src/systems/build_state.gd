@@ -280,7 +280,11 @@ func take_milestone_affix(affix: Dictionary) -> void:
 	equip_affixes.append(affix)
 	var aff: Dictionary = affix.get("effect", {})
 	if not aff.is_empty():
-		accumulated_effects.append(aff)
+		# 一次性词条（GDD §5）：立即结算，不进持续属性池
+		if aff.has("gold_lump"):
+			add_gold(float(aff["gold_lump"]))
+		else:
+			accumulated_effects.append(aff)
 	changed.emit()
 
 

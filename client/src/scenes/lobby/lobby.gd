@@ -250,13 +250,13 @@ func _render_replace_mode() -> void:
 			"id": bid, "name": b.get("name", bid), "rarity": b.get("rarity", "N"),
 			"effect": b.get("effect", {})
 		}
-		var card: Control = _make_card(fake_offer, i)
+		var card: Control = _make_card(fake_offer, i, true)
 		# 标记为丢弃卡片（红框）
 		card.modulate = Color(1.0, 0.7, 0.7)
 		_cards_container.add_child(card)
 		call_deferred("_record_card_rect", card, i)
 	# 最右侧显示将要获得的新羁绊（不可点，展示用）
-	var new_card: Control = _make_card(_pending_offer, -1)
+	var new_card: Control = _make_card(_pending_offer, -1, true)
 	new_card.modulate = Color(0.7, 1.0, 0.7)
 	_cards_container.add_child(new_card)
 	# actions 区只留"取消"
@@ -442,9 +442,10 @@ func _record_card_rect(card: Control, idx: int) -> void:
 	_add_action("稍后再选", "_on_confirm", true)
 
 
-func _make_card(offer: Dictionary, idx: int) -> Control:
+func _make_card(offer: Dictionary, idx: int, compact: bool = false) -> Control:
 	var panel := Panel.new()
-	panel.custom_minimum_size = Vector2(280, 360)
+	# compact：替换模式专用窄卡（11+ 张全展示不超屏，后面的羁绊也能点到）
+	panel.custom_minimum_size = Vector2(120, 360) if compact else Vector2(280, 360)
 	var color := Color(0.2, 0.25, 0.35)
 	match offer.get("rarity"):
 		"EX": color = Color(0.6, 0.4, 0.1)
@@ -485,8 +486,12 @@ func _make_card(offer: Dictionary, idx: int) -> Control:
 	panel_style.border_color = border_col
 	panel.add_theme_stylebox_override("panel", panel_style)
 	var vbox := VBoxContainer.new()
-	vbox.offset_left = 12; vbox.offset_right = 268
-	vbox.offset_top = 12; vbox.offset_bottom = 348
+	if compact:
+		vbox.offset_left = 4; vbox.offset_right = 116
+		vbox.offset_top = 8; vbox.offset_bottom = 348
+	else:
+		vbox.offset_left = 12; vbox.offset_right = 268
+		vbox.offset_top = 12; vbox.offset_bottom = 348
 	vbox.add_theme_constant_override("separation", 8)
 	panel.add_child(vbox)
 	# 种子卡流派 tag（偏物理/偏法术/召唤流——选种子前看清定位）
@@ -510,18 +515,22 @@ func _make_card(offer: Dictionary, idx: int) -> Control:
 		path_tag.add_theme_color_override("font_color", Color(0.3, 0.8, 1.0))
 		path_tag.add_theme_font_size_override("font_size", 18)
 		vbox.add_child(path_tag)
-	var rarity_label := Label.new()
-	rarity_label.text = "[%s]" % offer.get("rarity", "")
-	rarity_label.add_theme_color_override("font_color", Color(0.9, 0.85, 0.5))
-	vbox.add_child(rarity_label)
+	if not compact:
+		var rarity_label := Label.new()
+		rarity_label.text = "[%s]" % offer.get("rarity", "")
+		rarity_label.add_theme_color_override("font_color", Color(0.9, 0.85, 0.5))
+		vbox.add_child(rarity_label)
 	var name_label := Label.new()
 	name_label.text = offer.get("name", "")
-	name_label.add_theme_font_size_override("font_size", 22)
+	name_label.add_theme_font_size_override("font_size", 14 if compact else 22)
+	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	name_label.custom_minimum_size = Vector2(100 if compact else 0, 0)
 	vbox.add_child(name_label)
-	var kind_label := Label.new()
-	kind_label.text = offer.get("kind", "")
-	kind_label.add_theme_color_override("font_color", Color(0.6, 0.7, 0.9))
-	vbox.add_child(kind_label)
+	if not compact:
+		var kind_label := Label.new()
+		kind_label.text = offer.get("kind", "")
+		kind_label.add_theme_color_override("font_color", Color(0.6, 0.7, 0.9))
+		vbox.add_child(kind_label)
 	# 加成数值（核心：让玩家看到选什么有用）
 	var desc: String = offer.get("desc", "")
 	if desc == "":
@@ -531,9 +540,9 @@ func _make_card(offer: Dictionary, idx: int) -> Control:
 		var desc_label := Label.new()
 		desc_label.text = desc
 		desc_label.add_theme_color_override("font_color", Color(0.95, 0.85, 0.4))
-		desc_label.add_theme_font_size_override("font_size", 18)
+		desc_label.add_theme_font_size_override("font_size", 11 if compact else 18)
 		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		desc_label.custom_minimum_size = Vector2(240, 0)
+		desc_label.custom_minimum_size = Vector2(100 if compact else 240, 0)
 		vbox.add_child(desc_label)
 	var btn := Button.new()
 	if idx < 0:

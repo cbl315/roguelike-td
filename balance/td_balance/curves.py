@@ -21,7 +21,7 @@ from dataclasses import dataclass
 class WaveParams:
     """波次曲线参数（来自 data/waves.yaml）。"""
     hp_base: float = 100.0
-    hp_growth: float = 1.076      # 与 data/waves.yaml 对齐（2026-11 宠魅手感轮）
+    hp_growth: float = 1.078      # 与 data/waves.yaml 对齐（2026-11 四件套轮）
     count_base: int = 8
     count_per_wave: float = 1.45  # 与 data/waves.yaml 对齐（2026-11 宠魅手感轮）
     duration_base: int = 25

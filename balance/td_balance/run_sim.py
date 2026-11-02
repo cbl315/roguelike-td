@@ -115,11 +115,11 @@ def _apply_debuff_to_combat(pc: PlayerCombat, deb: dict) -> None:
 
 # ── 大招建模（GDD §11，与客户端一致）──
 # 定稿（2026-10 数值轮）：×8 继承乘区 + 每怪伤害上限（单怪血×20%）+ 满槽 30→80s。
-# 效果：前期全额爽（×8 < 20% 单怪血），中后期恒定"每发清 20% 波血"（GDD 贡献 15-25% 达标）。
+# 效果：前期 hit×8 全额爽，后期保底每怪 18% 血（清屏感），上限 45% 防一刀秒。
 # 全模拟胜率（含 debuff）：51-57%，均值 ~54%。
 ULT_DMG_MULT: float = 8.0
 ULT_HIT_RATIO: float = 1.0   # 命中率抽象（扫参用），定稿 100%
-ULT_PER_ENEMY_CAP: float = 0.22
+ULT_PER_ENEMY_CAP: float = 0.45   # 每怪上限（保底 0.18 硬编码于公式，与客户端一致）
 
 
 def _ult_full_time(wave: int) -> float:
@@ -187,9 +187,10 @@ def _battle_outcome(pc: PlayerCombat, wave: int, p, core_hp_current: float,
         if casts > 0:
             hit = expected_hit_dmg(pc.offense, enemy)
             n = curves.enemy_count(wave, p)
-            # 每怪上限：min(×8 期望, 单怪血×cap) —— 前期全额爽，后期恒定百分比清屏
-            per_enemy = min(hit * ULT_DMG_MULT,
-                            curves.enemy_hp(wave, p) * ULT_PER_ENEMY_CAP)
+            # 每怪伤害：clamp(×8 期望, 怪血×18%, 怪血×45%) —— 前期 hit 主导全额爽，
+            # 后期保底 18% 清屏感（与客户端 game_manager 常量一致；Boss 波宏观近似同式）
+            ehp = curves.enemy_hp(wave, p)
+            per_enemy = max(min(hit * ULT_DMG_MULT, ehp * 0.45), ehp * 0.18)
             total_hp = max(0.0, total_hp - per_enemy * casts * n * ULT_HIT_RATIO)
     # 精确建模特殊效果对 DPS 的加成（DPS 乘数）
     sp = pc.special

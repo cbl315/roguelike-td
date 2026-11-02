@@ -233,7 +233,12 @@ def resolve_player(state, pools) -> PlayerCombat:
                 if reward:
                     pc.accumulate(reward)
 
-    # 3) 应用 ATK 百分比加成（base × (1+Σ%)）
+    # 3) 装备里程碑词条（持续类；gold_lump 一次性已在 strategy 加金）
+    for eff in getattr(state, "equip_affixes", []):
+        if eff:
+            pc.accumulate(eff)
+
+    # 4) 应用 ATK 百分比加成（base × (1+Σ%)）
     atk_pct = getattr(pc.offense, "_atk_pct_bonus", 0.0)
     if atk_pct:
         pc.offense.atk = CombatStats().atk * (1.0 + atk_pct)

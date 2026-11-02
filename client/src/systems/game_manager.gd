@@ -37,7 +37,9 @@ var _lobby_reroll_delta: int = 0   # 封印之手：Boss 波后大厅刷新次�
 
 # 大招系统（GDD §11）—— 数值定稿（2026-10 数值轮，模拟胜率 ~54%）
 const ULT_DMG_MULT := 8.0          # 倍率：expected_hit_dmg × 8（继承 build 乘区，前期全额生效）
-const ULT_PER_ENEMY_CAP := 0.22    # 每怪伤害上限 = 该怪当前血 ×22%（数值轮定稿）
+const ULT_PER_ENEMY_FLOOR := 0.18  # 每怪保底 = max_hp×18%（后期单发缩小后大招不清屏的修复）
+const ULT_PER_ENEMY_CAP := 0.45    # 每怪上限 = max_hp×45%（防一刀秒 Boss，前期由 hit×8 主导）
+const ULT_BOSS_CAP := 0.15         # Boss 上限 = max_hp×15%（Boss 血大，单独压）
 var _ult_energy: float = 0.0       # 0..1
 var _fb_ult: FeedbackPlayerLite = null
 
@@ -444,14 +446,16 @@ func _try_release_ult() -> void:
 		_fb_ult.play()
 	SoundManager.play("boss_kill", -3.0)
 	_hero._juice.play_attack()
-	# 结算：全屏敌人受 min(expected×8, 单怪当前血×20%)——前期全额爽，中后期每发恒清 20% 波血
+	# 结算：全屏敌人受 clamp(expected×8, max_hp×18%, max_hp×45%)——
+	# 前期 hit×8 主导（全额爽）；后期保底 18% 血（清屏感回来了）；Boss 单独 15% 上限
 	var killed := 0
 	for e in _spawner.active_enemies().duplicate():
 		if not is_instance_valid(e):
 			continue
 		var enemy: Enemy = e as Enemy
-		var dmg: float = minf(_hero._stats.expected_hit_dmg(enemy.armor) * ULT_DMG_MULT,
-			enemy.max_hp * ULT_PER_ENEMY_CAP)
+		var cap: float = ULT_BOSS_CAP if enemy.is_boss else ULT_PER_ENEMY_CAP
+		var dmg: float = clampf(_hero._stats.expected_hit_dmg(enemy.armor) * ULT_DMG_MULT,
+			enemy.max_hp * ULT_PER_ENEMY_FLOOR, enemy.max_hp * cap)
 		_stats_damage += dmg
 		FloatingText.spawn(self, enemy.global_position, "%d" % int(round(dmg)), false, true)
 		enemy.take_damage(dmg)

@@ -9,7 +9,7 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "atk_pct_delta": 0.35
+        "atk_pct_delta": 0.158
       }
     },
     {
@@ -18,7 +18,7 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "hp_pct_delta": 0.525
+        "hp_pct_delta": 0.236
       }
     },
     {
@@ -27,7 +27,7 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "attack_speed_delta": 0.35
+        "attack_speed_delta": 0.158
       }
     },
     {
@@ -36,7 +36,7 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "crit_rate_delta": 0.175
+        "crit_rate_delta": 0.079
       }
     },
     {
@@ -45,7 +45,7 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "lifesteal_pct": 0.07
+        "lifesteal_pct": 0.032
       }
     },
     {
@@ -54,7 +54,7 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "damage_reduction_delta": 0.05
+        "damage_reduction_delta": 0.023
       }
     },
     {
@@ -63,7 +63,7 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "armor_pen": 0.1
+        "armor_pen": 0.045
       }
     },
     {
@@ -72,7 +72,7 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "crit_dmg_delta": 0.35
+        "crit_dmg_delta": 0.158
       }
     },
     {
@@ -81,8 +81,8 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "lifesteal_pct": 0.03,
-        "hp_pct_delta": 0.1
+        "lifesteal_pct": 0.013,
+        "hp_pct_delta": 0.045
       }
     },
     {
@@ -91,8 +91,8 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "attack_speed_delta": 0.15,
-        "crit_rate_delta": 0.05
+        "attack_speed_delta": 0.068,
+        "crit_rate_delta": 0.023
       }
     },
     {
@@ -101,8 +101,8 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "atk_pct_delta": 0.2,
-        "crit_dmg_delta": 0.15
+        "atk_pct_delta": 0.09,
+        "crit_dmg_delta": 0.068
       }
     },
     {
@@ -111,8 +111,8 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "hp_pct_delta": 0.35,
-        "damage_reduction_delta": 0.03
+        "hp_pct_delta": 0.158,
+        "damage_reduction_delta": 0.013
       }
     },
     {
@@ -121,8 +121,8 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "attack_speed_delta": 0.2,
-        "armor_pen": 0.05
+        "attack_speed_delta": 0.09,
+        "armor_pen": 0.023
       }
     },
     {
@@ -131,8 +131,8 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "crit_rate_delta": 0.1,
-        "crit_dmg_delta": 0.2
+        "crit_rate_delta": 0.045,
+        "crit_dmg_delta": 0.09
       }
     },
     {
@@ -141,8 +141,8 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "lifesteal_pct": 0.05,
-        "atk_pct_delta": 0.1
+        "lifesteal_pct": 0.023,
+        "atk_pct_delta": 0.045
       }
     },
     {
@@ -151,8 +151,8 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "damage_reduction_delta": 0.04,
-        "hp_pct_delta": 0.2
+        "damage_reduction_delta": 0.018,
+        "hp_pct_delta": 0.09
       }
     },
     {
@@ -161,8 +161,8 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "armor_pen": 0.08,
-        "atk_pct_delta": 0.1
+        "armor_pen": 0.036,
+        "atk_pct_delta": 0.045
       }
     },
     {
@@ -171,8 +171,8 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "crit_dmg_delta": 0.25,
-        "attack_speed_delta": 0.1
+        "crit_dmg_delta": 0.113,
+        "attack_speed_delta": 0.045
       }
     },
     {
@@ -181,9 +181,9 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "hp_pct_delta": 0.15,
-        "lifesteal_pct": 0.03,
-        "damage_reduction_delta": 0.02
+        "hp_pct_delta": 0.068,
+        "lifesteal_pct": 0.013,
+        "damage_reduction_delta": 0.009
       }
     },
     {
@@ -192,9 +192,9 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "crit_rate_delta": 0.08,
-        "armor_pen": 0.05,
-        "attack_speed_delta": 0.05
+        "crit_rate_delta": 0.036,
+        "armor_pen": 0.023,
+        "attack_speed_delta": 0.023
       }
     },
     {
@@ -203,8 +203,8 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "atk_pct_delta": 0.15,
-        "hp_pct_delta": 0.15
+        "atk_pct_delta": 0.068,
+        "hp_pct_delta": 0.068
       }
     },
     {
@@ -213,8 +213,8 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "attack_speed_delta": 0.12,
-        "crit_rate_delta": 0.05
+        "attack_speed_delta": 0.054,
+        "crit_rate_delta": 0.023
       }
     },
     {
@@ -223,8 +223,8 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "atk_pct_delta": 0.12,
-        "lifesteal_pct": 0.03
+        "atk_pct_delta": 0.054,
+        "lifesteal_pct": 0.013
       }
     },
     {
@@ -233,8 +233,8 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "hp_pct_delta": 0.25,
-        "damage_reduction_delta": 0.03
+        "hp_pct_delta": 0.113,
+        "damage_reduction_delta": 0.013
       }
     },
     {
@@ -243,8 +243,8 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "crit_dmg_delta": 0.15,
-        "armor_pen": 0.05
+        "crit_dmg_delta": 0.068,
+        "armor_pen": 0.023
       }
     },
     {
@@ -253,9 +253,9 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "atk_pct_delta": 0.1,
-        "attack_speed_delta": 0.1,
-        "lifesteal_pct": 0.02
+        "atk_pct_delta": 0.045,
+        "attack_speed_delta": 0.045,
+        "lifesteal_pct": 0.009
       }
     },
     {
@@ -264,8 +264,8 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "hp_pct_delta": 0.2,
-        "atk_pct_delta": 0.1
+        "hp_pct_delta": 0.09,
+        "atk_pct_delta": 0.045
       }
     },
     {
@@ -274,9 +274,9 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "crit_rate_delta": 0.07,
-        "crit_dmg_delta": 0.12,
-        "attack_speed_delta": 0.05
+        "crit_rate_delta": 0.032,
+        "crit_dmg_delta": 0.054,
+        "attack_speed_delta": 0.023
       }
     },
     {
@@ -285,9 +285,9 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "hp_pct_delta": 0.12,
-        "lifesteal_pct": 0.04,
-        "damage_reduction_delta": 0.02
+        "hp_pct_delta": 0.054,
+        "lifesteal_pct": 0.018,
+        "damage_reduction_delta": 0.009
       }
     },
     {
@@ -296,9 +296,9 @@
       "set": "generic",
       "rarity": "N",
       "effect": {
-        "atk_pct_delta": 0.12,
-        "crit_dmg_delta": 0.1,
-        "armor_pen": 0.03
+        "atk_pct_delta": 0.054,
+        "crit_dmg_delta": 0.045,
+        "armor_pen": 0.013
       }
     },
     {
@@ -356,7 +356,7 @@
       "set": "zhutian",
       "rarity": "SR",
       "effect": {
-        "hp_pct_delta": 0.1
+        "hp_pct_delta": 0.19
       }
     },
     {
@@ -392,7 +392,7 @@
       "set": "zhutian",
       "rarity": "SSR",
       "effect": {
-        "lifesteal_pct": 0.05
+        "lifesteal_pct": 0.066
       }
     },
     {
@@ -716,7 +716,7 @@
       "set": "zhutian",
       "rarity": "UR",
       "effect": {
-        "physical_dmg_pct_delta": 0.12
+        "physical_dmg_pct_delta": 0.173
       },
       "note": "九秘之一（仙台境）——AOE场控"
     },
@@ -736,7 +736,7 @@
       "set": "zhutian",
       "rarity": "EX",
       "effect": {
-        "crit_dmg_delta": 0.2
+        "crit_dmg_delta": 0.517
       },
       "note": "九秘之一（大帝境）——暴伤"
     },
@@ -746,7 +746,7 @@
       "set": "zhutian",
       "rarity": "EX",
       "effect": {
-        "crit_rate_delta": 0.1
+        "crit_rate_delta": 0.173
       },
       "note": "九秘之一（红尘仙境）——暴击"
     },
@@ -766,7 +766,7 @@
       "set": "xingchenbian",
       "rarity": "SR",
       "effect": {
-        "magic_dmg_pct_delta": 0.061
+        "magic_dmg_pct_delta": 0.114
       }
     },
     {
@@ -775,7 +775,7 @@
       "set": "xingchenbian",
       "rarity": "SR",
       "effect": {
-        "magic_dmg_pct_delta": 0.031
+        "magic_dmg_pct_delta": 0.081
       }
     },
     {
@@ -784,7 +784,7 @@
       "set": "xingchenbian",
       "rarity": "SR",
       "effect": {
-        "crit_rate_delta": 0.05
+        "crit_rate_delta": 0.076
       }
     },
     {
@@ -821,7 +821,7 @@
       "set": "xingchenbian",
       "rarity": "SSR",
       "effect": {
-        "magic_dmg_pct_delta": 0.093
+        "magic_dmg_pct_delta": 0.131
       }
     },
     {
@@ -839,7 +839,7 @@
       "set": "xingchenbian",
       "rarity": "SSR",
       "effect": {
-        "crit_dmg_delta": 0.2
+        "crit_dmg_delta": 0.262
       }
     },
     {
@@ -848,7 +848,7 @@
       "set": "xingchenbian",
       "rarity": "SSR",
       "effect": {
-        "attack_speed_delta": 0.074
+        "attack_speed_delta": 0.109
       }
     },
     {
@@ -866,7 +866,7 @@
       "set": "xingchenbian",
       "rarity": "SSR",
       "effect": {
-        "damage_reduction_delta": 0.05
+        "damage_reduction_delta": 0.066
       }
     },
     {
@@ -875,7 +875,7 @@
       "set": "xingchenbian",
       "rarity": "UR",
       "effect": {
-        "hp_pct_delta": 0.08
+        "hp_pct_delta": 0.208
       }
     },
     {
@@ -902,7 +902,7 @@
       "set": "xingchenbian",
       "rarity": "UR",
       "effect": {
-        "magic_dmg_pct_delta": 0.068
+        "magic_dmg_pct_delta": 0.173
       }
     },
     {
@@ -911,7 +911,7 @@
       "set": "xingchenbian",
       "rarity": "UR",
       "effect": {
-        "magic_dmg_pct_delta": 0.123
+        "magic_dmg_pct_delta": 0.172
       }
     },
     {
@@ -929,7 +929,7 @@
       "set": "xingchenbian",
       "rarity": "UR",
       "effect": {
-        "crit_rate_delta": 0.04
+        "crit_rate_delta": 0.104
       }
     },
     {
@@ -956,8 +956,8 @@
       "set": "xingchenbian",
       "rarity": "EX",
       "effect": {
-        "lifesteal_pct": 0.02,
-        "magic_dmg_pct_delta": 0.043
+        "lifesteal_pct": 0.052,
+        "magic_dmg_pct_delta": 0.112
       }
     },
     {
@@ -976,7 +976,7 @@
       "set": "xingchenbian",
       "rarity": "EX",
       "effect": {
-        "magic_dmg_pct_delta": 0.153
+        "magic_dmg_pct_delta": 0.259
       }
     },
     {
@@ -1046,7 +1046,7 @@
       "rarity": "SR",
       "pet_scope": "body",
       "effect": {
-        "crit_rate_delta": 0.05
+        "crit_rate_delta": 0.076
       }
     },
     {
@@ -1363,7 +1363,7 @@
       "set": "doupo",
       "rarity": "SR",
       "effect": {
-        "crit_rate_delta": 0.05
+        "crit_rate_delta": 0.076
       }
     },
     {
@@ -1408,7 +1408,7 @@
       "set": "doupo",
       "rarity": "SSR",
       "effect": {
-        "hp_pct_delta": 0.1
+        "hp_pct_delta": 0.219
       }
     },
     {
@@ -1471,7 +1471,7 @@
       "set": "doupo",
       "rarity": "SSR",
       "effect": {
-        "lifesteal_pct": 0.02
+        "lifesteal_pct": 0.052
       }
     },
     {
@@ -1489,8 +1489,8 @@
       "set": "doupo",
       "rarity": "UR",
       "effect": {
-        "hp_pct_delta": 0.12,
-        "lifesteal_pct": 0.02
+        "hp_pct_delta": 0.185,
+        "lifesteal_pct": 0.031
       }
     },
     {

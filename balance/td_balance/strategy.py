@@ -27,7 +27,27 @@ from .economy import (
 from .player import Action, ActionType, PlayerState
 from .rogue_pools import RoguePools
 
-EQUIP_MAX_LEVEL = 9
+# 装备里程碑（与 data/equipment.yaml 对齐；max_level 也从中读）
+EQUIP_MILESTONES = (5, 10, 15, 20)
+EQUIP_MAX_LEVEL = 20
+
+
+def _draw_milestone_affix(pools: RoguePools):
+    """装备里程碑词条抽取（宏观近似）：70% 正面 / 30% 诅咒，随机一条。
+    用 pools 的种子 rng——保持整局模拟可复现。"""
+    rng = getattr(pools, "rng", None)
+    if rng is None:
+        return None
+    affixes = getattr(pools, "affixes", [])
+    if not affixes:
+        return None
+    positive = [a for a in affixes if getattr(a, "polarity", "positive") != "curse"]
+    curse = [a for a in affixes if getattr(a, "polarity", "") == "curse"]
+    if rng.float() < 0.7 and positive:
+        return positive[rng.int(0, len(positive) - 1)]
+    if curse:
+        return curse[rng.int(0, len(curse) - 1)]
+    return affixes[rng.int(0, len(affixes) - 1)]
 
 
 def _pick_discard(bond_pool: list[str], path_realm: dict, pools: RoguePools, incoming: str) -> str | None:
@@ -189,12 +209,23 @@ class SimpleStrategy(Strategy):
                 bond_times_drawn += 1
                 do(Action(ActionType.DRAW_BOND, cost=cost, detail=f"{chosen.name}"))
                 continue
-            # 3) 升装备
+            # 3) 升装备（里程碑抽词条：一次性 gold_lump 立即加金，其余进持续属性池）
             if state.equip_level < EQUIP_MAX_LEVEL:
                 cost = equip_upgrade_cost(state.equip_level, econ)
                 if state.spend(cost):
                     state.equip_level += 1
-                    do(Action(ActionType.UPGRADE_EQUIP, cost=cost, detail=f"+{state.equip_level}"))
+                    detail = f"+{state.equip_level}"
+                    if state.equip_level in EQUIP_MILESTONES:
+                        aff = _draw_milestone_affix(pools)
+                        if aff is not None:
+                            eff = aff.effect
+                            if "gold_lump" in eff:
+                                state.add_gold(float(eff["gold_lump"]))
+                                detail += f"·{aff.name}(+{int(eff['gold_lump'])}金)"
+                            else:
+                                state.equip_affixes.append(eff)
+                                detail += f"·{aff.name}"
+                    do(Action(ActionType.UPGRADE_EQUIP, cost=cost, detail=detail))
                     continue
             # 4) 刷新羁绊（追求凑齐当前境界）—— 软上限内
             if state.rerolls_this_wave < reroll_cap:

@@ -185,6 +185,12 @@ affixes:
     note: 受击前先扣护盾
 
   # ── 经济/资源向（技能词条里也有少量经济）──
+  - id: gold_lump
+    name: 天降横财
+    rarity: SR
+    stacking: replace
+    effect: { gold_lump: 80 }
+    note: 一次性金币 +80（选到立即到账，不叠加——GDD §5 经济词条）
   - id: gold_on_hit
     name: 命中得金
     rarity: SR

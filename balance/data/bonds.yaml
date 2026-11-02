@@ -7,154 +7,154 @@ bonds:
   name: 力量符文
   set: generic
   rarity: N
-  effect: { atk_pct_delta: 0.35 }
+  effect: { atk_pct_delta: 0.158 }
 - id: common_hp
   name: 生命符文
   set: generic
   rarity: N
-  effect: { hp_pct_delta: 0.525 }
+  effect: { hp_pct_delta: 0.236 }
 - id: common_speed
   name: 迅捷符文
   set: generic
   rarity: N
-  effect: { attack_speed_delta: 0.35 }
+  effect: { attack_speed_delta: 0.158 }
 - id: common_crit
   name: 锐利符文
   set: generic
   rarity: N
-  effect: { crit_rate_delta: 0.175 }
+  effect: { crit_rate_delta: 0.079 }
 - id: common_lifesteal
   name: 吸血符文
   set: generic
   rarity: N
-  effect: { lifesteal_pct: 0.07 }
+  effect: { lifesteal_pct: 0.032 }
 - id: common_armor
   name: 铁甲符文
   set: generic
   rarity: N
-  effect: { damage_reduction_delta: 0.05 }
+  effect: { damage_reduction_delta: 0.023 }
 - id: common_pen
   name: 破甲符文
   set: generic
   rarity: N
-  effect: { armor_pen: 0.10 }
+  effect: { armor_pen: 0.045 }
 - id: common_cdmg
   name: 暴烈符文
   set: generic
   rarity: N
-  effect: { crit_dmg_delta: 0.35 }
+  effect: { crit_dmg_delta: 0.158 }
 - id: common_regen
   name: 回春符文
   set: generic
   rarity: N
-  effect: { lifesteal_pct: 0.03, hp_pct_delta: 0.10 }
+  effect: { lifesteal_pct: 0.013, hp_pct_delta: 0.045 }
 - id: common_dodge
   name: 灵巧符文
   set: generic
   rarity: N
-  effect: { attack_speed_delta: 0.15, crit_rate_delta: 0.05 }
+  effect: { attack_speed_delta: 0.068, crit_rate_delta: 0.023 }
 # 第二组：进阶属性（10个）
 - id: common_might
   name: 神力符文
   set: generic
   rarity: N
-  effect: { atk_pct_delta: 0.20, crit_dmg_delta: 0.15 }
+  effect: { atk_pct_delta: 0.09, crit_dmg_delta: 0.068 }
 - id: common_vitality
   name: 强体符文
   set: generic
   rarity: N
-  effect: { hp_pct_delta: 0.35, damage_reduction_delta: 0.03 }
+  effect: { hp_pct_delta: 0.158, damage_reduction_delta: 0.013 }
 - id: common_swift
   name: 疾风符文
   set: generic
   rarity: N
-  effect: { attack_speed_delta: 0.20, armor_pen: 0.05 }
+  effect: { attack_speed_delta: 0.09, armor_pen: 0.023 }
 - id: common_focus
   name: 聚神符文
   set: generic
   rarity: N
-  effect: { crit_rate_delta: 0.10, crit_dmg_delta: 0.20 }
+  effect: { crit_rate_delta: 0.045, crit_dmg_delta: 0.09 }
 - id: common_bloodlust
   name: 嗜血符文
   set: generic
   rarity: N
-  effect: { lifesteal_pct: 0.05, atk_pct_delta: 0.10 }
+  effect: { lifesteal_pct: 0.023, atk_pct_delta: 0.045 }
 - id: common_fortify
   name: 坚壁符文
   set: generic
   rarity: N
-  effect: { damage_reduction_delta: 0.04, hp_pct_delta: 0.20 }
+  effect: { damage_reduction_delta: 0.018, hp_pct_delta: 0.09 }
 - id: common_pierce
   name: 贯穿符文
   set: generic
   rarity: N
-  effect: { armor_pen: 0.08, atk_pct_delta: 0.10 }
+  effect: { armor_pen: 0.036, atk_pct_delta: 0.045 }
 - id: common_fury
   name: 狂怒符文
   set: generic
   rarity: N
-  effect: { crit_dmg_delta: 0.25, attack_speed_delta: 0.10 }
+  effect: { crit_dmg_delta: 0.113, attack_speed_delta: 0.045 }
 - id: common_ward
   name: 庇护符文
   set: generic
   rarity: N
-  effect: { hp_pct_delta: 0.15, lifesteal_pct: 0.03, damage_reduction_delta: 0.02 }
+  effect: { hp_pct_delta: 0.068, lifesteal_pct: 0.013, damage_reduction_delta: 0.009 }
 - id: common_precision
   name: 精准符文
   set: generic
   rarity: N
-  effect: { crit_rate_delta: 0.08, armor_pen: 0.05, attack_speed_delta: 0.05 }
+  effect: { crit_rate_delta: 0.036, armor_pen: 0.023, attack_speed_delta: 0.023 }
 # 第三组：混合属性（10个）
 - id: common_valor
   name: 勇毅符文
   set: generic
   rarity: N
-  effect: { atk_pct_delta: 0.15, hp_pct_delta: 0.15 }
+  effect: { atk_pct_delta: 0.068, hp_pct_delta: 0.068 }
 - id: common_tempest
   name: 风暴符文
   set: generic
   rarity: N
-  effect: { attack_speed_delta: 0.12, crit_rate_delta: 0.05 }
+  effect: { attack_speed_delta: 0.054, crit_rate_delta: 0.023 }
 - id: common_savage
   name: 蛮荒符文
   set: generic
   rarity: N
-  effect: { atk_pct_delta: 0.12, lifesteal_pct: 0.03 }
+  effect: { atk_pct_delta: 0.054, lifesteal_pct: 0.013 }
 - id: common_guardian
   name: 守护符文
   set: generic
   rarity: N
-  effect: { hp_pct_delta: 0.25, damage_reduction_delta: 0.03 }
+  effect: { hp_pct_delta: 0.113, damage_reduction_delta: 0.013 }
 - id: common_hunter
   name: 猎手符文
   set: generic
   rarity: N
-  effect: { crit_dmg_delta: 0.15, armor_pen: 0.05 }
+  effect: { crit_dmg_delta: 0.068, armor_pen: 0.023 }
 - id: common_berserker
   name: 狂战符文
   set: generic
   rarity: N
-  effect: { atk_pct_delta: 0.10, attack_speed_delta: 0.10, lifesteal_pct: 0.02 }
+  effect: { atk_pct_delta: 0.045, attack_speed_delta: 0.045, lifesteal_pct: 0.009 }
 - id: common_titan
   name: 泰坦符文
   set: generic
   rarity: N
-  effect: { hp_pct_delta: 0.20, atk_pct_delta: 0.10 }
+  effect: { hp_pct_delta: 0.09, atk_pct_delta: 0.045 }
 - id: common_assassin
   name: 刺客符文
   set: generic
   rarity: N
-  effect: { crit_rate_delta: 0.07, crit_dmg_delta: 0.12, attack_speed_delta: 0.05 }
+  effect: { crit_rate_delta: 0.032, crit_dmg_delta: 0.054, attack_speed_delta: 0.023 }
 - id: common_paladin
   name: 圣骑符文
   set: generic
   rarity: N
-  effect: { hp_pct_delta: 0.12, lifesteal_pct: 0.04, damage_reduction_delta: 0.02 }
+  effect: { hp_pct_delta: 0.054, lifesteal_pct: 0.018, damage_reduction_delta: 0.009 }
 - id: common_warlord
   name: 军阀符文
   set: generic
   rarity: N
-  effect: { atk_pct_delta: 0.12, crit_dmg_delta: 0.10, armor_pen: 0.03 }
+  effect: { atk_pct_delta: 0.054, crit_dmg_delta: 0.045, armor_pen: 0.013 }
 # ══ 体系种子（点了才解锁体系羁绊池 + 给金币奖励）══
 - id: seed_zhutian
   name: 遮天·道经种子
@@ -204,7 +204,7 @@ bonds:
   set: zhutian
   rarity: SR
   effect:
-    hp_pct_delta: 0.10
+    hp_pct_delta: 0.19
 - id: zt_lunhai_mingquan
   name: 命泉
   set: zhutian
@@ -230,7 +230,7 @@ bonds:
   set: zhutian
   rarity: SSR
   effect:
-    lifesteal_pct: 0.05
+    lifesteal_pct: 0.066
 - id: zt_daogong_spleen
   name: 脾之神
   set: zhutian
@@ -473,7 +473,7 @@ bonds:
   set: zhutian
   rarity: UR
   effect:
-    physical_dmg_pct_delta: 0.12
+    physical_dmg_pct_delta: 0.173
   note: 九秘之一（仙台境）——AOE场控
 - id: zt_jm_qian
   name: 前字秘·未卜先知
@@ -487,14 +487,14 @@ bonds:
   set: zhutian
   rarity: EX
   effect:
-    crit_dmg_delta: 0.20
+    crit_dmg_delta: 0.517
   note: 九秘之一（大帝境）——暴伤
 - id: zt_jm_zhe
   name: 者字秘·御万物
   set: zhutian
   rarity: EX
   effect:
-    crit_rate_delta: 0.10
+    crit_rate_delta: 0.173
   note: 九秘之一（红尘仙境）——暴击
 - id: zt_jm_shu
   name: 数字秘·身外化身
@@ -514,19 +514,19 @@ bonds:
   set: xingchenbian
   rarity: SR
   effect:
-    magic_dmg_pct_delta: 0.061
+    magic_dmg_pct_delta: 0.114
 - id: xc_xy_yunqi
   name: 云气
   set: xingchenbian
   rarity: SR
   effect:
-    magic_dmg_pct_delta: 0.031
+    magic_dmg_pct_delta: 0.081
 - id: xc_xy_linggen
   name: 灵根
   set: xingchenbian
   rarity: SR
   effect:
-    crit_rate_delta: 0.05
+    crit_rate_delta: 0.076
 
 # ── 流星（境1，rarity SSR）──
 - id: xc_lx_liuxing
@@ -555,7 +555,7 @@ bonds:
   set: xingchenbian
   rarity: SSR
   effect:
-    magic_dmg_pct_delta: 0.093
+    magic_dmg_pct_delta: 0.131
 - id: xc_xh_faize
   name: 六九天劫
   set: xingchenbian
@@ -567,7 +567,7 @@ bonds:
   set: xingchenbian
   rarity: SSR
   effect:
-    crit_dmg_delta: 0.20
+    crit_dmg_delta: 0.262
 
 # ── 行星（境3，rarity SSR）──
 - id: xc_xx_guidao
@@ -575,7 +575,7 @@ bonds:
   set: xingchenbian
   rarity: SSR
   effect:
-    attack_speed_delta: 0.074
+    attack_speed_delta: 0.109
 - id: xc_xx_wuxing
   name: 五行
   set: xingchenbian
@@ -587,14 +587,14 @@ bonds:
   set: xingchenbian
   rarity: SSR
   effect:
-    damage_reduction_delta: 0.05
+    damage_reduction_delta: 0.066
 
 - id: xc_dj_leijian
   name: 雷劫·淬体
   set: xingchenbian
   rarity: UR
   effect:
-    hp_pct_delta: 0.08
+    hp_pct_delta: 0.208
 # ── 渡劫（境4，rarity UR）──
 - id: xc_dj_leijie
   name: 雷劫
@@ -614,14 +614,14 @@ bonds:
   set: xingchenbian
   rarity: UR
   effect:
-    magic_dmg_pct_delta: 0.068
+    magic_dmg_pct_delta: 0.173
 # ── 恒星（境5，rarity UR）──
 - id: xc_hx_hengguang
   name: 恒光
   set: xingchenbian
   rarity: UR
   effect:
-    magic_dmg_pct_delta: 0.123
+    magic_dmg_pct_delta: 0.172
 - id: xc_hx_taoyang
   name: 太阳
   set: xingchenbian
@@ -634,7 +634,7 @@ bonds:
   set: xingchenbian
   rarity: UR
   effect:
-    crit_rate_delta: 0.04
+    crit_rate_delta: 0.104
 # ── 暗星（境6，rarity UR）──
 - id: xc_ax_ansu
   name: 暗素
@@ -654,8 +654,8 @@ bonds:
   set: xingchenbian
   rarity: EX
   effect:
-    lifesteal_pct: 0.02
-    magic_dmg_pct_delta: 0.043
+    lifesteal_pct: 0.052
+    magic_dmg_pct_delta: 0.112
 # ── 黑洞（境7，rarity EX）──
 - id: xc_hd_tunshi
   name: 吞噬
@@ -669,7 +669,7 @@ bonds:
   set: xingchenbian
   rarity: EX
   effect:
-    magic_dmg_pct_delta: 0.153
+    magic_dmg_pct_delta: 0.259
 
 - id: xc_yz_chuangshi
   name: 鸿蒙·创世
@@ -726,7 +726,7 @@ bonds:
   rarity: SR
   pet_scope: body
   effect:
-    crit_rate_delta: 0.05
+    crit_rate_delta: 0.076
 
 # ── 魂士（境1，rarity SSR，3个）──
 - id: cm_hs_liuwei
@@ -979,7 +979,7 @@ bonds:
   set: doupo
   rarity: SR
   effect:
-    crit_rate_delta: 0.05
+    crit_rate_delta: 0.076
 - id: dp_qi_douzhi
   name: 斗之气·九段
   set: doupo
@@ -1011,7 +1011,7 @@ bonds:
   set: doupo
   rarity: SSR
   effect:
-    hp_pct_delta: 0.10
+    hp_pct_delta: 0.219
 
 # ── 斗师（境2，rarity SSR，4个）──
 - id: dp_shi_yunlan
@@ -1057,7 +1057,7 @@ bonds:
   set: doupo
   rarity: SSR
   effect:
-    lifesteal_pct: 0.02
+    lifesteal_pct: 0.052
 - id: dp_ds_qiangbang
   name: 迦南学院·强榜之战
   set: doupo
@@ -1071,8 +1071,8 @@ bonds:
   set: doupo
   rarity: UR
   effect:
-    hp_pct_delta: 0.12
-    lifesteal_pct: 0.02
+    hp_pct_delta: 0.185
+    lifesteal_pct: 0.031
 - id: dp_ling_sanqian
   name: 三千雷动
   set: doupo
