@@ -18,3 +18,7 @@
 - [ ] boss_debuffs.is_active() 跳波场景状态残留：波未正常结束就跳到下一 Boss 波时
       _active_idx 不清（removed 槽位读 is_active 仍 True）——正常游玩不触发，
       仅调试跳波/测试场景可见（regression 已改读 removed 权威标志）
+- [ ] 发布流程：导出前移除 addons/godot_mcp + 对应 autoload（MCPGameBridge）
+      ——插件在导出版是死代码（bridge 需编辑器 debugger 通路，无注入风险），
+      但占体积且 autoload 指向需同步清理；建议做一次性 export 脚本
+- [ ] game_manager 两处 `../UILayer/HUD|Lobby` 相对路径 → unique name（%HUD/%Lobby）
