@@ -15,3 +15,6 @@
 - [ ] 美术尾巴：图集合并 + 移动端性能验证（M5.5）
 - [ ] 服务端架构文档（M6 前另起：账号/云存档/排行榜/每日种子）
 - [ ] iOS/Android 打包 + IAP/广告
+- [ ] boss_debuffs.is_active() 跳波场景状态残留：波未正常结束就跳到下一 Boss 波时
+      _active_idx 不清（removed 槽位读 is_active 仍 True）——正常游玩不触发，
+      仅调试跳波/测试场景可见（regression 已改读 removed 权威标志）

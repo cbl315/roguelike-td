@@ -47,6 +47,19 @@ var _dmg_cooldown: float = 0.0   # 全局受伤间隔（0.3s 内只受一次伤�
 const DMG_INTERVAL := 0.3
 
 
+## ── 公开访问（game_manager 编排用；原 _stats/_dmg_cooldown/_juice 跨对象私有访问修复）──
+func get_stats() -> CombatStats:
+	return _stats
+
+
+func is_vulnerable() -> bool:
+	return _dmg_cooldown <= 0.0
+
+
+func play_attack_fx() -> void:
+	_juice.play_attack()
+
+
 func take_damage(amount: float) -> void:
 	if _dmg_cooldown > 0.0:
 		return   # 全局无敌帧内，不受伤

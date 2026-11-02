@@ -1,0 +1,20 @@
+#!/bin/sh
+# pre-commit：GDScript 编译检查（防 wdvar 类脏文本事故混入提交）
+# 启用：git config core.hooksPath .githooks（一次性，README 有说明）
+GODOT="${GODOT_BIN:-$HOME/Downloads/Godot.app/Contents/MacOS/Godot}"
+[ -x "$GODOT" ] || { echo "⚠ 未找到 Godot（可 export GODOT_BIN=...），跳过编译检查"; exit 0; }
+
+CHANGED=$(git diff --cached --name-only --diff-filter=ACM | grep '\.gd$' | grep '^client/')
+[ -z "$CHANGED" ] && exit 0
+
+FAIL=0
+for f in $CHANGED; do
+  OUT=$("$GODOT" --headless --path client --check-only --script "res://${f#client/}" 2>&1 | grep -E "Parse Error|Compile Error" | grep -v "EventBus\|SoundManager\|SpriteAtlas\|SparkleLite" | head -1)
+  if [ -n "$OUT" ]; then
+    echo "❌ $f: $OUT"
+    FAIL=1
+  fi
+done
+[ $FAIL -eq 1 ] && { echo "提交中止：GDScript 编译错误（autoload 名单误报已过滤）"; exit 1; }
+echo "✓ GDScript 编译检查通过"
+exit 0

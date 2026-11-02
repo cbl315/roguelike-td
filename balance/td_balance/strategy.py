@@ -26,6 +26,9 @@ from .economy import (
 )
 from .player import Action, ActionType, PlayerState
 from .combat import damage as _dmg_mod   # 突破守关者 DPS 考核用
+from .combat_stats import resolve_player
+from .curves import required_dps
+from .loader import load_wave_params
 from .rogue_pools import RoguePools
 
 # 突破守关者考核：波间 DPS ≥ 下一波 required_dps × 此系数才允许吞噬升境
@@ -164,9 +167,6 @@ class SimpleStrategy(Strategy):
             dev = pools.find_devourable(state.bond_pool, state.path_realm)
             if dev:
                 path_id, realm_idx, needed = dev
-                from .combat_stats import resolve_player
-                from .curves import required_dps
-                from .loader import load_wave_params
                 pc = resolve_player(state, pools)
                 armor = 20.0 + 1.5 * wave   # 与 run_sim._enemy_armor 同式（避免循环 import）
                 dps = _dmg_mod.expected_dps(pc.offense, _dmg_mod.EnemyStats(armor=armor))

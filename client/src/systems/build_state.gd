@@ -25,7 +25,7 @@ var devoured_bonds: Array = []         # Array[String] 已吞噬的羁绊 id（�
 var bonds_drawn: int = 0               # 本局已抽羁绊次数（用于递增成本）
 var path_realm: Dictionary = {}        # {path_id: 已完成境界数}
 var rng: RandomNumberGenerator
-var pools: Variant = null              # RoguePools 实例
+var pools: RoguePools = null
 var synergy_engine: SynergyEngine = null  # 联动引擎
 var active_synergies: Array = []       # 当前已触发的联动（缓存，供 UI 显示）
 var equip_level: int = 0               # 装备等级 0-9

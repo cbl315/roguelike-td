@@ -541,6 +541,11 @@ func _find_bond(bid: String) -> Dictionary:
 
 
 ## 查羁绊名称（供 UI 显示）
+## 公开查询（UI 用）：bond id → 显示名（跨对象私有访问修复）
+func find_bond_name(bid: String) -> String:
+	return _find_bond_name(bid)
+
+
 func _find_bond_name(bid: String) -> String:
 	var b: Dictionary = _find_bond(bid)
 	if b.is_empty():

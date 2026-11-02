@@ -11,6 +11,11 @@ signal boss_debuff_reroll_requested() # 应对道具：换（GDD §13）
 signal boss_debuff_remove_requested() # 应对道具：删
 
 var _char_panel: Control = null   # #6: Tab 角色面板（动态创建）
+
+# ── 布局常量区（UI 场景化前的集中管理；P2-⑥ 债务缓解）──
+const POS_TOP_RIGHT := Vector2(1500, 0)      # 右上信息区原点（核心血条/能量条/预告条）
+const POS_FORECAST_BTNS := Vector2(1500, 128)  # Boss 预告换/删按钮
+const POS_RESULT := Vector2(560, 400)        # 结算面板文字区
 var _toast_label: Label = null    # 居中临时提示（突破境界）
 var _toast_timer: float = 0.0     # Toast 剩余显示时间
 var _result_shown: bool = false   # 结算画面显示中（R 键重开用）
@@ -126,7 +131,7 @@ func _on_bond_devoured(path_id: String, realm_idx: int, realm_name: String) -> v
 func _setup_ult_ui() -> void:
 	# 能量条（核心血条正下方，金色）
 	_ult_bar = ProgressBar.new()
-	_ult_bar.position = Vector2(1500, 68)
+	_ult_bar.position = POS_TOP_RIGHT + Vector2(0, 68)
 	_ult_bar.size = Vector2(390, 14)
 	_ult_bar.min_value = 0.0
 	_ult_bar.max_value = 1.0
@@ -184,20 +189,20 @@ func update_ult_energy(ratio: float) -> void:
 ## 下一个 Boss debuff 预告 + 换/删道具（GDD §13，game_manager 波间刷新）
 func _setup_forecast_ui() -> void:
 	_forecast_label = Label.new()
-	_forecast_label.position = Vector2(1500, 100)
+	_forecast_label.position = POS_TOP_RIGHT + Vector2(0, 100)
 	_forecast_label.size = Vector2(390, 26)
 	_forecast_label.add_theme_font_size_override("font_size", 17)
 	_forecast_label.add_theme_color_override("font_color", Color(0.95, 0.7, 0.55))
 	add_child(_forecast_label)
 	_forecast_reroll = Button.new()
-	_forecast_reroll.position = Vector2(1500, 128)
+	_forecast_reroll.position = POS_FORECAST_BTNS
 	_forecast_reroll.size = Vector2(130, 34)
 	_forecast_reroll.add_theme_font_size_override("font_size", 15)
 	_forecast_reroll.focus_mode = Control.FOCUS_NONE
 	_forecast_reroll.pressed.connect(func(): boss_debuff_reroll_requested.emit())
 	add_child(_forecast_reroll)
 	_forecast_remove = Button.new()
-	_forecast_remove.position = Vector2(1640, 128)
+	_forecast_remove.position = POS_FORECAST_BTNS + Vector2(140, 0)
 	_forecast_remove.size = Vector2(130, 34)
 	_forecast_remove.add_theme_font_size_override("font_size", 15)
 	_forecast_remove.focus_mode = Control.FOCUS_NONE
@@ -310,7 +315,7 @@ func show_result(won: bool, wave: int = 1, stats: Dictionary = {}) -> void:
 	_result_shown = true
 	_result_label.visible = true
 	# 加高结算区域容纳统计块（原 120 高只够两行）
-	_result_label.position = Vector2(560, 400)
+	_result_label.position = POS_RESULT
 	_result_label.size = Vector2(800, 280)
 	_result_label.add_theme_font_size_override("font_size", 30)
 	var title := ""
@@ -459,7 +464,7 @@ func _render_char_panel(build: BuildState, pools: RoguePools) -> void:
 	vbox.add_child(bond_header)
 	for bid in build.bond_pool:
 		var l := Label.new()
-		l.text = "  • " + pools._find_bond_name(String(bid))
+		l.text = "  • " + pools.find_bond_name(String(bid))
 		l.add_theme_font_size_override("font_size", 18)
 		vbox.add_child(l)
 	if build.bond_pool.is_empty():
@@ -474,7 +479,7 @@ func _render_char_panel(build: BuildState, pools: RoguePools) -> void:
 		vbox.add_child(dev_header)
 		for bid in build.devoured_bonds:
 			var l := Label.new()
-			l.text = "  ◆ " + pools._find_bond_name(String(bid))
+			l.text = "  ◆ " + pools.find_bond_name(String(bid))
 			l.add_theme_font_size_override("font_size", 16)
 			l.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
 			vbox.add_child(l)

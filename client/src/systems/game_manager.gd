@@ -25,7 +25,7 @@ var _rng := RandomNumberGenerator.new()
 
 # 召唤单位（宠魅体系）
 var _summon_units: Array = []   # Array[SummonUnit]
-var _breakthrough_guard: Enemy = null   # 突破守关者（活着=卡池锁定）
+var _breakthrough = null   # 突破守关者控制器（preload 实例化，避免新 class_name 缓存依赖）
 var _bond_pool_bar = null   # 底部羁绊池条（preload 实例化，避免 class_name 缓存依赖）
 
 # Sparkle Lite game feel：场景级反馈（震动/顿帧/闪屏）
@@ -38,7 +38,6 @@ var _boss_debuffs := BossDebuffs.new()
 var _lobby_reroll_delta: int = 0   # 封印之手：Boss 波后大厅刷新次数增减
 
 # 大招系统（GDD §11）—— 数值定稿（2026-10 数值轮，模拟胜率 ~54%）
-const BREAKTHROUGH_HP_PER_WAVE := 16.0   # 突破守关者 HP = 当前波怪血 ×16（扫参对应 Python R=0.65：混修 12-20s 击杀，单体系勉强差一点）
 const ULT_DMG_MULT := 8.0          # 倍率：expected_hit_dmg × 8（继承 build 乘区，前期全额生效）
 const ULT_PER_ENEMY_FLOOR := 0.18  # 每怪保底 = max_hp×18%（后期单发缩小后大招不清屏的修复）
 const ULT_PER_ENEMY_CAP := 0.45    # 每怪上限 = max_hp×45%（防一刀秒 Boss，前期由 hit×8 主导）
@@ -90,7 +89,9 @@ func _ready() -> void:
 	# 境界吞噬桥接（build_state 不引 EventBus autoload，保持 headless -s 可测）
 	_build.realm_devoured.connect(func(p: String, r: int, n: String): EventBus.bond_devoured.emit(p, r, n))
 	# 突破怪：集齐境界 → 挑战守关者 → 赢了才升境（强制多修的考核压力）
-	_build.breakthrough_ready.connect(_on_breakthrough_ready)
+	_breakthrough = preload("res://src/systems/breakthrough_controller.gd").new()
+	_breakthrough.setup(self)
+	_build.breakthrough_ready.connect(_breakthrough.on_breakthrough_ready)
 	# 底部羁绊池展示条（按体系分组 + 体系色边框）
 	_bond_pool_bar = preload("res://src/scenes/hud/bond_pool_bar.gd").new()
 	add_child(_bond_pool_bar)
@@ -243,7 +244,7 @@ func _start_next_wave() -> void:
 	_hud.update_bond_cost(_build.bond_draw_cost())
 	_hud.update_equip_state(_build.equip_level, _pools.equip_upgrade_cost(_build.equip_level))
 	_hero.refresh_stats()   # debuff 属性类效果在此生效
-	_boss_debuffs.modify_stats(_hero._stats)
+	_boss_debuffs.modify_stats(_hero.get_stats())
 	_refresh_summon_stats()
 	if _spawner: _spawner.start_wave(current_wave)
 
@@ -252,7 +253,7 @@ func _on_wave_finished() -> void:
 	if state != State.WAVE_IN_PROGRESS:
 		return   # 防重复（超时 + 全清可能同时触发）
 	state = State.WAVE_CLEARED
-	_withdraw_breakthrough_guard()   # 守关者活到波末 → 撤退（pending 保留）
+	_breakthrough.withdraw()   # 守关者活到波末 → 撤退（pending 保留）
 	EventBus.wave_cleared.emit(current_wave)
 	# Boss Debuff：波结束 → 停用效果；封印之手作用于之后的大厅
 	var was_debuff_wave: bool = _boss_debuffs.is_active()
@@ -280,7 +281,7 @@ func _on_lobby_confirmed() -> void:
 	_hud.update_bond_cost(_build.bond_draw_cost())
 	_hud.update_equip_state(_build.equip_level, _pools.equip_upgrade_cost(_build.equip_level))
 	_hero.refresh_stats()
-	_boss_debuffs.modify_stats(_hero._stats)   # Boss 波内开大厅重选羁绊后仍保持 debuff
+	_boss_debuffs.modify_stats(_hero.get_stats())   # Boss 波内开大厅重选羁绊后仍保持 debuff
 	_refresh_summon_stats()
 
 
@@ -380,7 +381,7 @@ func _refresh_boss_forecast() -> void:
 ## 伤害由 enemy.leak_damage 数据驱动传入（随波数/类型递增）
 func _on_enemy_reached_hero(enemy: Node, dmg: float) -> void:
 	# 受击音效只在实际掉血时响（无敌帧内不响）
-	if _hero._dmg_cooldown <= 0.0:
+	if _hero.is_vulnerable():
 		SoundManager.play("hero_hurt", -4.0)
 		_gain_ult(0.03)   # 受击加速充能 +3%
 	_hero.take_damage(dmg)
@@ -443,7 +444,7 @@ func _gain_ult(amount: float) -> void:
 func _try_release_ult() -> void:
 	if _ult_energy < 1.0 or state != State.WAVE_IN_PROGRESS:
 		return
-	if not is_instance_valid(_hero) or _hero._stats == null:
+	if not is_instance_valid(_hero) or _hero.get_stats() == null:
 		return
 	_ult_energy = 0.0
 	EventBus.ult_energy_changed.emit(0.0)
@@ -456,7 +457,7 @@ func _try_release_ult() -> void:
 	if _fb_ult != null:
 		_fb_ult.play()
 	SoundManager.play("boss_kill", -3.0)
-	_hero._juice.play_attack()
+	_hero.play_attack_fx()
 	# 结算：全屏敌人受 clamp(expected×8, max_hp×18%, max_hp×45%)——
 	# 前期 hit×8 主导（全额爽）；后期保底 18% 血（清屏感回来了）；Boss 单独 15% 上限
 	var killed := 0
@@ -465,7 +466,7 @@ func _try_release_ult() -> void:
 			continue
 		var enemy: Enemy = e as Enemy
 		var cap: float = ULT_BOSS_CAP if enemy.is_boss else ULT_PER_ENEMY_CAP
-		var dmg: float = clampf(_hero._stats.expected_hit_dmg(enemy.armor) * ULT_DMG_MULT,
+		var dmg: float = clampf(_hero.get_stats().expected_hit_dmg(enemy.armor) * ULT_DMG_MULT,
 			enemy.max_hp * ULT_PER_ENEMY_FLOOR, enemy.max_hp * cap)
 		_stats_damage += dmg
 		FloatingText.spawn(self, enemy.global_position, "%d" % int(round(dmg)), false, true)
@@ -550,56 +551,10 @@ func _on_summon_requested(unit_id: String, unit_name: String) -> void:
 
 
 ## 白魇魔被吞噬 → 停用对应召唤单位。
-## ── 突破守关者（打赢才能升境；波间大厅按钮挑战）──
-
-func _on_breakthrough_ready(path_id: String, realm_idx: int) -> void:
-	SoundManager.play("wave_start", -2.0)
-	if _hud:
-		_hud.show_toast("⚔ 境界圆满！波间可挑战【突破守关者】— 击杀后才升境")
-
+## ── 突破守关者（委托 BreakthroughController，单一职责剥离）──
 
 func challenge_breakthrough() -> void:
-	if _build == null or _build.pending_breakthrough.is_empty():
-		return
-	if _breakthrough_guard != null and is_instance_valid(_breakthrough_guard):
-		return   # 守关者已在场
-	# 波间挑战：关面板、开打（战斗状态注入）
-	if _lobby and _lobby.visible:
-		_lobby.close()
-	get_tree().paused = false
-	var pd: Dictionary = _build.pending_breakthrough
-	var realm_idx: int = int(pd.get("realm_idx", 0))
-	# HP 随波次与境界深度双缩放（单体系贴线打不完，混修 12-20s 击杀）
-	var hp: float = WaveCurves.enemy_hp(current_wave) * BREAKTHROUGH_HP_PER_WAVE * (1.0 + realm_idx * 0.06)
-	var guard_enemy := Enemy.new()
-	add_child(guard_enemy)
-	guard_enemy.setup(hp, false, true, _hero, Rect2(80, 80, 2840, 1840))
-	guard_enemy.global_position = _hero.global_position + Vector2(420, -160)
-	guard_enemy.modulate = Color(0.8, 0.55, 1.0)      # 紫色标识
-	guard_enemy.kill_reward = 60.0                     # 击杀奖励（回血经济）
-	guard_enemy.died.connect(_on_breakthrough_guard_down)
-	_spawner._active_enemies.append(guard_enemy)
-	_breakthrough_guard = guard_enemy
-	if _hud:
-		_hud.show_toast("⚔ 突破守关者降临！击杀它完成突破")
-
-
-func _on_breakthrough_guard_down(_enemy: Node = null) -> void:
-	_breakthrough_guard = null
-	if _build == null or _build.pending_breakthrough.is_empty():
-		return
-	_build.apply_breakthrough()   # 真正升境（演出走 realm_devoured → HUD 大字）
-
-
-## 波结束守关者还活着 → 撤退（pending 保留，波间可再挑战）
-func _withdraw_breakthrough_guard() -> void:
-	if _breakthrough_guard != null and is_instance_valid(_breakthrough_guard):
-		_breakthrough_guard.died.disconnect(_on_breakthrough_guard_down)
-		_breakthrough_guard.deactivate()
-		_spawner._active_enemies.erase(_breakthrough_guard)
-		_breakthrough_guard = null
-		if _hud:
-			_hud.show_toast("突破失败…守关者撤退，波间可再次挑战")
+	_breakthrough.challenge()
 
 
 func _on_summon_devoured(unit_id: String) -> void:
@@ -706,52 +661,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			if _hud and _hud.is_char_panel_open():
 				toggle_char_panel()
 				get_viewport().set_input_as_handled()
-		elif _handle_debug_keys(event.keycode):
-			get_viewport().set_input_as_handled()
 
 
-# ── 调试快捷键（发布前移除）──
 
-## N=跳过当前波  B=跳到下一个Boss波(10/20/30)  G=+500金
-func _handle_debug_keys(keycode: int) -> bool:
-	if state != State.WAVE_IN_PROGRESS and state != State.WAVE_CLEARED:
-		return false
-	match keycode:
-		KEY_N:
-			_dbg_clear_current_wave()
-			return true
-		KEY_B:
-			_dbg_jump_to_next_boss()
-			return true
-		KEY_G:
-			_build.add_gold(500.0)
-			_hud.update_gold(_build.gold)
-			return true
-	return false
-
-
-## 秒杀当前波全部敌人 → 走正常波结束流程（有击杀金币/反馈）
-func _dbg_clear_current_wave() -> void:
-	if _spawner:
-		_spawner.stop_spawning()
-	for e in _spawner.active_enemies().duplicate():
-		if is_instance_valid(e):
-			e.take_damage(1.0e9)
-
-
-## 跳到下一个 Boss 波：清场后把波次拨到 next_boss-1，
-## 波结束 → 1.5s 间歇 → _start_next_wave 自然进入 Boss 波（完整走预告/横幅/debuff 流程）
-func _dbg_jump_to_next_boss() -> void:
-	var next_boss: int = 0
-	for bw in [10, 20, 30]:
-		if bw > current_wave:
-			next_boss = bw
-			break
-	if next_boss == 0:
-		return   # 三个 Boss 波都打完了
-	if _spawner:
-		_spawner.stop_spawning()
-	for e in _spawner.active_enemies().duplicate():
-		if is_instance_valid(e):
-			e.take_damage(1.0e9)
-	current_wave = next_boss - 1
+# 调试快捷键（G/B/N）已迁移至 DebugKeys autoload（发布自动失效）

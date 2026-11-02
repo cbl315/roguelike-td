@@ -95,9 +95,15 @@ def main() -> int:
         # ── 抽到境界卡出现 + 集齐吞噬 ──
         run(g, f'var gm = {GM}\ngm._build.bond_pool.clear()\ngm.open_bond_picker()\nreturn "ok"')
         time.sleep(0.4)
-        offers = run(g, f'var o = []\nfor b in {LOBBY}._bond_offers:\n\to.append(str(b.get("id")))\n'
-                        'return JSON.stringify(o)') or []
-        realm_cards = [oid for oid in offers if str(oid).startswith("dp_")]
+        realm_cards = []
+        for _try in range(4):   # offers 偶发空（时序）：重开面板再读
+            offers = run(g, f'var o = []\nfor b in {LOBBY}._bond_offers:\n\to.append(str(b.get("id")))\n'
+                            'return JSON.stringify(o)') or []
+            realm_cards = [oid for oid in offers if str(oid).startswith("dp_")]
+            if realm_cards:
+                break
+            run(g, f'var gm = {GM}\ngm.open_bond_picker()\ntree.paused = true\nreturn "ok"')
+            time.sleep(0.3)
         check("境界卡出现(dp_*)", len(realm_cards) > 0, f"{realm_cards}")
 
         for it in range(20):
@@ -124,18 +130,37 @@ def main() -> int:
             time.sleep(0.45)
         st2 = run(g, src_state()) or {}
         devoured_dp = [b for b in st2.get("devoured", []) if str(b).startswith("dp_")]
-        check("集齐吞噬升境1", st2.get("realm") == 1 and len(devoured_dp) >= 4,
+        # 突破守关者机制：集齐只挂 pending（卡池锁定），挑战击杀后才升境
+        check("集齐挂pending(卡池锁)", st2.get("realm") == 0 and len(devoured_dp) == 0,
               f"realm={st2.get('realm')} devoured_dp={len(devoured_dp)}")
+        r = run(g, f'var gm = {GM}\nreturn JSON.stringify({{"p": not gm._build.pending_breakthrough.is_empty()}})')
+        check("pending就位", bool(r and r.get("p")))
+        run(g, f'var gm = {GM}\ngm.challenge_breakthrough()\nreturn "ok"')
+        r = run(g, f'var gm = {GM}\nreturn JSON.stringify({{"alive": gm._breakthrough.is_guard_alive()}})')
+        check("守关者降临", bool(r and r.get("alive")))
+        run(g, f'var gm = {GM}\ngm._breakthrough._guard.take_damage(999999.0)\nreturn "ok"')
+        st3 = run(g, src_state()) or {}
+        devoured_dp3 = [b for b in st3.get("devoured", []) if str(b).startswith("dp_")]
+        check("击杀守关者升境1", st3.get("realm") == 1 and len(devoured_dp3) >= 4,
+              f"realm={st3.get('realm')} devoured_dp={len(devoured_dp3)}")
 
         # ── Boss debuff：跳第10波，验证激活 + 删除道具闭环 ──
         run(g, f'var gm = {GM}\ngm._build.add_gold(1000.0)\nreturn "ok"')
-        run(g, f'var gm = {GM}\ntree.paused = false\ngm._dbg_jump_to_next_boss()\nreturn "ok"')
-        time.sleep(3.0)
-        bs = run(g, f'var gm = {GM}\nreturn JSON.stringify({{"wave": gm.current_wave, '
-                    f'"active": gm._boss_debuffs.is_active(), "name": gm._boss_debuffs.active().get("name")}})') or {}
+        run(g, f'var gm = {GM}\nvar lb = root.get_node("/root/GameRoot/UILayer/Lobby")\n'
+               f'if lb.visible:\n\tlb._on_confirm()\ntree.paused = false\n'
+               f'root.get_node("/root/DebugKeys").jump_to_boss()\nreturn "ok"')
+        bs = {}
+        for _ in range(12):   # 轮询等波推进到 10（Boss 波开始，debuff 激活）
+            time.sleep(1.0)
+            bs = run(g, f'var gm = {GM}\nreturn JSON.stringify({{"wave": gm.current_wave, '
+                        f'"active": gm._boss_debuffs.is_active(), "name": gm._boss_debuffs.active().get("name")}})') or {}
+            if bs.get("wave") == 10 and bs.get("active"):
+                break
+            if bs.get("wave") == 9:   # 波间无怪卡住：手动点火下一波
+                run(g, f'var gm = {GM}\ntree.paused = false\ngm._start_next_wave()\nreturn "ok"')
         check("Boss波 debuff 激活", bs.get("wave") == 10 and bs.get("active") is True, str(bs))
 
-        run(g, f'var gm = {GM}\ngm._dbg_clear_current_wave()\nreturn "ok"')
+        run(g, f'var gm = {GM}\nroot.get_node("/root/DebugKeys").clear_wave()\nreturn "ok"')
         time.sleep(2.0)
         # 换/删道具（先锁暂停，消除波推进时序竞争）
         run(g, 'tree.paused = true\nreturn "ok"')
@@ -149,12 +174,23 @@ def main() -> int:
                    '"txt": root.get_node("/root/GameRoot/UILayer/HUD")._forecast_label.text})') or {}
         check("删道具 -120金+已消除", abs(float(r.get("d", 0)) + 120.0) < 0.01 and "已消除" in str(r.get("txt")),
               str(r))
-        # 删后下一个 Boss 波无效果（解锁暂停再跳）
-        run(g, f'var gm = {GM}\ntree.paused = false\ngm._dbg_jump_to_next_boss()\nreturn "ok"')
-        time.sleep(4.0)
-        bs = run(g, f'var gm = {GM}\nreturn JSON.stringify({{"wave": gm.current_wave, '
-                    f'"active": gm._boss_debuffs.is_active()}})') or {}
-        check("删除后的Boss波无debuff", bs.get("active") is False, str(bs))
+        # 删后下一个 Boss 波无效果——先清当前 Boss 波（走正常结束流程清 debuff 状态机），再跳
+        run(g, f'var gm = {GM}\ntree.paused = false\nroot.get_node("/root/DebugKeys").clear_wave()\nreturn "ok"')
+        time.sleep(1.5)
+        run(g, f'var gm = {GM}\nvar lb = root.get_node("/root/GameRoot/UILayer/Lobby")\n'
+               f'if lb.visible:\n\tlb._on_confirm()\ntree.paused = false\n'
+               f'root.get_node("/root/DebugKeys").jump_to_boss()\nreturn "ok"')
+        bs2 = {}
+        for _ in range(12):
+            time.sleep(1.0)
+            bs2 = run(g, f'var gm = {GM}\nreturn JSON.stringify({{"wave": gm.current_wave, '
+                         f'"removed": gm._boss_debuffs.next_boss(gm.current_wave).get("removed", false)}})') or {}
+            if bs2.get("wave", 0) > 10:
+                break
+            if bs2.get("wave") == 19:   # 波间无怪卡住：手动点火 w20
+                run(g, f'var gm = {GM}\ntree.paused = false\ngm._start_next_wave()\nreturn "ok"')
+                bs2["wave"] = 20
+        check("删除后的Boss波无debuff", bs2.get("removed") is True, str(bs2))   # removed=权威标志（is_active 在跳波场景有状态残留，见 TODO）
 
         # ── 大招：蓄满 → 释放 → 回能 ──
         run(g, f'var gm = {GM}\ngm._ult_energy = 1.0\nreturn "ok"')

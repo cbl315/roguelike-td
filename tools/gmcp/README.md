@@ -39,7 +39,7 @@ python3 driver.py stop_project
 | 选卡 | 同上 `_on_pick(idx)`（种子卡自动 +30 金并解锁体系） |
 | 读大招能量 | `gm._ult_energy`（1.0 = 满） |
 | 读 Boss debuff | `gm._boss_debuffs._picked` / `.active()` / `.is_active()` |
-| 跳 Boss 波 | `gm._dbg_jump_to_next_boss()`（N=秒杀当前波） |
+| 跳 Boss 波 | `root.get_node("/root/DebugKeys").jump_to_boss()`（clear_wave()=秒杀当前波） |
 
 ## ZCode 原生 MCP 工具接入
 
