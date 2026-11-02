@@ -427,25 +427,25 @@ func _render_char_panel(build: BuildState, pools: RoguePools) -> void:
 		l.text = line
 		l.add_theme_font_size_override("font_size", 20)
 		vbox.add_child(l)
-	# 宠物属性（宠魅三区：莫邪/白魇魔独立数值）
+	# 宠物属性：只在实际有宠物时显示（非宠魅局/白魇魔已吞噬并入本体 → 整段隐藏）
+	var pet_lines: Array = []
 	if build.path_realm.has("chongmei"):
+		# 莫邪：选宠魅种子即常驻
+		var mx: CombatStats = build.assemble_pet_stats("moxie")
+		pet_lines.append("莫邪：攻击 %.0f | 攻速 %.1f/s | 弹数 %d | DPS(20甲) %.0f" % [
+			mx.atk, mx.attack_speed, mx.projectile_count, mx.expected_dps(20.0)])
+		# 白魇魔：魂士境(1)降生 ~ 魂朽境(6)被吞噬；吞噬后并入本体不再单列
+		var cmr := int(build.path_realm.get("chongmei", 0))
+		if cmr >= 1 and not build.baiyanmeng_devoured():
+			var bym: CombatStats = build.assemble_pet_stats("baiyanmeng")
+			pet_lines.append("白魇魔：攻击 %.0f | 攻速 %.1f/s | 弹数 %d | DPS(20甲) %.0f" % [
+				bym.atk, bym.attack_speed, bym.projectile_count, bym.expected_dps(20.0)])
+	if not pet_lines.is_empty():
 		var pet_header := Label.new()
 		pet_header.text = "\n=== 宠物属性 ==="
 		pet_header.add_theme_font_size_override("font_size", 22)
 		pet_header.add_theme_color_override("font_color", Color(0.8, 0.55, 1.0))
 		vbox.add_child(pet_header)
-		var pet_lines: Array = []
-		for pet_id in ["moxie", "baiyanmeng"]:
-			var pet_name := "莫邪" if pet_id == "moxie" else "白魇魔"
-			if pet_id == "baiyanmeng" and build.baiyanmeng_devoured():
-				pet_lines.append("%s：已吞噬 · 半魔觉醒（加成并入本体）" % pet_name)
-				continue
-			if pet_id == "baiyanmeng" and int(build.path_realm.get("chongmei", 0)) < 1:
-				pet_lines.append("%s：未降生（魂士境后觉醒）" % pet_name)
-				continue
-			var ps: CombatStats = build.assemble_pet_stats(pet_id)
-			pet_lines.append("%s：攻击 %.0f | 攻速 %.1f/s | 弹数 %d | DPS(20甲) %.0f" % [
-				pet_name, ps.atk, ps.attack_speed, ps.projectile_count, ps.expected_dps(20.0)])
 		for line in pet_lines:
 			var l2 := Label.new()
 			l2.text = line
