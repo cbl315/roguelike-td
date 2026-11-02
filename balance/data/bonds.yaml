@@ -589,6 +589,12 @@ bonds:
   effect:
     damage_reduction_delta: 0.05
 
+- id: xc_dj_leijian
+  name: 雷劫·淬体
+  set: xingchenbian
+  rarity: UR
+  effect:
+    hp_pct_delta: 0.08
 # ── 渡劫（境4，rarity UR）──
 - id: xc_dj_leijie
   name: 雷劫
@@ -603,6 +609,12 @@ bonds:
   effect:
     final_dmg_mult: 0.087
 
+- id: xc_hx_hengxing
+  name: 恒星·炼核
+  set: xingchenbian
+  rarity: UR
+  effect:
+    magic_dmg_pct_delta: 0.08
 # ── 恒星（境5，rarity UR）──
 - id: xc_hx_hengguang
   name: 恒光
@@ -617,6 +629,12 @@ bonds:
   effect:
     elemental_dmg_mult: 0.109
 
+- id: xc_ax_zhulai
+  name: 暗星之主
+  set: xingchenbian
+  rarity: UR
+  effect:
+    crit_rate_delta: 0.04
 # ── 暗星（境6，rarity UR）──
 - id: xc_ax_ansu
   name: 暗素
@@ -631,6 +649,13 @@ bonds:
   effect:
     crit_rate_delta: 0.10
 
+- id: xc_hd_yinli
+  name: 黑洞·引力
+  set: xingchenbian
+  rarity: EX
+  effect:
+    lifesteal_pct: 0.02
+    magic_dmg_pct_delta: 0.05
 # ── 黑洞（境7，rarity EX）──
 - id: xc_hd_tunshi
   name: 吞噬
@@ -646,6 +671,12 @@ bonds:
   effect:
     magic_dmg_pct_delta: 0.18
 
+- id: xc_yz_chuangshi
+  name: 鸿蒙·创世
+  set: xingchenbian
+  rarity: EX
+  effect:
+    final_dmg_mult: 0.06
 # ── 宇宙（境8，rarity EX）──
 - id: xc_yz_yuzhou
   name: 宇宙
@@ -1273,6 +1304,7 @@ paths:
     bonds:
     - xc_dj_leijie
     - xc_dj_duomie
+    - xc_dj_leijian
     reward:
       final_dmg_mult: 0.12
       elemental_dmg_mult: 0.08
@@ -1281,6 +1313,7 @@ paths:
     bonds:
     - xc_hx_hengguang
     - xc_hx_taoyang
+    - xc_hx_hengxing
     reward:
       magic_dmg_pct_delta: 0.20
       elemental_dmg_mult: 0.08
@@ -1289,6 +1322,7 @@ paths:
     bonds:
     - xc_ax_ansu
     - xc_ax_xuanying
+    - xc_ax_zhulai
     reward:
       final_dmg_mult: 0.15
       crit_rate_delta: 0.05
@@ -1297,6 +1331,7 @@ paths:
     bonds:
     - xc_hd_tunshi
     - xc_hd_xumie
+    - xc_hd_yinli
     reward:
       final_dmg_mult: 0.16
       lifesteal_pct: 0.03
@@ -1305,6 +1340,7 @@ paths:
     bonds:
     - xc_yz_yuzhou
     - xc_yz_hongmeng
+    - xc_yz_chuangshi
     reward:
       final_dmg_mult: 0.20
       magic_dmg_pct_delta: 0.15

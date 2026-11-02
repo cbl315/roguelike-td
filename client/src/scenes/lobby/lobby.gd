@@ -489,6 +489,14 @@ func _make_card(offer: Dictionary, idx: int) -> Control:
 	vbox.offset_top = 12; vbox.offset_bottom = 348
 	vbox.add_theme_constant_override("separation", 8)
 	panel.add_child(vbox)
+	# 种子卡流派 tag（偏物理/偏法术/召唤流——选种子前看清定位）
+	var playstyle: String = offer.get("playstyle", "")
+	if playstyle != "":
+		var style_tag := Label.new()
+		style_tag.text = "【%s】" % playstyle
+		style_tag.add_theme_color_override("font_color", Color(0.45, 0.95, 0.6))
+		style_tag.add_theme_font_size_override("font_size", 19)
+		vbox.add_child(style_tag)
 	# 境界/体系标记
 	if highlight_level == 2:
 		var realm_tag := Label.new()

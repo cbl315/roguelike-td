@@ -6,6 +6,14 @@ extends RefCounted
 class_name RoguePools
 
 var _bonds: Array = []           # Array[Dictionary]（bonds.json 的 bonds 列表）
+
+# 种子卡流派 tag（UI 显示用；伤害类型映射与 hero.gd 三伤害类型轮一致）
+const SEED_PLAYSTYLE := {
+	"zhutian": "⚔ 偏物理",
+	"xingchenbian": "✨ 偏法术",
+	"chongmei": "🐾 召唤流",
+	"doupo": "🔥 偏法术",
+}
 var _paths: Array = []           # Array[Dictionary]（bonds.json 的 paths，境界树）
 var _bond_to_set: Dictionary = {}  # bond_id → set_id
 var _path_bond_ids: Dictionary = {}  # path_id → Array[bond_id]
@@ -157,6 +165,8 @@ func draw_bond_offers(n: int = 3, prefer_ids: Array = [], owned_ids: Array = [],
 			offer_data["is_seed"] = true
 			offer_data["seed_path"] = b.get("seed_path", "")
 			offer_data["seed_gold"] = b.get("seed_gold", 0)
+			# 流派 tag（GDD 三伤害类型：玩家选种子前看清定位）
+			offer_data["playstyle"] = SEED_PLAYSTYLE.get(str(b.get("seed_path", "")), "")
 		offers.append(offer_data)
 	return offers
 
