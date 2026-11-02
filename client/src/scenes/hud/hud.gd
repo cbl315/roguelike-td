@@ -427,6 +427,31 @@ func _render_char_panel(build: BuildState, pools: RoguePools) -> void:
 		l.text = line
 		l.add_theme_font_size_override("font_size", 20)
 		vbox.add_child(l)
+	# 宠物属性（宠魅三区：莫邪/白魇魔独立数值）
+	if build.path_realm.has("chongmei"):
+		var pet_header := Label.new()
+		pet_header.text = "\n=== 宠物属性 ==="
+		pet_header.add_theme_font_size_override("font_size", 22)
+		pet_header.add_theme_color_override("font_color", Color(0.8, 0.55, 1.0))
+		vbox.add_child(pet_header)
+		var pet_lines: Array = []
+		for pet_id in ["moxie", "baiyanmeng"]:
+			var pet_name := "莫邪" if pet_id == "moxie" else "白魇魔"
+			if pet_id == "baiyanmeng" and build.baiyanmeng_devoured():
+				pet_lines.append("%s：已吞噬 · 半魔觉醒（加成并入本体）" % pet_name)
+				continue
+			if pet_id == "baiyanmeng" and int(build.path_realm.get("chongmei", 0)) < 1:
+				pet_lines.append("%s：未降生（魂士境后觉醒）" % pet_name)
+				continue
+			var ps: CombatStats = build.assemble_pet_stats(pet_id)
+			pet_lines.append("%s：攻击 %.0f | 攻速 %.1f/s | 弹数 %d | DPS(20甲) %.0f" % [
+				pet_name, ps.atk, ps.attack_speed, ps.projectile_count, ps.expected_dps(20.0)])
+		for line in pet_lines:
+			var l2 := Label.new()
+			l2.text = line
+			l2.add_theme_font_size_override("font_size", 20)
+			l2.add_theme_color_override("font_color", Color(0.85, 0.75, 1.0))
+			vbox.add_child(l2)
 	# 羁绊列表
 	var bond_header := Label.new()
 	bond_header.text = "\n=== 已有羁绊 (%d / %d) ===" % [build.bond_pool.size(), build.bond_pool_capacity]

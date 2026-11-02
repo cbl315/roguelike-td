@@ -66,6 +66,10 @@ func refresh() -> void:
 		if not groups.has(set_id):
 			continue
 		_root.add_child(_make_group(set_id, groups[set_id]))
+	# 空槽占位：显示剩余容量（池上限 - 已有），玩家一眼看清还能抽几张
+	var free_slots: int = _build.bond_pool_capacity - _build.bond_pool.size()
+	for i in range(free_slots):
+		_root.add_child(_make_empty_slot())
 
 
 func _make_group(set_id: String, bids: Array) -> Control:
@@ -82,6 +86,30 @@ func _make_group(set_id: String, bids: Array) -> Control:
 	for bid in bids:
 		box.add_child(_make_mini_card(bid, set_id))
 	return box
+
+
+func _make_empty_slot() -> Control:
+	var panel := Panel.new()
+	panel.custom_minimum_size = Vector2(58, 60)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.06, 0.08, 0.11, 0.5)
+	style.border_width_left = 2; style.border_width_right = 2
+	style.border_width_top = 2; style.border_width_bottom = 2
+	style.border_color = Color(0.3, 0.35, 0.42, 0.8)
+	style.set_corner_radius_all(3)
+	style.set_border_width_all(2)
+	style.set_border_blend(0)   # 虚线感：暗色细边
+	panel.add_theme_stylebox_override("panel", style)
+	var lbl := Label.new()
+	lbl.text = "＋"
+	lbl.add_theme_font_size_override("font_size", 18)
+	lbl.add_theme_color_override("font_color", Color(0.35, 0.4, 0.48))
+	lbl.set_anchors_preset(Control.PRESET_FULL_RECT)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	panel.add_child(lbl)
+	panel.tooltip_text = "空槽位（羁绊池上限 %d）" % _build.bond_pool_capacity
+	return panel
 
 
 func _make_mini_card(bid: String, set_id: String) -> Control:
