@@ -138,7 +138,7 @@ func _process(delta: float) -> void:
 	if target == null:
 		return
 	_fire_timer += delta
-	var interval: float = 1.0 / _stats.attack_speed
+	var interval: float = 1.0 / maxf(_stats.attack_speed, 0.1)   # 除零防御（与 summon_unit 一致）
 	if _fire_timer >= interval:
 		_fire_timer = 0.0
 		_fire(target)

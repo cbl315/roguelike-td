@@ -429,6 +429,12 @@ DPS        = Σ(每次命中伤害) × attack_speed × projectile_count  （多�
 | 曲线 | growth 1.078、count 1.45/波、行为压力 1.03（w5+） |
 | 死亡中位 | w9-16（贴线节奏） |
 
+### 14.3b 稀有度-境界映射（事实标准，2026-11-03 review 四轮厘定）
+
+> 原约定"境0=SR, 1-2=SSR, 3-5=UR, 6-8=EX"随体系扩充（星辰变加卡/斗破 33 张/稀有度数值重排）
+> 已事实分叉 43 处。稀有度影响抽取权重（`rarity_weights`），当前分布经 6 轮数值校准收敛，
+> **以数据为准、约定作废**。各体系实际映射见 `balance/data/bonds.yaml`（review 四轮审计基线）。
+
 ### 14.4 工程基建
 
 - Python 109 用例 + Godot headless 7 套测试全绿；`EventBus` 解耦（headless -s 可测）
