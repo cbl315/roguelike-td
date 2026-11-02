@@ -26,6 +26,7 @@ var _rng := RandomNumberGenerator.new()
 # 召唤单位（宠魅体系）
 var _summon_units: Array = []   # Array[SummonUnit]
 var _breakthrough_guard: Enemy = null   # 突破守关者（活着=卡池锁定）
+var _bond_pool_bar = null   # 底部羁绊池条（preload 实例化，避免 class_name 缓存依赖）
 
 # Sparkle Lite game feel：场景级反馈（震动/顿帧/闪屏）
 var _fb_kill: FeedbackPlayerLite = null       # 击杀普通怪
@@ -90,6 +91,10 @@ func _ready() -> void:
 	_build.realm_devoured.connect(func(p: String, r: int, n: String): EventBus.bond_devoured.emit(p, r, n))
 	# 突破怪：集齐境界 → 挑战守关者 → 赢了才升境（强制多修的考核压力）
 	_build.breakthrough_ready.connect(_on_breakthrough_ready)
+	# 底部羁绊池展示条（按体系分组 + 体系色边框）
+	_bond_pool_bar = preload("res://src/scenes/hud/bond_pool_bar.gd").new()
+	add_child(_bond_pool_bar)
+	_bond_pool_bar.setup(_build, _pools)
 	_lobby.breakthrough_challenge_requested.connect(challenge_breakthrough)
 	_lobby.confirmed.connect(_on_lobby_confirmed)
 	_hud.bond_picker_requested.connect(open_bond_picker)
