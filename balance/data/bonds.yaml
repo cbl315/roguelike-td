@@ -711,7 +711,7 @@ bonds:
   rarity: SR
   pet_scope: moxie
   effect:
-    atk_pct_delta: 0.10
+    atk_pct_delta: 0.15
 - id: cm_ht_yanmojuedi
   name: 魇魔免疫
   set: chongmei
@@ -735,7 +735,7 @@ bonds:
   rarity: SSR
   pet_scope: moxie
   effect:
-    atk_pct_delta: 0.15
+    atk_pct_delta: 0.225
     elemental_dmg_mult: 0.10
 - id: cm_hs_banmo_first
   name: 半魔楚暮·首次觉醒
@@ -762,7 +762,7 @@ bonds:
   pet_scope: moxie
   effect:
     elemental_dmg_mult: 0.15
-    atk_pct_delta: 0.10
+    atk_pct_delta: 0.15
 - id: cm_hs_qiudao
   name: 囚岛淬炼
   set: chongmei
@@ -802,7 +802,7 @@ bonds:
   rarity: UR
   pet_scope: moxie
   effect:
-    atk_pct_delta: 0.20
+    atk_pct_delta: 0.3
     elemental_dmg_mult: 0.10
 - id: cm_hz_xuanwu
   name: 玄物吸收
@@ -836,7 +836,7 @@ bonds:
   rarity: UR
   pet_scope: moxie
   effect:
-    atk_pct_delta: 0.15
+    atk_pct_delta: 0.225
     elemental_dmg_mult: 0.10
 - id: cm_hz_yunjing
   name: 云境突破
@@ -854,7 +854,7 @@ bonds:
   rarity: UR
   pet_scope: moxie
   effect:
-    atk_pct_delta: 0.20
+    atk_pct_delta: 0.3
     true_dmg_pct_delta: 0.05
     final_dmg_mult: 0.10
 - id: cm_hz_baiyanmeng_wanquan
@@ -881,7 +881,7 @@ bonds:
   rarity: EX
   pet_scope: moxie
   effect:
-    atk_pct_delta: 0.20
+    atk_pct_delta: 0.3
     final_dmg_mult: 0.15
     lifesteal_pct: 0.03
 - id: cm_hxiu_buxiu
@@ -908,7 +908,7 @@ bonds:
   rarity: EX
   pet_scope: moxie
   effect:
-    atk_pct_delta: 0.25
+    atk_pct_delta: 0.375
     final_dmg_mult: 0.20
     elemental_dmg_mult: 0.15
 - id: cm_qn_qisi
@@ -944,7 +944,7 @@ bonds:
   rarity: EX
   pet_scope: moxie
   effect:
-    atk_pct_delta: 0.20
+    atk_pct_delta: 0.3
     elemental_dmg_mult: 0.15
 - id: cm_wn_wannian
   name: 万年强者·万兽之主
@@ -1387,7 +1387,8 @@ paths:
     - cm_ht_yanmojuedi
     - cm_ht_hunian
     reward:
-      atk_pct_delta: 0.15
+      atk_pct_delta: 0.17
+      attack_speed_delta: 0.03
       lifesteal_pct: 0.02
     note: 白魇魔签订+莫邪签订，魇魔绝地求生
   - name: 魂士
@@ -1396,7 +1397,7 @@ paths:
     - cm_hs_banmo_first
     - cm_hs_xiashou
     reward:
-      atk_pct_delta: 0.21
+      atk_pct_delta: 0.22
       final_dmg_mult: 0.09
     note: 六尾妖狐+半魔首觉，击败夏广寒
   - name: 魂师

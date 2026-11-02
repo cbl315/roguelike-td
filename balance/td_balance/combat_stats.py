@@ -243,14 +243,14 @@ def resolve_player(state, pools) -> PlayerCombat:
 
 # 宠物基础攻击系数（宠物是副输出单位：基础 = 英雄裸基础 × 此系数，
 # 客户端 summon_unit.gd 同步使用同一比例）
-SUMMON_BASE_ATK_RATIO = 0.6
+SUMMON_BASE_ATK_RATIO = 0.55
 
 
 def resolve_pets(state, pools) -> dict:
     """宠魅宠物区 stats（独立于本体）。
 
     - moxie 莫邪：选宠魅种子即存在（realm 0 起）
-    - baiyanmeng 白魇魔：魂师境（realm 2）降生 → 魂朽境（realm 6）被吞噬
+    - baiyanmeng 白魇魔：魂士境（realm 1，第三魂约=开局魂约）降生 → 魂朽境（realm 6）被吞噬
     - 基础 = 裸 CombatStats × SUMMON_BASE_ATK_RATIO，叠加各自 pet_scope 池的 effect
     """
     if "chongmei" not in state.path_realm:
@@ -270,6 +270,6 @@ def resolve_pets(state, pools) -> dict:
         return p
 
     pets: dict = {"moxie": _pet("moxie")}
-    if 2 <= realm < 6:
+    if 1 <= realm < 6:
         pets["baiyanmeng"] = _pet("baiyanmeng")
     return pets

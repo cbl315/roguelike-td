@@ -1025,7 +1025,7 @@
       "rarity": "SR",
       "pet_scope": "moxie",
       "effect": {
-        "atk_pct_delta": 0.1
+        "atk_pct_delta": 0.15
       }
     },
     {
@@ -1056,7 +1056,7 @@
       "rarity": "SSR",
       "pet_scope": "moxie",
       "effect": {
-        "atk_pct_delta": 0.15,
+        "atk_pct_delta": 0.225,
         "elemental_dmg_mult": 0.1
       }
     },
@@ -1090,7 +1090,7 @@
       "pet_scope": "moxie",
       "effect": {
         "elemental_dmg_mult": 0.15,
-        "atk_pct_delta": 0.1
+        "atk_pct_delta": 0.15
       }
     },
     {
@@ -1143,7 +1143,7 @@
       "rarity": "UR",
       "pet_scope": "moxie",
       "effect": {
-        "atk_pct_delta": 0.2,
+        "atk_pct_delta": 0.3,
         "elemental_dmg_mult": 0.1
       }
     },
@@ -1187,7 +1187,7 @@
       "rarity": "UR",
       "pet_scope": "moxie",
       "effect": {
-        "atk_pct_delta": 0.15,
+        "atk_pct_delta": 0.225,
         "elemental_dmg_mult": 0.1
       }
     },
@@ -1209,7 +1209,7 @@
       "rarity": "UR",
       "pet_scope": "moxie",
       "effect": {
-        "atk_pct_delta": 0.2,
+        "atk_pct_delta": 0.3,
         "true_dmg_pct_delta": 0.05,
         "final_dmg_mult": 0.1
       }
@@ -1243,7 +1243,7 @@
       "rarity": "EX",
       "pet_scope": "moxie",
       "effect": {
-        "atk_pct_delta": 0.2,
+        "atk_pct_delta": 0.3,
         "final_dmg_mult": 0.15,
         "lifesteal_pct": 0.03
       }
@@ -1277,7 +1277,7 @@
       "rarity": "EX",
       "pet_scope": "moxie",
       "effect": {
-        "atk_pct_delta": 0.25,
+        "atk_pct_delta": 0.375,
         "final_dmg_mult": 0.2,
         "elemental_dmg_mult": 0.15
       }
@@ -1323,7 +1323,7 @@
       "rarity": "EX",
       "pet_scope": "moxie",
       "effect": {
-        "atk_pct_delta": 0.2,
+        "atk_pct_delta": 0.3,
         "elemental_dmg_mult": 0.15
       }
     },
@@ -1918,7 +1918,8 @@
             "cm_ht_hunian"
           ],
           "reward": {
-            "atk_pct_delta": 0.15,
+            "atk_pct_delta": 0.17,
+            "attack_speed_delta": 0.03,
             "lifesteal_pct": 0.02
           },
           "note": "白魇魔签订+莫邪签订，魇魔绝地求生"
@@ -1931,7 +1932,7 @@
             "cm_hs_xiashou"
           ],
           "reward": {
-            "atk_pct_delta": 0.21,
+            "atk_pct_delta": 0.22,
             "final_dmg_mult": 0.09
           },
           "note": "六尾妖狐+半魔首觉，击败夏广寒"

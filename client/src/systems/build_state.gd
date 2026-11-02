@@ -149,8 +149,8 @@ func _try_devour() -> void:
 		realm_devoured.emit(pid, idx + 1, pools.realm_name(pid, idx))
 		# 宠魅体系境界 → 召唤单位生命周期
 		if pid == "chongmei":
-			# 魂师境（realm==2）：白魇魔降生（设计文档：魂师境界自动获得）
-			if idx + 1 == 2:
+			# 魂士境（realm==1）：白魇魔降生（第三魂约是开局魂约，实测 realm 2 太晚玩不到）
+			if idx + 1 == 1:
 				summon_unit_requested.emit("baiyanmeng", "白魇魔")
 			# 魂朽境（realm==6）：白魇魔被吞噬
 			elif idx + 1 == 6:
@@ -189,7 +189,7 @@ func assemble_stats() -> CombatStats:
 			if scope == "moxie":
 				continue   # 莫邪：独立实体
 			if scope == "baiyanmeng" and not bym_merged:
-				continue   # 白魇魔：realm 2-5 独立；吞噬后并入本体
+				continue   # 白魇魔：realm 1-5 独立；吞噬后并入本体
 			var b: Dictionary = pools._find_bond(bid)
 			if not b.is_empty():
 				var eff: Dictionary = b.get("effect", {})

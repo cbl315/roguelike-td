@@ -9,11 +9,11 @@
 
 enemy_hp:
   base: 100.0
-  growth: 1.075       # 数值轮 2026-11 宠魅三区：莫邪随种子降生（多修白嫖）真实化后统一回调
+  growth: 1.076       # 数值轮 2026-11 宠魅手感轮：白魇魔提前+莫邪增强后收尾回调
 
 enemy_count:
   base: 8
-  per_wave: 1.44      # 数值轮 2026-11 宠魅三区：随 growth 一起回调
+  per_wave: 1.45      # 数值轮 2026-11 宠魅手感轮：随 growth 一起回调
 
 wave_duration:
   base_seconds: 25
