@@ -59,12 +59,13 @@ func _on_guard_down(_enemy: Node = null) -> void:
 	_gm._build.apply_breakthrough()   # 真正升境（演出走 realm_devoured → HUD 大字）
 
 
-## 波结束守关者还活着 → 撤退（pending 保留，波间可再挑战）
+## 波结束守关者还活着 → 撤退（pending 保留，波间可再挑战）。
+## Enemy 无 deactivate（那是 SummonUnit 的 API）——撤退 = 断信号 + 移出活跃表 + 直接销毁。
 func withdraw() -> void:
 	if is_guard_alive():
 		_guard.died.disconnect(_on_guard_down)
-		_guard.deactivate()
 		_gm._spawner._active_enemies.erase(_guard)
+		_guard.queue_free()
 		_guard = null
 		if _gm._hud:
 			_gm._hud.show_toast("突破失败…守关者撤退，波间可再次挑战")
