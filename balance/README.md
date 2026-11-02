@@ -62,3 +62,13 @@ balance/
 1. 改 `data/*.yaml`（数值）或 `td_balance/`（公式）。
 2. 跑 `python validate.py`。
 3. 若 `test_walkthrough` 失败 → 你改动了 GDD 已锁定的基线，确认是否真的要改 GDD，还是改错了代码。
+
+## 分体系诊断（数值调参主工具）
+
+```bash
+python diag_paths.py            # 每体系 400 局：胜率/死亡分布/死亡热点
+python diag_paths.py -n 200     # 快速迭代小样本
+```
+
+输出各体系的胜率、死亡波次中位、w5-15 死亡数、末期 DPS 与死亡热点——定位
+"哪条体系在哪个波次失血"，是历次数值轮的主抓手。

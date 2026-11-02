@@ -456,3 +456,39 @@ class_name SynergyEngine
 5. **多语言/本地化**：首发中文，是否预留 i18n？（建议预留，成本低）
 6. **变现模式**：买断 / 内购 + 广告 / 免费+激励广告？（影响 IAP 接入时机与是否需要更重的服务端校验）
 7. **服务端部署目标**：自建 / 云厂商 BaaS / Firebase？（影响运维成本）
+
+---
+
+## 9. 实现现状增补（截至 2026-11-02）
+
+> §8.1 之后落地的架构演进。
+
+### 9.1 测试基建
+
+- **Python**：109 用例（曲线锚点/经济/联动/策略/胜率复现）
+- **Godot headless**：7 套 `-s` 脚本测试（boss_debuffs/bugfix/draw_debug/equipment/synergy/ult_combo/winrate）
+  —— `BuildState` 已解耦 `EventBus` autoload（改自有 signal `realm_devoured`，game_manager 桥接），headless 可测
+- **交互回归**：`tools/gmcp/regression.py`（种子→吞噬→Boss→换删道具→大招，10/10）
+
+### 9.2 godot_mcp 工具链（`tools/gmcp/`）
+
+直连编辑器 godot_mcp 插件（WebSocket 127.0.0.1:6550），AI 实测游戏的全套能力：
+
+| 文件 | 用途 |
+|---|---|
+| `driver.py` | WebSocket 直连客户端 + CLI |
+| `mcp_bridge.py` | stdio MCP server（ZCode 原生 7 个 `godot_*` 工具，截图直返图片） |
+| `regression.py` | 一键交互回归剧本 |
+
+> 历史：曾配 npm `@satelliteoflove/godot-mcp`（协议不匹配导致"空调用"退化）——已移除，勿回退。
+
+### 9.3 宠魅三区数据管线
+
+`bonds.yaml` 卡级 `pet_scope`（body/moxie/baiyanmeng）→ 双端分流组装：
+`assemble_stats()`（本体）/`assemble_pet_stats(pet)`（宠物 ×0.55 基础）——
+Python `resolve_player`/`resolve_pets` 同构，魂朽境(realm 6) 白魇魔并入本体。
+
+### 9.4 突破守关者
+
+客户端：`pending_breakthrough` gate（path_realm 不推进 = 卡池自动锁）+ 波间挑战 +
+守关者实体战斗。Python：吞噬需波间 DPS ≥ 当前波需求 ×0.55（`strategy.BREAKTHROUGH_DPS_REQ`）。
