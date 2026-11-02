@@ -1,6 +1,6 @@
 """敌人曲线单测 — 对照 GDD §3.3 的数值表，锁定回归基线。
 
-GDD §3.3 表的关键点（用默认 WaveParams：base=100, growth=1.076，平衡调参 2026-11）：
+GDD §3.3 表的关键点（用默认 WaveParams：base=100, growth=1.072，平衡调参 2026-11 终版）：
   count = round(8 + 1.5×wave)   [公式为 SSOT；Python banker's rounding]
   wave 1  hp=100.0,   count=10   (round(9.5)=10)
   wave 5  hp≈131.1,   count=16   (round(15.5)=16)
@@ -19,9 +19,9 @@ from td_balance.loader import load_wave_params
 def test_default_params_from_yaml():
     p = load_wave_params()
     assert p.hp_base == 100.0
-    assert p.hp_growth == 1.076    # 平衡调参：1.05→1.07→1.076（2026-11 数值轮）
+    assert p.hp_growth == 1.072    # 平衡调参：1.05→1.07→1.076→1.072（2026-11 数值轮终版）
     assert p.count_base == 8
-    assert p.count_per_wave == 1.45   # 平衡调参：1.5→1.4→1.45（2026-11 数值轮）
+    assert p.count_per_wave == 1.42   # 平衡调参：1.5→1.4→1.45→1.42（2026-11 数值轮终版）
     assert p.boss_every_n == 10
     assert p.boss_share == 0.4
 
@@ -29,10 +29,10 @@ def test_default_params_from_yaml():
 def test_enemy_hp_curve():
     p = curves.WaveParams()
     assert curves.enemy_hp(1, p) == 100.0
-    assert math.isclose(curves.enemy_hp(5, p), 134.0, rel_tol=0.01)
-    assert math.isclose(curves.enemy_hp(10, p), 193.3, rel_tol=0.01)
-    assert math.isclose(curves.enemy_hp(15, p), 278.9, rel_tol=0.01)
-    assert math.isclose(curves.enemy_hp(30, p), 836.7, rel_tol=0.01)
+    assert math.isclose(curves.enemy_hp(5, p), 132.1, rel_tol=0.01)
+    assert math.isclose(curves.enemy_hp(10, p), 187.0, rel_tol=0.01)
+    assert math.isclose(curves.enemy_hp(15, p), 264.7, rel_tol=0.01)
+    assert math.isclose(curves.enemy_hp(30, p), 751.0, rel_tol=0.01)
 
 
 def test_enemy_count_curve():
@@ -40,8 +40,8 @@ def test_enemy_count_curve():
     assert curves.enemy_count(1, p) == 9        # round(9.4) = 9
     assert curves.enemy_count(5, p) == 15        # round(15.0) = 15
     assert curves.enemy_count(10, p) == 22       # round(22.0) = 22
-    assert curves.enemy_count(15, p) == 30       # round(29.75) = 30
-    assert curves.enemy_count(30, p) == 52       # round(51.5) = 52
+    assert curves.enemy_count(15, p) == 29       # round(29.3) = 29
+    assert curves.enemy_count(30, p) == 51       # round(50.6) = 51
 
 
 def test_required_dps_monotonic_increase():
@@ -56,15 +56,15 @@ def test_required_dps_monotonic_increase():
 
 def test_required_dps_anchor_values():
     """对照公式 SSOT 的所需 DPS 锚点（允许 ±1% 容差）。
-    实际值（脚本算出，作为回归基线；growth=1.076 + count 1.45/波，2026-11 数值轮终版）：
+    实际值（脚本算出，作为回归基线；growth=1.072 + count 1.42/波，2026-11 数值轮终版）：
       wave 1:  100×9/26      = 34.6
-      wave 5:  131.3×15/30   = 67.0
-      wave 10: 195.6×22/35   = 121.5
-      wave 15: 278.9×30/40   = 209.1
-      wave 30: 836.7×52/55   = 791.0
+      wave 5:  132.1×15/30   = 66.0
+      wave 10: 187.0×22/35   = 117.5
+      wave 15: 264.7×29/40   = 191.9
+      wave 30: 751.0×51/55   = 696.4
     """
     p = curves.WaveParams()
-    anchors = {1: 34.6, 5: 67.0, 10: 121.5, 15: 209.1, 30: 791.0}
+    anchors = {1: 34.6, 5: 66.0, 10: 117.5, 15: 191.9, 30: 696.4}
     for w, expected in anchors.items():
         actual = curves.required_dps(w, p)
         assert math.isclose(actual, expected, rel_tol=0.01), \

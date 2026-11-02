@@ -64,7 +64,7 @@
         ]
       },
       "effect": {
-        "magic_dmg_pct_delta": 0.35
+        "magic_dmg_pct_delta": 0.28
       },
       "note": "修满星辰变境界，法伤 +50%"
     },
@@ -83,8 +83,8 @@
         ]
       },
       "effect": {
-        "final_dmg_mult": 1.0,
-        "magic_dmg_pct_delta": 0.4
+        "final_dmg_mult": 0.85,
+        "magic_dmg_pct_delta": 0.32
       },
       "note": "法术流终极——星辰变+黑洞+法术增幅"
     },
@@ -103,7 +103,7 @@
         ]
       },
       "effect": {
-        "final_dmg_mult": 0.6,
+        "final_dmg_mult": 0.5,
         "lifesteal_pct": 0.1
       },
       "note": "自成宇宙，万法归一——法术吸血终极续航"

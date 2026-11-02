@@ -766,7 +766,7 @@
       "set": "xingchenbian",
       "rarity": "SR",
       "effect": {
-        "magic_dmg_pct_delta": 0.072
+        "magic_dmg_pct_delta": 0.061
       }
     },
     {
@@ -775,7 +775,7 @@
       "set": "xingchenbian",
       "rarity": "SR",
       "effect": {
-        "magic_dmg_pct_delta": 0.037
+        "magic_dmg_pct_delta": 0.031
       }
     },
     {
@@ -793,7 +793,7 @@
       "set": "xingchenbian",
       "rarity": "SSR",
       "effect": {
-        "attack_speed_delta": 0.109
+        "attack_speed_delta": 0.093
       }
     },
     {
@@ -821,7 +821,7 @@
       "set": "xingchenbian",
       "rarity": "SSR",
       "effect": {
-        "magic_dmg_pct_delta": 0.109
+        "magic_dmg_pct_delta": 0.093
       }
     },
     {
@@ -830,7 +830,7 @@
       "set": "xingchenbian",
       "rarity": "SSR",
       "effect": {
-        "final_dmg_mult": 0.058
+        "final_dmg_mult": 0.049
       }
     },
     {
@@ -848,7 +848,7 @@
       "set": "xingchenbian",
       "rarity": "SSR",
       "effect": {
-        "attack_speed_delta": 0.087
+        "attack_speed_delta": 0.074
       }
     },
     {
@@ -857,7 +857,7 @@
       "set": "xingchenbian",
       "rarity": "SSR",
       "effect": {
-        "elemental_dmg_mult": 0.109
+        "elemental_dmg_mult": 0.093
       }
     },
     {
@@ -884,7 +884,7 @@
       "set": "xingchenbian",
       "rarity": "UR",
       "effect": {
-        "elemental_dmg_mult": 0.145
+        "elemental_dmg_mult": 0.123
       }
     },
     {
@@ -893,7 +893,7 @@
       "set": "xingchenbian",
       "rarity": "UR",
       "effect": {
-        "final_dmg_mult": 0.087
+        "final_dmg_mult": 0.074
       }
     },
     {
@@ -902,7 +902,7 @@
       "set": "xingchenbian",
       "rarity": "UR",
       "effect": {
-        "magic_dmg_pct_delta": 0.08
+        "magic_dmg_pct_delta": 0.068
       }
     },
     {
@@ -911,7 +911,7 @@
       "set": "xingchenbian",
       "rarity": "UR",
       "effect": {
-        "magic_dmg_pct_delta": 0.145
+        "magic_dmg_pct_delta": 0.123
       }
     },
     {
@@ -920,7 +920,7 @@
       "set": "xingchenbian",
       "rarity": "UR",
       "effect": {
-        "elemental_dmg_mult": 0.109
+        "elemental_dmg_mult": 0.093
       }
     },
     {
@@ -938,7 +938,7 @@
       "set": "xingchenbian",
       "rarity": "UR",
       "effect": {
-        "final_dmg_mult": 0.109
+        "final_dmg_mult": 0.093
       }
     },
     {
@@ -957,7 +957,7 @@
       "rarity": "EX",
       "effect": {
         "lifesteal_pct": 0.02,
-        "magic_dmg_pct_delta": 0.05
+        "magic_dmg_pct_delta": 0.043
       }
     },
     {
@@ -966,7 +966,7 @@
       "set": "xingchenbian",
       "rarity": "EX",
       "effect": {
-        "final_dmg_mult": 0.145,
+        "final_dmg_mult": 0.123,
         "lifesteal_pct": 0.05
       }
     },
@@ -976,7 +976,7 @@
       "set": "xingchenbian",
       "rarity": "EX",
       "effect": {
-        "magic_dmg_pct_delta": 0.18
+        "magic_dmg_pct_delta": 0.153
       }
     },
     {
@@ -985,7 +985,7 @@
       "set": "xingchenbian",
       "rarity": "EX",
       "effect": {
-        "final_dmg_mult": 0.06
+        "final_dmg_mult": 0.051
       }
     },
     {
@@ -994,7 +994,7 @@
       "set": "xingchenbian",
       "rarity": "EX",
       "effect": {
-        "final_dmg_mult": 0.18
+        "final_dmg_mult": 0.153
       }
     },
     {
@@ -1003,8 +1003,8 @@
       "set": "xingchenbian",
       "rarity": "EX",
       "effect": {
-        "final_dmg_mult": 0.217,
-        "magic_dmg_pct_delta": 0.145
+        "final_dmg_mult": 0.184,
+        "magic_dmg_pct_delta": 0.123
       }
     },
     {
@@ -1765,7 +1765,7 @@
             "xc_xy_linggen"
           ],
           "reward": {
-            "magic_dmg_pct_delta": 0.12
+            "magic_dmg_pct_delta": 0.096
           },
           "note": "气态凝聚，法术萌芽"
         },
@@ -1777,8 +1777,8 @@
             "xc_lx_poeng"
           ],
           "reward": {
-            "magic_dmg_pct_delta": 0.16,
-            "attack_speed_delta": 0.08
+            "magic_dmg_pct_delta": 0.128,
+            "attack_speed_delta": 0.064
           },
           "note": "破空而出，速度爆发"
         },
@@ -1790,8 +1790,8 @@
             "xc_xh_yuanshen"
           ],
           "reward": {
-            "magic_dmg_pct_delta": 0.16,
-            "final_dmg_mult": 0.06
+            "magic_dmg_pct_delta": 0.128,
+            "final_dmg_mult": 0.048
           },
           "note": "凝聚核心，法术成型"
         },
@@ -1803,8 +1803,8 @@
             "xc_xx_dunjia"
           ],
           "reward": {
-            "magic_dmg_pct_delta": 0.2,
-            "elemental_dmg_mult": 0.08
+            "magic_dmg_pct_delta": 0.16,
+            "elemental_dmg_mult": 0.064
           },
           "note": "稳定轨道，全面成长"
         },
@@ -1816,8 +1816,8 @@
             "xc_dj_leijian"
           ],
           "reward": {
-            "final_dmg_mult": 0.12,
-            "elemental_dmg_mult": 0.08
+            "final_dmg_mult": 0.096,
+            "elemental_dmg_mult": 0.064
           },
           "note": "天劫洗礼，质变门槛"
         },
@@ -1829,8 +1829,8 @@
             "xc_hx_hengxing"
           ],
           "reward": {
-            "magic_dmg_pct_delta": 0.2,
-            "elemental_dmg_mult": 0.08
+            "magic_dmg_pct_delta": 0.16,
+            "elemental_dmg_mult": 0.064
           },
           "note": "自身发光，法术巅峰"
         },
@@ -1842,8 +1842,8 @@
             "xc_ax_zhulai"
           ],
           "reward": {
-            "final_dmg_mult": 0.15,
-            "crit_rate_delta": 0.05
+            "final_dmg_mult": 0.12,
+            "crit_rate_delta": 0.04
           },
           "note": "暗物质，隐藏力量"
         },
@@ -1855,8 +1855,8 @@
             "xc_hd_yinli"
           ],
           "reward": {
-            "final_dmg_mult": 0.16,
-            "lifesteal_pct": 0.03
+            "final_dmg_mult": 0.128,
+            "lifesteal_pct": 0.024
           },
           "note": "吞噬万物，终极法术"
         },
@@ -1868,8 +1868,8 @@
             "xc_yz_chuangshi"
           ],
           "reward": {
-            "final_dmg_mult": 0.2,
-            "magic_dmg_pct_delta": 0.15
+            "final_dmg_mult": 0.16,
+            "magic_dmg_pct_delta": 0.12
           },
           "note": "自成一界，造物之主"
         }

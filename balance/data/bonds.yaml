@@ -514,13 +514,13 @@ bonds:
   set: xingchenbian
   rarity: SR
   effect:
-    magic_dmg_pct_delta: 0.072
+    magic_dmg_pct_delta: 0.061
 - id: xc_xy_yunqi
   name: 云气
   set: xingchenbian
   rarity: SR
   effect:
-    magic_dmg_pct_delta: 0.037
+    magic_dmg_pct_delta: 0.031
 - id: xc_xy_linggen
   name: 灵根
   set: xingchenbian
@@ -534,7 +534,7 @@ bonds:
   set: xingchenbian
   rarity: SSR
   effect:
-    attack_speed_delta: 0.109
+    attack_speed_delta: 0.093
 - id: xc_lx_liuxinglei
   name: 流星泪
   set: xingchenbian
@@ -555,13 +555,13 @@ bonds:
   set: xingchenbian
   rarity: SSR
   effect:
-    magic_dmg_pct_delta: 0.109
+    magic_dmg_pct_delta: 0.093
 - id: xc_xh_faize
   name: 六九天劫
   set: xingchenbian
   rarity: SSR
   effect:
-    final_dmg_mult: 0.058
+    final_dmg_mult: 0.049
 - id: xc_xh_yuanshen
   name: 星力凝核
   set: xingchenbian
@@ -575,13 +575,13 @@ bonds:
   set: xingchenbian
   rarity: SSR
   effect:
-    attack_speed_delta: 0.087
+    attack_speed_delta: 0.074
 - id: xc_xx_wuxing
   name: 五行
   set: xingchenbian
   rarity: SSR
   effect:
-    elemental_dmg_mult: 0.109
+    elemental_dmg_mult: 0.093
 - id: xc_xx_dunjia
   name: 遁甲
   set: xingchenbian
@@ -601,33 +601,33 @@ bonds:
   set: xingchenbian
   rarity: UR
   effect:
-    elemental_dmg_mult: 0.145
+    elemental_dmg_mult: 0.123
 - id: xc_dj_duomie
   name: 渡灭
   set: xingchenbian
   rarity: UR
   effect:
-    final_dmg_mult: 0.087
+    final_dmg_mult: 0.074
 
 - id: xc_hx_hengxing
   name: 恒星·炼核
   set: xingchenbian
   rarity: UR
   effect:
-    magic_dmg_pct_delta: 0.08
+    magic_dmg_pct_delta: 0.068
 # ── 恒星（境5，rarity UR）──
 - id: xc_hx_hengguang
   name: 恒光
   set: xingchenbian
   rarity: UR
   effect:
-    magic_dmg_pct_delta: 0.145
+    magic_dmg_pct_delta: 0.123
 - id: xc_hx_taoyang
   name: 太阳
   set: xingchenbian
   rarity: UR
   effect:
-    elemental_dmg_mult: 0.109
+    elemental_dmg_mult: 0.093
 
 - id: xc_ax_zhulai
   name: 暗星之主
@@ -641,7 +641,7 @@ bonds:
   set: xingchenbian
   rarity: UR
   effect:
-    final_dmg_mult: 0.109
+    final_dmg_mult: 0.093
 - id: xc_ax_xuanying
   name: 玄影
   set: xingchenbian
@@ -655,42 +655,42 @@ bonds:
   rarity: EX
   effect:
     lifesteal_pct: 0.02
-    magic_dmg_pct_delta: 0.05
+    magic_dmg_pct_delta: 0.043
 # ── 黑洞（境7，rarity EX）──
 - id: xc_hd_tunshi
   name: 吞噬
   set: xingchenbian
   rarity: EX
   effect:
-    final_dmg_mult: 0.145
+    final_dmg_mult: 0.123
     lifesteal_pct: 0.05
 - id: xc_hd_xumie
   name: 虚灭
   set: xingchenbian
   rarity: EX
   effect:
-    magic_dmg_pct_delta: 0.18
+    magic_dmg_pct_delta: 0.153
 
 - id: xc_yz_chuangshi
   name: 鸿蒙·创世
   set: xingchenbian
   rarity: EX
   effect:
-    final_dmg_mult: 0.06
+    final_dmg_mult: 0.051
 # ── 宇宙（境8，rarity EX）──
 - id: xc_yz_yuzhou
   name: 宇宙
   set: xingchenbian
   rarity: EX
   effect:
-    final_dmg_mult: 0.18
+    final_dmg_mult: 0.153
 - id: xc_yz_hongmeng
   name: 鸿蒙
   set: xingchenbian
   rarity: EX
   effect:
-    final_dmg_mult: 0.217
-    magic_dmg_pct_delta: 0.145
+    final_dmg_mult: 0.184
+    magic_dmg_pct_delta: 0.123
 
 # ══ 宠魅体系（修炼 path: chongmei）══
 # 主打：召唤养成 + 半魔化变身
@@ -1271,7 +1271,7 @@ paths:
     - xc_xy_yunqi
     - xc_xy_linggen
     reward:
-      magic_dmg_pct_delta: 0.12
+      magic_dmg_pct_delta: 0.096
     note: 气态凝聚，法术萌芽
   - name: 流星
     bonds:
@@ -1279,8 +1279,8 @@ paths:
     - xc_lx_liuxinglei
     - xc_lx_poeng
     reward:
-      magic_dmg_pct_delta: 0.16
-      attack_speed_delta: 0.08
+      magic_dmg_pct_delta: 0.128
+      attack_speed_delta: 0.064
     note: 破空而出，速度爆发
   - name: 星核
     bonds:
@@ -1288,8 +1288,8 @@ paths:
     - xc_xh_faize
     - xc_xh_yuanshen
     reward:
-      magic_dmg_pct_delta: 0.16
-      final_dmg_mult: 0.06
+      magic_dmg_pct_delta: 0.128
+      final_dmg_mult: 0.048
     note: 凝聚核心，法术成型
   - name: 行星
     bonds:
@@ -1297,8 +1297,8 @@ paths:
     - xc_xx_wuxing
     - xc_xx_dunjia
     reward:
-      magic_dmg_pct_delta: 0.20
-      elemental_dmg_mult: 0.08
+      magic_dmg_pct_delta: 0.16
+      elemental_dmg_mult: 0.064
     note: 稳定轨道，全面成长
   - name: 渡劫
     bonds:
@@ -1306,8 +1306,8 @@ paths:
     - xc_dj_duomie
     - xc_dj_leijian
     reward:
-      final_dmg_mult: 0.12
-      elemental_dmg_mult: 0.08
+      final_dmg_mult: 0.096
+      elemental_dmg_mult: 0.064
     note: 天劫洗礼，质变门槛
   - name: 恒星
     bonds:
@@ -1315,8 +1315,8 @@ paths:
     - xc_hx_taoyang
     - xc_hx_hengxing
     reward:
-      magic_dmg_pct_delta: 0.20
-      elemental_dmg_mult: 0.08
+      magic_dmg_pct_delta: 0.16
+      elemental_dmg_mult: 0.064
     note: 自身发光，法术巅峰
   - name: 暗星
     bonds:
@@ -1324,8 +1324,8 @@ paths:
     - xc_ax_xuanying
     - xc_ax_zhulai
     reward:
-      final_dmg_mult: 0.15
-      crit_rate_delta: 0.05
+      final_dmg_mult: 0.12
+      crit_rate_delta: 0.04
     note: 暗物质，隐藏力量
   - name: 黑洞
     bonds:
@@ -1333,8 +1333,8 @@ paths:
     - xc_hd_xumie
     - xc_hd_yinli
     reward:
-      final_dmg_mult: 0.16
-      lifesteal_pct: 0.03
+      final_dmg_mult: 0.128
+      lifesteal_pct: 0.024
     note: 吞噬万物，终极法术
   - name: 宇宙
     bonds:
@@ -1342,8 +1342,8 @@ paths:
     - xc_yz_hongmeng
     - xc_yz_chuangshi
     reward:
-      final_dmg_mult: 0.20
-      magic_dmg_pct_delta: 0.15
+      final_dmg_mult: 0.16
+      magic_dmg_pct_delta: 0.12
     note: 自成一界，造物之主
 
 # ══ 宠魅修炼路径 ══
