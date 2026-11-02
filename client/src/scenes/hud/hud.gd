@@ -15,7 +15,6 @@ var _toast_label: Label = null    # 居中临时提示（突破境界）
 var _toast_timer: float = 0.0     # Toast 剩余显示时间
 var _result_shown: bool = false   # 结算画面显示中（R 键重开用）
 var _ult_bar: ProgressBar = null  # 大招能量条
-var _ult_btn: Button = null       # 大招按钮（移动端）
 var _forecast_label: Label = null # 下一个 Boss debuff 预告
 var _forecast_reroll: Button = null
 var _forecast_remove: Button = null
@@ -135,14 +134,14 @@ func _setup_ult_ui() -> void:
 	_ult_bar.show_percentage = false
 	_ult_bar.modulate = Color(1.0, 0.85, 0.45)
 	add_child(_ult_bar)
-	# 大招按钮（SideButtons 第 4 个；Q 键等价）
-	_ult_btn = Button.new()
-	_ult_btn.custom_minimum_size = Vector2(280, 60)
-	_ult_btn.text = "大招 (Q) 蓄能中…"
-	_ult_btn.disabled = true
-	_ult_btn.focus_mode = Control.FOCUS_NONE
-	_ult_btn.pressed.connect(func(): ult_requested.emit())
-	get_node("SideButtons").add_child(_ult_btn)
+	# 能量条本身可点击释放（与 Q 键等价；原左下大招按钮与右上条重复，已删——
+	# 移动端入口也由本条承担）
+	_ult_bar.custom_minimum_size = Vector2(390, 18)   # 加高命中区
+	_ult_bar.mouse_filter = Control.MOUSE_FILTER_STOP
+	_ult_bar.gui_input.connect(func(ev: InputEvent):
+		if ev is InputEventMouseButton and ev.pressed and _ult_bar.value >= 1.0:
+			ult_requested.emit())
+	_ult_bar.tooltip_text = "大招能量（满后点击或按 Q 释放）"
 
 
 func _setup_breakthrough_ui() -> void:
@@ -177,9 +176,9 @@ func _setup_breakthrough_ui() -> void:
 func update_ult_energy(ratio: float) -> void:
 	if _ult_bar != null:
 		_ult_bar.value = ratio
-	if _ult_btn != null:
-		_ult_btn.disabled = ratio < 1.0
-		_ult_btn.text = "⚡ 释放大招 (Q)" if ratio >= 1.0 else "大招 (Q) 蓄能中… %d%%" % int(ratio * 100)
+		# 满能量视觉：金条变亮 + tooltip 提示（点击/Q 释放）
+		_ult_bar.modulate = Color(1.0, 0.95, 0.55) if ratio >= 1.0 else Color(1.0, 0.85, 0.45)
+		_ult_bar.tooltip_text = "⚡ 大招就绪！点击或按 Q 释放" if ratio >= 1.0 else "大招能量（满后点击或按 Q 释放）"
 
 
 ## 下一个 Boss debuff 预告 + 换/删道具（GDD §13，game_manager 波间刷新）

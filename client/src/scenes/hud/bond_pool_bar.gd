@@ -27,8 +27,9 @@ func setup(build, pools) -> void:
 	_pools = pools
 	layer = 8   # HUD 之上、lobby 遮罩之下
 	_root = HBoxContainer.new()
-	_root.position = Vector2(380, 1004)         # 底部细条：避开 SideButtons（40-360 含大招按钮）
-	_root.size = Vector2(1520, 68)
+	_root.position = Vector2(16, 1004)          # 底部细条（全宽容器、内容居中）
+	_root.size = Vector2(1888, 68)
+	_root.alignment = BoxContainer.ALIGNMENT_CENTER
 	_root.add_theme_constant_override("separation", 10)
 	add_child(_root)
 	if build != null:
