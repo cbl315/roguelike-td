@@ -63,7 +63,7 @@ def main() -> int:
         seed_gold_before = st0.get("gold", 0.0)
         offers = []
         seed_idx = -1
-        for attempt in range(10):
+        for attempt in range(14):   # 种子出现率随机，多轮重试防霉运中断
             run(g, f'var gm = {GM}\ngm._build.add_gold(300.0)\ngm.open_bond_picker()\nreturn "ok"')
             time.sleep(0.4)
             offers = run(g, f'var o = []\nfor b in {LOBBY}._bond_offers:\n\to.append(str(b.get("id")))\n'
@@ -138,7 +138,7 @@ def main() -> int:
         run(g, f'var gm = {GM}\ngm.challenge_breakthrough()\nreturn "ok"')
         r = run(g, f'var gm = {GM}\nreturn JSON.stringify({{"alive": gm._breakthrough.is_guard_alive()}})')
         check("守关者降临", bool(r and r.get("alive")))
-        run(g, f'var gm = {GM}\ngm._breakthrough._guard.take_damage(999999.0)\nreturn "ok"')
+        run(g, f'var gm = {GM}\ngm._breakthrough.debug_kill_guard()\nreturn "ok"')
         st3 = run(g, src_state()) or {}
         devoured_dp3 = [b for b in st3.get("devoured", []) if str(b).startswith("dp_")]
         check("击杀守关者升境1", st3.get("realm") == 1 and len(devoured_dp3) >= 4,

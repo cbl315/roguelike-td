@@ -26,7 +26,7 @@ var _prev_pos: Vector2 = Vector2.ZERO   # 上一帧位置（计算移动速度�
 var _fire_rng := RandomNumberGenerator.new()   # 暴击掷骰专用（_ready 里 randomize）
 
 ## 房间边界（由 game_manager 设置）
-var room_rect: Rect2 = Rect2(80, 80, 2840, 1840)
+var room_rect: Rect2 = GameConst.ROOM_RECT
 
 @onready var _priority_label: Label = $PriorityLabel
 

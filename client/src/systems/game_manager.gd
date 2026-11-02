@@ -59,7 +59,7 @@ func _ready() -> void:
 	_hud = get_node("../UILayer/HUD")
 	_lobby = get_node("../UILayer/Lobby")
 	# 房间边界（与 main.tscn RoomBorder 一致：80,80 → 2920,1920）
-	var room_rect := Rect2(80, 80, 2840, 1840)
+	var room_rect := GameConst.ROOM_RECT
 	_spawner.setup(_hero, room_rect)
 	_hero.room_rect = room_rect
 	_hero.max_hp = hero_hp
@@ -642,7 +642,7 @@ func _input(event: InputEvent) -> void:
 	if _lobby and _lobby.visible:
 		for card in _lobby.card_click_rects:
 			if card["rect"].has_point(pos):
-				_lobby._on_pick(card["idx"])
+				_lobby.pick_card(card["idx"])
 				get_viewport().set_input_as_handled()
 				return
 

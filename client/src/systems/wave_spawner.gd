@@ -9,7 +9,7 @@ signal wave_finished()
 @export var spawn_interval: float = 0.8   # 每只怪间隔秒数
 
 var _hero: Node2D = null
-var _room_rect: Rect2 = Rect2(80, 80, 2840, 1840)
+var _room_rect: Rect2 = GameConst.ROOM_RECT
 var _enemies_to_spawn: int = 0
 var _wave: int = 1
 var _spawning: bool = false
@@ -95,6 +95,15 @@ const KIND_MIX := [
 	{"kind": Enemy.Kind.SPLITTER, "from_wave": 8, "ratio": 0.12},
 	{"kind": Enemy.Kind.HEALER, "from_wave": 12, "ratio": 0.07},
 ]
+
+
+## 公开注册接口（突破守关者等外部实体加入战斗；原 _active_enemies 私有下钻修复）
+func register_enemy(e: Node) -> void:
+	_active_enemies.append(e)
+
+
+func unregister_enemy(e: Node) -> void:
+	_active_enemies.erase(e)
 
 
 func _pick_kind() -> int:

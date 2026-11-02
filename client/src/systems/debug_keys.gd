@@ -63,6 +63,9 @@ func jump_to_boss() -> void:
 
 func _gm():
 	var gm = get_node_or_null("/root/GameRoot/GameManager")
-	if gm != null and "_build" in gm and int(gm.state) == 1 or (gm != null and int(gm.state) == 2):
+	if gm == null or not ("_build" in gm):
+		return null
+	var st := int(gm.state)   # 1=战斗中 2=波间（显式优先级，杜绝 and/or 混写）
+	if st == 1 or st == 2:
 		return gm
 	return null

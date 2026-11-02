@@ -56,7 +56,7 @@ var _juice := Juice.new()
 var _prev_pos: Vector2 = Vector2.ZERO
 
 ## 房间边界（由 spawner 设置）
-var _room_rect: Rect2 = Rect2(80, 80, 2840, 1840)
+var _room_rect: Rect2 = GameConst.ROOM_RECT
 
 
 func _ready() -> void:

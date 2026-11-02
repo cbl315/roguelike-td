@@ -27,6 +27,7 @@ SpriteAtlas="*res://src/core/sprite_atlas.gd"
 SparkleLitePresets="*uid://x7rw1c5kdamp"
 MCPGameBridge="res://addons/godot_mcp/game_bridge/mcp_game_bridge.gd"
 DebugKeys="*res://src/systems/debug_keys.gd"
+GameConst="*res://src/core/game_const.gd"
 
 [display]
 

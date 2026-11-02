@@ -5,7 +5,7 @@ extends Node2D
 class_name FloorRenderer
 
 ## 房间区域（与 main.tscn RoomBorder 一致）
-var room_rect := Rect2(80, 80, 2840, 1840)
+var room_rect := GameConst.ROOM_RECT
 
 ## 格子大小（像素）
 const GRID_SIZE := 80.0

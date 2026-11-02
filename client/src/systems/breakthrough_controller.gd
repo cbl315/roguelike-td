@@ -7,6 +7,7 @@ class_name BreakthroughController
 
 const HP_PER_WAVE := 16.0
 const KILL_REWARD := 60.0
+const SPAWN_OFFSET := Vector2(420, -160)   # 守关者出生点（英雄右上方）
 const REALM_HP_STEP := 0.06
 
 var _gm = null   # GameManager 弱引用（避免循环依赖，不标注类型）
@@ -41,12 +42,12 @@ func challenge() -> void:
 	var hp: float = WaveCurves.enemy_hp(_gm.current_wave) * HP_PER_WAVE * (1.0 + realm_idx * REALM_HP_STEP)
 	var guard_enemy := Enemy.new()
 	_gm.add_child(guard_enemy)
-	guard_enemy.setup(hp, false, true, _gm._hero, Rect2(80, 80, 2840, 1840))
-	guard_enemy.global_position = _gm._hero.global_position + Vector2(420, -160)
+	guard_enemy.setup(hp, false, true, _gm._hero, GameConst.ROOM_RECT)
+	guard_enemy.global_position = _gm._hero.global_position + SPAWN_OFFSET
 	guard_enemy.modulate = Color(0.8, 0.55, 1.0)   # 紫色标识
 	guard_enemy.kill_reward = KILL_REWARD
 	guard_enemy.died.connect(_on_guard_down)
-	_gm._spawner._active_enemies.append(guard_enemy)
+	_gm._spawner.register_enemy(guard_enemy)
 	_guard = guard_enemy
 	if _gm._hud:
 		_gm._hud.show_toast("⚔ 突破守关者降临！击杀它完成突破")
@@ -64,8 +65,14 @@ func _on_guard_down(_enemy: Node = null) -> void:
 func withdraw() -> void:
 	if is_guard_alive():
 		_guard.died.disconnect(_on_guard_down)
-		_gm._spawner._active_enemies.erase(_guard)
+		_gm._spawner.unregister_enemy(_guard)
 		_guard.queue_free()
 		_guard = null
 		if _gm._hud:
 			_gm._hud.show_toast("突破失败…守关者撤退，波间可再次挑战")
+
+
+## 测试钩子（gmcp regression 用）：立即击杀守关者（走真实死亡→升境流程）
+func debug_kill_guard() -> void:
+	if is_guard_alive():
+		_guard.take_damage(1.0e9)

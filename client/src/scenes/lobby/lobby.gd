@@ -600,6 +600,11 @@ func _realm_text() -> String:
 
 
 # ── 动作 ──
+## 公开选卡入口（game_manager 手动点击检测转发用；原 _on_pick 私有调用修复）
+func pick_card(idx: int) -> void:
+	_on_pick(idx)
+
+
 func _on_pick(idx: int) -> void:
 	# 里程碑词条选择模式
 	if _milestone_select_mode:
