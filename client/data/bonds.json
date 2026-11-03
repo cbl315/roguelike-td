@@ -4,304 +4,6 @@
   },
   "bonds": [
     {
-      "id": "common_atk",
-      "name": "力量符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "atk_pct_delta": 0.158
-      }
-    },
-    {
-      "id": "common_hp",
-      "name": "生命符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "hp_pct_delta": 0.236
-      }
-    },
-    {
-      "id": "common_speed",
-      "name": "迅捷符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "attack_speed_delta": 0.158
-      }
-    },
-    {
-      "id": "common_crit",
-      "name": "锐利符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "crit_rate_delta": 0.079
-      }
-    },
-    {
-      "id": "common_lifesteal",
-      "name": "吸血符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "lifesteal_pct": 0.032
-      }
-    },
-    {
-      "id": "common_armor",
-      "name": "铁甲符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "damage_reduction_delta": 0.023
-      }
-    },
-    {
-      "id": "common_pen",
-      "name": "破甲符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "armor_pen": 0.045
-      }
-    },
-    {
-      "id": "common_cdmg",
-      "name": "暴烈符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "crit_dmg_delta": 0.158
-      }
-    },
-    {
-      "id": "common_regen",
-      "name": "回春符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "lifesteal_pct": 0.013,
-        "hp_pct_delta": 0.045
-      }
-    },
-    {
-      "id": "common_dodge",
-      "name": "灵巧符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "attack_speed_delta": 0.068,
-        "crit_rate_delta": 0.023
-      }
-    },
-    {
-      "id": "common_might",
-      "name": "神力符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "atk_pct_delta": 0.09,
-        "crit_dmg_delta": 0.068
-      }
-    },
-    {
-      "id": "common_vitality",
-      "name": "强体符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "hp_pct_delta": 0.158,
-        "damage_reduction_delta": 0.013
-      }
-    },
-    {
-      "id": "common_swift",
-      "name": "疾风符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "attack_speed_delta": 0.09,
-        "armor_pen": 0.023
-      }
-    },
-    {
-      "id": "common_focus",
-      "name": "聚神符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "crit_rate_delta": 0.045,
-        "crit_dmg_delta": 0.09
-      }
-    },
-    {
-      "id": "common_bloodlust",
-      "name": "嗜血符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "lifesteal_pct": 0.023,
-        "atk_pct_delta": 0.045
-      }
-    },
-    {
-      "id": "common_fortify",
-      "name": "坚壁符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "damage_reduction_delta": 0.018,
-        "hp_pct_delta": 0.09
-      }
-    },
-    {
-      "id": "common_pierce",
-      "name": "贯穿符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "armor_pen": 0.036,
-        "atk_pct_delta": 0.045
-      }
-    },
-    {
-      "id": "common_fury",
-      "name": "狂怒符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "crit_dmg_delta": 0.113,
-        "attack_speed_delta": 0.045
-      }
-    },
-    {
-      "id": "common_ward",
-      "name": "庇护符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "hp_pct_delta": 0.068,
-        "lifesteal_pct": 0.013,
-        "damage_reduction_delta": 0.009
-      }
-    },
-    {
-      "id": "common_precision",
-      "name": "精准符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "crit_rate_delta": 0.036,
-        "armor_pen": 0.023,
-        "attack_speed_delta": 0.023
-      }
-    },
-    {
-      "id": "common_valor",
-      "name": "勇毅符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "atk_pct_delta": 0.068,
-        "hp_pct_delta": 0.068
-      }
-    },
-    {
-      "id": "common_tempest",
-      "name": "风暴符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "attack_speed_delta": 0.054,
-        "crit_rate_delta": 0.023
-      }
-    },
-    {
-      "id": "common_savage",
-      "name": "蛮荒符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "atk_pct_delta": 0.054,
-        "lifesteal_pct": 0.013
-      }
-    },
-    {
-      "id": "common_guardian",
-      "name": "守护符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "hp_pct_delta": 0.113,
-        "damage_reduction_delta": 0.013
-      }
-    },
-    {
-      "id": "common_hunter",
-      "name": "猎手符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "crit_dmg_delta": 0.068,
-        "armor_pen": 0.023
-      }
-    },
-    {
-      "id": "common_berserker",
-      "name": "狂战符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "atk_pct_delta": 0.045,
-        "attack_speed_delta": 0.045,
-        "lifesteal_pct": 0.009
-      }
-    },
-    {
-      "id": "common_titan",
-      "name": "泰坦符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "hp_pct_delta": 0.09,
-        "atk_pct_delta": 0.045
-      }
-    },
-    {
-      "id": "common_assassin",
-      "name": "刺客符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "crit_rate_delta": 0.032,
-        "crit_dmg_delta": 0.054,
-        "attack_speed_delta": 0.023
-      }
-    },
-    {
-      "id": "common_paladin",
-      "name": "圣骑符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "hp_pct_delta": 0.054,
-        "lifesteal_pct": 0.018,
-        "damage_reduction_delta": 0.009
-      }
-    },
-    {
-      "id": "common_warlord",
-      "name": "军阀符文",
-      "set": "generic",
-      "rarity": "N",
-      "effect": {
-        "atk_pct_delta": 0.054,
-        "crit_dmg_delta": 0.045,
-        "armor_pen": 0.013
-      }
-    },
-    {
       "id": "seed_zhutian",
       "name": "遮天·道经种子",
       "set": "seed",
@@ -1641,6 +1343,287 @@
         "crit_dmg_delta": 0.5,
         "final_dmg_mult": 0.25
       }
+    },
+    {
+      "id": "rune_el",
+      "name": "力符文·艾尔",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "atk_pct_delta": 0.1
+      }
+    },
+    {
+      "id": "rune_ed",
+      "name": "命符文·艾德",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "hp_pct_delta": 0.1
+      }
+    },
+    {
+      "id": "rune_tir",
+      "name": "速符文·提尔",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "attack_speed_delta": 0.1
+      }
+    },
+    {
+      "id": "rune_nef",
+      "name": "锐利共鸣·奈夫",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "crit_rate_delta": 0.05
+      }
+    },
+    {
+      "id": "rune_eth",
+      "name": "坚韧共鸣·爱斯",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "damage_reduction_delta": 0.03
+      }
+    },
+    {
+      "id": "rune_ith",
+      "name": "汲血共鸣·伊司",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "lifesteal_pct": 0.02
+      }
+    },
+    {
+      "id": "rune_tal",
+      "name": "法能共鸣·塔尔",
+      "set": "generic",
+      "rarity": "N",
+      "effect": {
+        "magic_dmg_pct_delta": 0.08
+      }
+    },
+    {
+      "id": "rune_ral",
+      "name": "之语·燃焰",
+      "set": "generic",
+      "rarity": "SR",
+      "effect": {
+        "physical_dmg_pct_delta": 0.1
+      }
+    },
+    {
+      "id": "rune_ort",
+      "name": "之语·雷击",
+      "set": "generic",
+      "rarity": "SR",
+      "effect": {
+        "attack_speed_delta": 0.1,
+        "crit_rate_delta": 0.03
+      }
+    },
+    {
+      "id": "rune_thul",
+      "name": "之语·寒晶",
+      "set": "generic",
+      "rarity": "SR",
+      "effect": {
+        "hp_pct_delta": 0.08,
+        "armor_pen_delta": 0.04
+      }
+    },
+    {
+      "id": "rune_amn",
+      "name": "之语·荒猎",
+      "set": "generic",
+      "rarity": "SR",
+      "effect": {
+        "crit_dmg_delta": 0.15
+      }
+    },
+    {
+      "id": "rune_sol",
+      "name": "之语·阳辉",
+      "set": "generic",
+      "rarity": "SR",
+      "effect": {
+        "atk_pct_delta": 0.12
+      }
+    },
+    {
+      "id": "rune_shael",
+      "name": "之语·迅影",
+      "set": "generic",
+      "rarity": "SR",
+      "effect": {
+        "attack_speed_delta": 0.12
+      }
+    },
+    {
+      "id": "rune_dol",
+      "name": "之语·荆棘",
+      "set": "generic",
+      "rarity": "SR",
+      "effect": {
+        "damage_reduction_delta": 0.05,
+        "hp_pct_delta": 0.08
+      }
+    },
+    {
+      "id": "rune_hel",
+      "name": "之语·破甲",
+      "set": "generic",
+      "rarity": "SR",
+      "effect": {
+        "armor_pen_delta": 0.08
+      }
+    },
+    {
+      "id": "rune_io",
+      "name": "之语·灵光",
+      "set": "generic",
+      "rarity": "SR",
+      "effect": {
+        "crit_rate_delta": 0.06,
+        "crit_dmg_delta": 0.12
+      }
+    },
+    {
+      "id": "rune_lum",
+      "name": "之语·圣辉",
+      "set": "generic",
+      "rarity": "SSR",
+      "effect": {
+        "atk_pct_delta": 0.1,
+        "hp_pct_delta": 0.1
+      }
+    },
+    {
+      "id": "rune_ko",
+      "name": "之语·鹰眼",
+      "set": "generic",
+      "rarity": "SSR",
+      "effect": {
+        "crit_rate_delta": 0.08,
+        "attack_speed_delta": 0.08
+      }
+    },
+    {
+      "id": "rune_fal",
+      "name": "觉醒·蛮力",
+      "set": "generic",
+      "rarity": "SSR",
+      "effect": {
+        "atk_pct_delta": 0.16
+      }
+    },
+    {
+      "id": "rune_lem",
+      "name": "觉醒·坚韧",
+      "set": "generic",
+      "rarity": "SSR",
+      "effect": {
+        "hp_pct_delta": 0.16
+      }
+    },
+    {
+      "id": "rune_pul",
+      "name": "觉醒·锐利",
+      "set": "generic",
+      "rarity": "SSR",
+      "effect": {
+        "crit_rate_delta": 0.08,
+        "crit_dmg_delta": 0.2
+      }
+    },
+    {
+      "id": "rune_um",
+      "name": "觉醒·秘法",
+      "set": "generic",
+      "rarity": "SSR",
+      "effect": {
+        "physical_dmg_pct_delta": 0.06,
+        "magic_dmg_pct_delta": 0.06
+      }
+    },
+    {
+      "id": "rune_mal",
+      "name": "觉醒·疾风",
+      "set": "generic",
+      "rarity": "SSR",
+      "effect": {
+        "attack_speed_delta": 0.15
+      }
+    },
+    {
+      "id": "rune_ist",
+      "name": "觉醒·贯穿",
+      "set": "generic",
+      "rarity": "SSR",
+      "effect": {
+        "armor_pen_delta": 0.1,
+        "atk_pct_delta": 0.08
+      }
+    },
+    {
+      "id": "rune_gul",
+      "name": "神话·烈焰之语",
+      "set": "generic",
+      "rarity": "SSR",
+      "effect": {
+        "final_dmg_mult": 0.08
+      }
+    },
+    {
+      "id": "rune_vex",
+      "name": "神话·永冻之语",
+      "set": "generic",
+      "rarity": "SSR",
+      "effect": {
+        "hp_pct_delta": 0.15,
+        "damage_reduction_delta": 0.05
+      }
+    },
+    {
+      "id": "rune_cham",
+      "name": "神话·虚空之语",
+      "set": "generic",
+      "rarity": "SSR",
+      "effect": {
+        "lifesteal_pct": 0.04,
+        "attack_speed_delta": 0.1
+      }
+    },
+    {
+      "id": "rune_ohm",
+      "name": "神语·审判",
+      "set": "generic",
+      "rarity": "UR",
+      "effect": {
+        "crit_dmg_delta": 0.35
+      }
+    },
+    {
+      "id": "rune_lo",
+      "name": "神语·天命",
+      "set": "generic",
+      "rarity": "UR",
+      "effect": {
+        "all_stats_pct_delta": 0.08
+      }
+    },
+    {
+      "id": "rune_zod",
+      "name": "神语·永恒",
+      "set": "generic",
+      "rarity": "UR",
+      "effect": {
+        "final_dmg_mult": 0.1
+      }
     }
   ],
   "paths": [
@@ -2168,97 +2151,103 @@
       "name": "符文融合",
       "realms": [
         {
-          "name": "融合·一阶",
+          "name": "符文初烙",
           "bonds": [
-            "common_atk",
-            "common_hp",
-            "common_speed"
+            "rune_el",
+            "rune_ed",
+            "rune_tir"
           ],
           "reward": {
             "atk_pct_delta": 0.05,
             "hp_pct_delta": 0.05
-          }
+          },
+          "note": "符文融合（D2 之语主题重构 2026-11-04）"
         },
         {
-          "name": "融合·二阶",
+          "name": "符文共鸣",
           "bonds": [
-            "common_crit",
-            "common_lifesteal",
-            "common_armor"
+            "rune_nef",
+            "rune_eth",
+            "rune_ith",
+            "rune_tal"
           ],
           "reward": {
             "crit_rate_delta": 0.05,
             "lifesteal_pct": 0.02,
             "damage_reduction_delta": 0.02
-          }
+          },
+          "note": "符文融合（D2 之语主题重构 2026-11-04）"
         },
         {
-          "name": "融合·三阶",
+          "name": "符文之语·初",
           "bonds": [
-            "common_pen",
-            "common_cdmg",
-            "common_regen",
-            "common_dodge"
+            "rune_ral",
+            "rune_ort",
+            "rune_thul",
+            "rune_amn",
+            "rune_sol"
           ],
           "reward": {
             "armor_pen": 0.05,
             "crit_dmg_delta": 0.1,
             "lifesteal_pct": 0.02,
             "attack_speed_delta": 0.05
-          }
+          },
+          "note": "符文融合（D2 之语主题重构 2026-11-04）"
         },
         {
-          "name": "融合·四阶",
+          "name": "符文之语·中",
           "bonds": [
-            "common_might",
-            "common_vitality",
-            "common_swift",
-            "common_focus",
-            "common_bloodlust"
+            "rune_shael",
+            "rune_dol",
+            "rune_hel",
+            "rune_io",
+            "rune_lum",
+            "rune_ko"
           ],
           "reward": {
             "atk_pct_delta": 0.08,
             "hp_pct_delta": 0.08,
             "attack_speed_delta": 0.05,
             "crit_rate_delta": 0.03
-          }
+          },
+          "note": "符文融合（D2 之语主题重构 2026-11-04）"
         },
         {
-          "name": "融合·五阶",
+          "name": "符文觉醒",
           "bonds": [
-            "common_fortify",
-            "common_pierce",
-            "common_fury",
-            "common_ward",
-            "common_precision"
+            "rune_fal",
+            "rune_lem",
+            "rune_pul",
+            "rune_um",
+            "rune_mal",
+            "rune_ist"
           ],
           "reward": {
             "damage_reduction_delta": 0.03,
             "armor_pen": 0.05,
             "crit_dmg_delta": 0.08,
             "hp_pct_delta": 0.05
-          }
+          },
+          "note": "符文融合（D2 之语主题重构 2026-11-04）"
         },
         {
-          "name": "融合·六阶",
+          "name": "符文神话",
           "bonds": [
-            "common_valor",
-            "common_tempest",
-            "common_savage",
-            "common_guardian",
-            "common_hunter",
-            "common_berserker",
-            "common_titan",
-            "common_assassin",
-            "common_paladin",
-            "common_warlord"
+            "rune_gul",
+            "rune_vex",
+            "rune_cham",
+            "rune_ohm",
+            "rune_lo",
+            "rune_zod"
           ],
           "reward": {
             "atk_pct_delta": 0.1,
             "hp_pct_delta": 0.1,
             "crit_rate_delta": 0.05,
             "lifesteal_pct": 0.03
-          }
+          },
+          "note": "符文融合（D2 之语主题重构 2026-11-04）"
         }
       ]
     }

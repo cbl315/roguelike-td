@@ -1,1615 +1,1061 @@
-bond_pool:
-  capacity: 10
+# bonds.yaml — 羁绊数据（SSOT）
+# 结构：bonds 羁绊卡列表（set=所属体系）+ paths 修炼路径（realms 境界吞噬树）。
+# 体系：zhutian 遮天 / xingchenbian 星辰变 / chongmei 宠魅 / doupo 斗破 / generic 符文融合。
+# generic 符文融合 2026-11-04 全重构（D2 之语主题 30 张：初烙→共鸣→之语→觉醒→神话）。
+bond_pool: {capacity: 10}
 bonds:
-# ══ 通用符文（不属于任何体系，填充抽取池，持续可抽）══
-# 第一组：基础属性（10个）
-- id: common_atk
-  name: 力量符文
-  set: generic
-  rarity: N
-  effect: { atk_pct_delta: 0.158 }
-- id: common_hp
-  name: 生命符文
-  set: generic
-  rarity: N
-  effect: { hp_pct_delta: 0.236 }
-- id: common_speed
-  name: 迅捷符文
-  set: generic
-  rarity: N
-  effect: { attack_speed_delta: 0.158 }
-- id: common_crit
-  name: 锐利符文
-  set: generic
-  rarity: N
-  effect: { crit_rate_delta: 0.079 }
-- id: common_lifesteal
-  name: 吸血符文
-  set: generic
-  rarity: N
-  effect: { lifesteal_pct: 0.032 }
-- id: common_armor
-  name: 铁甲符文
-  set: generic
-  rarity: N
-  effect: { damage_reduction_delta: 0.023 }
-- id: common_pen
-  name: 破甲符文
-  set: generic
-  rarity: N
-  effect: { armor_pen: 0.045 }
-- id: common_cdmg
-  name: 暴烈符文
-  set: generic
-  rarity: N
-  effect: { crit_dmg_delta: 0.158 }
-- id: common_regen
-  name: 回春符文
-  set: generic
-  rarity: N
-  effect: { lifesteal_pct: 0.013, hp_pct_delta: 0.045 }
-- id: common_dodge
-  name: 灵巧符文
-  set: generic
-  rarity: N
-  effect: { attack_speed_delta: 0.068, crit_rate_delta: 0.023 }
-# 第二组：进阶属性（10个）
-- id: common_might
-  name: 神力符文
-  set: generic
-  rarity: N
-  effect: { atk_pct_delta: 0.09, crit_dmg_delta: 0.068 }
-- id: common_vitality
-  name: 强体符文
-  set: generic
-  rarity: N
-  effect: { hp_pct_delta: 0.158, damage_reduction_delta: 0.013 }
-- id: common_swift
-  name: 疾风符文
-  set: generic
-  rarity: N
-  effect: { attack_speed_delta: 0.09, armor_pen: 0.023 }
-- id: common_focus
-  name: 聚神符文
-  set: generic
-  rarity: N
-  effect: { crit_rate_delta: 0.045, crit_dmg_delta: 0.09 }
-- id: common_bloodlust
-  name: 嗜血符文
-  set: generic
-  rarity: N
-  effect: { lifesteal_pct: 0.023, atk_pct_delta: 0.045 }
-- id: common_fortify
-  name: 坚壁符文
-  set: generic
-  rarity: N
-  effect: { damage_reduction_delta: 0.018, hp_pct_delta: 0.09 }
-- id: common_pierce
-  name: 贯穿符文
-  set: generic
-  rarity: N
-  effect: { armor_pen: 0.036, atk_pct_delta: 0.045 }
-- id: common_fury
-  name: 狂怒符文
-  set: generic
-  rarity: N
-  effect: { crit_dmg_delta: 0.113, attack_speed_delta: 0.045 }
-- id: common_ward
-  name: 庇护符文
-  set: generic
-  rarity: N
-  effect: { hp_pct_delta: 0.068, lifesteal_pct: 0.013, damage_reduction_delta: 0.009 }
-- id: common_precision
-  name: 精准符文
-  set: generic
-  rarity: N
-  effect: { crit_rate_delta: 0.036, armor_pen: 0.023, attack_speed_delta: 0.023 }
-# 第三组：混合属性（10个）
-- id: common_valor
-  name: 勇毅符文
-  set: generic
-  rarity: N
-  effect: { atk_pct_delta: 0.068, hp_pct_delta: 0.068 }
-- id: common_tempest
-  name: 风暴符文
-  set: generic
-  rarity: N
-  effect: { attack_speed_delta: 0.054, crit_rate_delta: 0.023 }
-- id: common_savage
-  name: 蛮荒符文
-  set: generic
-  rarity: N
-  effect: { atk_pct_delta: 0.054, lifesteal_pct: 0.013 }
-- id: common_guardian
-  name: 守护符文
-  set: generic
-  rarity: N
-  effect: { hp_pct_delta: 0.113, damage_reduction_delta: 0.013 }
-- id: common_hunter
-  name: 猎手符文
-  set: generic
-  rarity: N
-  effect: { crit_dmg_delta: 0.068, armor_pen: 0.023 }
-- id: common_berserker
-  name: 狂战符文
-  set: generic
-  rarity: N
-  effect: { atk_pct_delta: 0.045, attack_speed_delta: 0.045, lifesteal_pct: 0.009 }
-- id: common_titan
-  name: 泰坦符文
-  set: generic
-  rarity: N
-  effect: { hp_pct_delta: 0.09, atk_pct_delta: 0.045 }
-- id: common_assassin
-  name: 刺客符文
-  set: generic
-  rarity: N
-  effect: { crit_rate_delta: 0.032, crit_dmg_delta: 0.054, attack_speed_delta: 0.023 }
-- id: common_paladin
-  name: 圣骑符文
-  set: generic
-  rarity: N
-  effect: { hp_pct_delta: 0.054, lifesteal_pct: 0.018, damage_reduction_delta: 0.009 }
-- id: common_warlord
-  name: 军阀符文
-  set: generic
-  rarity: N
-  effect: { atk_pct_delta: 0.054, crit_dmg_delta: 0.045, armor_pen: 0.013 }
-# ══ 体系种子（点了才解锁体系羁绊池 + 给金币奖励）══
-- id: seed_zhutian
-  name: 遮天·道经种子
-  set: seed
-  rarity: SR
-  is_seed: true
-  seed_path: zhutian
-  seed_gold: 30
-  note: 选择后解锁遮天羁绊池，+30金币（不加属性）
-- id: seed_xingchenbian
-  name: 星辰变·功法种子
-  set: seed
-  rarity: SR
-  is_seed: true
-  seed_path: xingchenbian
-  seed_gold: 30
-  note: 选择后解锁星辰变羁绊池，+30金币（不加属性）
-- id: seed_chongmei
-  name: 宠魅·魂约种子
-  set: seed
-  rarity: SR
-  is_seed: true
-  seed_path: chongmei
-  seed_gold: 30
-  note: 选择后解锁宠魅羁绊池，+30金币（不加属性）
-- id: seed_doupo
-  name: 斗破·斗气种子
-  set: seed
-  rarity: SR
-  is_seed: true
-  seed_path: doupo
-  seed_gold: 30
-  note: 选择后解锁斗破羁绊池，+30金币（不加属性）
-# ══ 遮天体系（修炼 path: zhutian）══
-# 境界阶梯：轮海→道宫→四极→化龙→仙台→准帝→大帝→红尘仙→天帝
-# 抽取规则：当前境界修满（集齐所有子羁绊）并吞噬突破后，才能抽下一境界的羁绊。
-
-# ── 轮海（境界 0，rarity SR）──
+- {id: seed_zhutian, name: 遮天·道经种子, set: seed, rarity: SR, is_seed: true, seed_path: zhutian, seed_gold: 30, note: 选择后解锁遮天羁绊池，+30金币（不加属性）}
+- {id: seed_xingchenbian, name: 星辰变·功法种子, set: seed, rarity: SR, is_seed: true, seed_path: xingchenbian, seed_gold: 30, note: 选择后解锁星辰变羁绊池，+30金币（不加属性）}
+- {id: seed_chongmei, name: 宠魅·魂约种子, set: seed, rarity: SR, is_seed: true, seed_path: chongmei, seed_gold: 30, note: 选择后解锁宠魅羁绊池，+30金币（不加属性）}
+- {id: seed_doupo, name: 斗破·斗气种子, set: seed, rarity: SR, is_seed: true, seed_path: doupo, seed_gold: 30, note: 选择后解锁斗破羁绊池，+30金币（不加属性）}
 - id: zt_lunhai_daojing
   name: 道经
   set: zhutian
   rarity: SR
-  effect:
-    atk_pct_delta: 0.10
+  effect: {atk_pct_delta: 0.1}
 - id: zt_lunhai_kuhai
   name: 苦海
   set: zhutian
   rarity: SR
-  effect:
-    hp_pct_delta: 0.19
+  effect: {hp_pct_delta: 0.19}
 - id: zt_lunhai_mingquan
   name: 命泉
   set: zhutian
   rarity: SR
-  effect:
-    atk_pct_delta: 0.12
+  effect: {atk_pct_delta: 0.12}
 - id: zt_lunhai_shenqiao
   name: 神桥
   set: zhutian
   rarity: SR
-  effect:
-    crit_rate_delta: 0.08
-
-# ── 道宫（境界 1，rarity SSR；五脏神 5 个）──
+  effect: {crit_rate_delta: 0.08}
 - id: zt_daogong_heart
   name: 心之神
   set: zhutian
   rarity: SSR
-  effect:
-    atk_pct_delta: 0.14
+  effect: {atk_pct_delta: 0.14}
 - id: zt_daogong_liver
   name: 肝之神
   set: zhutian
   rarity: SSR
-  effect:
-    lifesteal_pct: 0.066
+  effect: {lifesteal_pct: 0.066}
 - id: zt_daogong_spleen
   name: 脾之神
   set: zhutian
   rarity: SSR
-  effect:
-    hp_pct_delta: 0.35
+  effect: {hp_pct_delta: 0.35}
 - id: zt_daogong_lung
   name: 肺之神
   set: zhutian
   rarity: SSR
-  effect:
-    attack_speed_delta: 0.10
+  effect: {attack_speed_delta: 0.1}
 - id: zt_daogong_kidney
   name: 肾之神
   set: zhutian
   rarity: SSR
-  effect:
-    crit_rate_delta: 0.10
-
-# ── 四极（境界 2，rarity SSR；四肢 4 个）──
+  effect: {crit_rate_delta: 0.1}
 - id: zt_siji_left_arm
   name: 左臂极
   set: zhutian
   rarity: SSR
-  effect:
-    atk_pct_delta: 0.16
+  effect: {atk_pct_delta: 0.16}
 - id: zt_siji_right_arm
   name: 右臂极
   set: zhutian
   rarity: SSR
-  effect:
-    atk_pct_delta: 0.16
+  effect: {atk_pct_delta: 0.16}
 - id: zt_siji_left_leg
   name: 左腿极
   set: zhutian
   rarity: SSR
-  effect:
-    attack_speed_delta: 0.12
+  effect: {attack_speed_delta: 0.12}
 - id: zt_siji_right_leg
   name: 右腿极
   set: zhutian
   rarity: SSR
-  effect:
-    attack_speed_delta: 0.12
-
-# ── 化龙（境界 3，rarity UR；龙骨 3 节）──
+  effect: {attack_speed_delta: 0.12}
 - id: zt_hualong_spine_1
   name: 龙骨·第一节
   set: zhutian
   rarity: UR
-  effect:
-    atk_pct_delta: 0.20
-    final_dmg_mult: 0.10
+  effect: {atk_pct_delta: 0.2, final_dmg_mult: 0.1}
 - id: zt_hualong_spine_2
   name: 龙骨·第二节
   set: zhutian
   rarity: UR
-  effect:
-    crit_dmg_delta: 0.35
+  effect: {crit_dmg_delta: 0.35}
 - id: zt_hualong_spine_3
   name: 龙骨·第三节
   set: zhutian
   rarity: UR
-  effect:
-    final_dmg_mult: 0.15
-
-# ── 仙台（境界 4，rarity UR；精简为3个关键节点）──
+  effect: {final_dmg_mult: 0.15}
 - id: zt_xiantai_zhandao
   name: 仙三·斩道
   set: zhutian
   rarity: UR
-  effect:
-    final_dmg_mult: 0.12
+  effect: {final_dmg_mult: 0.12}
 - id: zt_xiantai_saint
   name: 仙四·圣人
   set: zhutian
   rarity: UR
-  effect:
-    final_dmg_mult: 0.15
+  effect: {final_dmg_mult: 0.15}
 - id: zt_xiantai_dasheng
   name: 仙六·大圣
   set: zhutian
   rarity: UR
-  effect:
-    final_dmg_mult: 0.20
-    crit_dmg_delta: 0.40
-
-# ── 准帝（境界 5，rarity UR）──
+  effect: {final_dmg_mult: 0.2, crit_dmg_delta: 0.4}
 - id: zt_zhundi_tribulation
   name: 渡劫
   set: zhutian
   rarity: UR
-  effect:
-    final_dmg_mult: 0.30
+  effect: {final_dmg_mult: 0.3}
 - id: zt_zhundi_curse_break
   name: 圣体破诅咒
   set: zhutian
   rarity: UR
-  effect:
-    atk_pct_delta: 0.40
-    crit_dmg_delta: 0.50
-
-# ── 大帝（境界 6，rarity EX；扩展：成帝→不死药→第二世→成仙路）──
+  effect: {atk_pct_delta: 0.4, crit_dmg_delta: 0.5}
 - id: zt_dadi_dao
   name: 帝道
   set: zhutian
   rarity: EX
-  effect:
-    final_dmg_mult: 0.50
+  effect: {final_dmg_mult: 0.5}
 - id: zt_dadi_cauldron
   name: 鼎成
   set: zhutian
   rarity: EX
-  effect:
-    atk_pct_delta: 0.55
-    final_dmg_mult: 0.30
+  effect: {atk_pct_delta: 0.55, final_dmg_mult: 0.3}
 - id: zt_dadi_busiyao
   name: 不死药
   set: zhutian
   rarity: EX
-  effect:
-    hp_pct_delta: 0.875
-    lifesteal_pct: 0.07
+  effect: {hp_pct_delta: 0.875, lifesteal_pct: 0.07}
   note: 寻得不死神药，延寿续命
 - id: zt_dadi_diershi
   name: 活出第二世
   set: zhutian
   rarity: EX
-  effect:
-    atk_pct_delta: 0.35
-    final_dmg_mult: 0.20
+  effect: {atk_pct_delta: 0.35, final_dmg_mult: 0.2}
   note: 不死药之力，活出第二世，战力重生
 - id: zt_dadi_xianlu
   name: 成仙路开启
   set: zhutian
   rarity: EX
-  effect:
-    final_dmg_mult: 0.25
-    crit_rate_delta: 0.10
+  effect: {final_dmg_mult: 0.25, crit_rate_delta: 0.1}
   note: 仙路开启，群帝争锋
-
-# ── 红尘仙（境界 7，rarity EX；扩展：逆活→自斩→红尘为仙）──
 - id: zt_hongchen_nihuo
   name: 逆活第三世
   set: zhutian
   rarity: EX
-  effect:
-    atk_pct_delta: 0.30
-    final_dmg_mult: 0.15
+  effect: {atk_pct_delta: 0.3, final_dmg_mult: 0.15}
   note: 逆活岁月，活出第三世
 - id: zt_hongchen_zikhan
   name: 自斩一刀
   set: zhutian
   rarity: EX
-  effect:
-    final_dmg_mult: 0.20
-    damage_reduction_delta: 0.10
+  effect: {final_dmg_mult: 0.2, damage_reduction_delta: 0.1}
   note: 自斩一刀，蛰伏禁区，舍弃部分元神换取存活
 - id: zt_hongchen_jiqu
   name: 不死物质汲取
   set: zhutian
   rarity: EX
-  effect:
-    hp_pct_delta: 0.525
-    lifesteal_pct: 0.05
+  effect: {hp_pct_delta: 0.525, lifesteal_pct: 0.05}
   note: 汲取宇宙不死物质，延寿蜕变
 - id: zt_hongchen_xian
   name: 红尘仙
   set: zhutian
   rarity: EX
-  effect:
-    final_dmg_mult: 0.35
+  effect: {final_dmg_mult: 0.35}
   note: 于红尘中成仙，不死不朽
-
-# ── 天帝（境界 8，rarity EX；终局：万道相合→天帝拳→独断万古）──
 - id: zt_tiandi_wandao
   name: 万道相合
   set: zhutian
   rarity: EX
-  effect:
-    final_dmg_mult: 0.35
+  effect: {final_dmg_mult: 0.35}
   note: 万道相合，一个时代唯一
 - id: zt_tiandi_quan
   name: 天帝拳成
   set: zhutian
   rarity: EX
-  effect:
-    atk_pct_delta: 0.40
-    final_dmg_mult: 0.20
+  effect: {atk_pct_delta: 0.4, final_dmg_mult: 0.2}
   note: 天帝拳大成，镇压诸敌
 - id: zt_tiandi_duduan
   name: 独断万古
   set: zhutian
   rarity: EX
-  effect:
-    final_dmg_mult: 0.25
-    damage_reduction_delta: 0.10
+  effect: {final_dmg_mult: 0.25, damage_reduction_delta: 0.1}
   note: 独断万古，一人镇压一个纪元
 - id: zt_tiandi
   name: 天帝
   set: zhutian
   rarity: EX
-  effect:
-    final_dmg_mult: 0.35
+  effect: {final_dmg_mult: 0.35}
   note: 天帝果位，开辟新纪元
-
-# ══ 遮天九秘（古字神禁，分散到各境界，每境界 1 个子羁绊）══
-# 九秘从技能转为羁绊：集齐全部 9 个九秘羁绊触发「九秘合一·神禁」EX 联动。
-# rarity 随所在境界（轮海=SR … 天帝=EX）。
 - id: zt_jm_jie
   name: 皆字秘·战力倍增
   set: zhutian
   rarity: SR
-  effect:
-    final_dmg_mult: 0.08
+  effect: {final_dmg_mult: 0.08}
   note: 九秘之一（轮海境）——短时战力翻倍
 - id: zt_jm_dou
   name: 斗字秘·斗战圣法
   set: zhutian
   rarity: SSR
-  effect:
-    atk_pct_delta: 0.15
+  effect: {atk_pct_delta: 0.15}
   note: 九秘之一（道宫境）——持续输出
 - id: zt_jm_xing
   name: 行字秘·缩地成寸
   set: zhutian
   rarity: SSR
-  effect:
-    attack_speed_delta: 0.12
+  effect: {attack_speed_delta: 0.12}
   note: 九秘之一（四极境）——攻速/移速
 - id: zt_jm_bing
   name: 兵字秘·御万兵
   set: zhutian
   rarity: UR
-  effect:
-    armor_pen: 0.15
+  effect: {armor_pen: 0.15}
   note: 九秘之一（化龙境）——穿甲
 - id: zt_jm_zu
   name: 组字秘·万阵之祖
   set: zhutian
   rarity: UR
-  effect:
-    physical_dmg_pct_delta: 0.173
+  effect: {physical_dmg_pct_delta: 0.173}
   note: 九秘之一（仙台境）——AOE场控
 - id: zt_jm_qian
   name: 前字秘·未卜先知
   set: zhutian
   rarity: UR
-  effect:
-    damage_reduction_delta: 0.08
+  effect: {damage_reduction_delta: 0.08}
   note: 九秘之一（准帝境）——减伤
 - id: zt_jm_lin
   name: 临字秘·镇压临身
   set: zhutian
   rarity: EX
-  effect:
-    crit_dmg_delta: 0.517
+  effect: {crit_dmg_delta: 0.517}
   note: 九秘之一（大帝境）——暴伤
 - id: zt_jm_zhe
   name: 者字秘·御万物
   set: zhutian
   rarity: EX
-  effect:
-    crit_rate_delta: 0.173
+  effect: {crit_rate_delta: 0.173}
   note: 九秘之一（红尘仙境）——暴击
 - id: zt_jm_shu
   name: 数字秘·身外化身
   set: zhutian
   rarity: EX
-  effect:
-    final_dmg_mult: 0.10
+  effect: {final_dmg_mult: 0.1}
   note: 九秘之一（天帝境）——多重投射
-
-# ══ 星辰变体系（修炼 path: xingchenbian）══
-# 主打：法术伤害 + 星辰属性
-# 9 境界：星云→流星→星核→行星→渡劫→恒星→暗星→黑洞→宇宙
-
-# ── 星云（境0，rarity SR）──
 - id: xc_xy_xingchen
   name: 星辰之力
   set: xingchenbian
   rarity: SR
-  effect:
-    magic_dmg_pct_delta: 0.114
+  effect: {magic_dmg_pct_delta: 0.114}
 - id: xc_xy_yunqi
   name: 云气
   set: xingchenbian
   rarity: SR
-  effect:
-    magic_dmg_pct_delta: 0.081
+  effect: {magic_dmg_pct_delta: 0.081}
 - id: xc_xy_linggen
   name: 灵根
   set: xingchenbian
   rarity: SR
-  effect:
-    crit_rate_delta: 0.076
-
-# ── 流星（境1，rarity SSR）──
+  effect: {crit_rate_delta: 0.076}
 - id: xc_lx_liuxing
   name: 流星
   set: xingchenbian
   rarity: SSR
-  effect:
-    attack_speed_delta: 0.093
+  effect: {attack_speed_delta: 0.093}
 - id: xc_lx_liuxinglei
   name: 流星泪
   set: xingchenbian
   rarity: SSR
-  effect:
-    hp_pct_delta: 0.15
-    lifesteal_pct: 0.03
+  effect: {hp_pct_delta: 0.15, lifesteal_pct: 0.03}
 - id: xc_lx_poeng
   name: 破空
   set: xingchenbian
   rarity: SSR
-  effect:
-    armor_pen: 0.10
-
-# ── 星核（境2，rarity SSR）──
+  effect: {armor_pen: 0.1}
 - id: xc_xh_xinhe
   name: 星核
   set: xingchenbian
   rarity: SSR
-  effect:
-    magic_dmg_pct_delta: 0.131
+  effect: {magic_dmg_pct_delta: 0.131}
 - id: xc_xh_faize
   name: 六九天劫
   set: xingchenbian
   rarity: SSR
-  effect:
-    final_dmg_mult: 0.049
+  effect: {final_dmg_mult: 0.049}
 - id: xc_xh_yuanshen
   name: 星力凝核
   set: xingchenbian
   rarity: SSR
-  effect:
-    crit_dmg_delta: 0.262
-
-# ── 行星（境3，rarity SSR）──
+  effect: {crit_dmg_delta: 0.262}
 - id: xc_xx_guidao
   name: 轨道
   set: xingchenbian
   rarity: SSR
-  effect:
-    attack_speed_delta: 0.109
+  effect: {attack_speed_delta: 0.109}
 - id: xc_xx_wuxing
   name: 五行
   set: xingchenbian
   rarity: SSR
-  effect:
-    elemental_dmg_mult: 0.093
+  effect: {elemental_dmg_mult: 0.093}
 - id: xc_xx_dunjia
   name: 遁甲
   set: xingchenbian
   rarity: SSR
-  effect:
-    damage_reduction_delta: 0.066
-
+  effect: {damage_reduction_delta: 0.066}
 - id: xc_dj_leijian
   name: 雷劫·淬体
   set: xingchenbian
   rarity: UR
-  effect:
-    hp_pct_delta: 0.208
-# ── 渡劫（境4，rarity UR）──
+  effect: {hp_pct_delta: 0.208}
 - id: xc_dj_leijie
   name: 雷劫
   set: xingchenbian
   rarity: UR
-  effect:
-    elemental_dmg_mult: 0.123
+  effect: {elemental_dmg_mult: 0.123}
 - id: xc_dj_duomie
   name: 渡灭
   set: xingchenbian
   rarity: UR
-  effect:
-    final_dmg_mult: 0.074
-
+  effect: {final_dmg_mult: 0.074}
 - id: xc_hx_hengxing
   name: 恒星·炼核
   set: xingchenbian
   rarity: UR
-  effect:
-    magic_dmg_pct_delta: 0.173
-# ── 恒星（境5，rarity UR）──
+  effect: {magic_dmg_pct_delta: 0.173}
 - id: xc_hx_hengguang
   name: 恒光
   set: xingchenbian
   rarity: UR
-  effect:
-    magic_dmg_pct_delta: 0.172
+  effect: {magic_dmg_pct_delta: 0.172}
 - id: xc_hx_taoyang
   name: 太阳
   set: xingchenbian
   rarity: UR
-  effect:
-    elemental_dmg_mult: 0.093
-
+  effect: {elemental_dmg_mult: 0.093}
 - id: xc_ax_zhulai
   name: 暗星之主
   set: xingchenbian
   rarity: UR
-  effect:
-    crit_rate_delta: 0.104
-# ── 暗星（境6，rarity UR）──
+  effect: {crit_rate_delta: 0.104}
 - id: xc_ax_ansu
   name: 暗素
   set: xingchenbian
   rarity: UR
-  effect:
-    final_dmg_mult: 0.093
+  effect: {final_dmg_mult: 0.093}
 - id: xc_ax_xuanying
   name: 玄影
   set: xingchenbian
   rarity: UR
-  effect:
-    crit_rate_delta: 0.10
-
+  effect: {crit_rate_delta: 0.1}
 - id: xc_hd_yinli
   name: 黑洞·引力
   set: xingchenbian
   rarity: EX
-  effect:
-    lifesteal_pct: 0.052
-    magic_dmg_pct_delta: 0.112
-# ── 黑洞（境7，rarity EX）──
+  effect: {lifesteal_pct: 0.052, magic_dmg_pct_delta: 0.112}
 - id: xc_hd_tunshi
   name: 吞噬
   set: xingchenbian
   rarity: EX
-  effect:
-    final_dmg_mult: 0.123
-    lifesteal_pct: 0.05
+  effect: {final_dmg_mult: 0.123, lifesteal_pct: 0.05}
 - id: xc_hd_xumie
   name: 虚灭
   set: xingchenbian
   rarity: EX
-  effect:
-    magic_dmg_pct_delta: 0.259
-
+  effect: {magic_dmg_pct_delta: 0.259}
 - id: xc_yz_chuangshi
   name: 鸿蒙·创世
   set: xingchenbian
   rarity: EX
-  effect:
-    final_dmg_mult: 0.051
-# ── 宇宙（境8，rarity EX）──
+  effect: {final_dmg_mult: 0.051}
 - id: xc_yz_yuzhou
   name: 宇宙
   set: xingchenbian
   rarity: EX
-  effect:
-    final_dmg_mult: 0.153
+  effect: {final_dmg_mult: 0.153}
 - id: xc_yz_hongmeng
   name: 鸿蒙
   set: xingchenbian
   rarity: EX
-  effect:
-    final_dmg_mult: 0.184
-    magic_dmg_pct_delta: 0.123
-
-# ══ 宠魅体系（修炼 path: chongmei）══
-# 主打：召唤养成 + 半魔化变身
-# 9 境界：魂徒→魂士→魂师→魂主→魂皇→魂宰→魂朽→千年最强→万年强者
-
-# ── 魂徒（境0，rarity SR，4个）──
+  effect: {final_dmg_mult: 0.184, magic_dmg_pct_delta: 0.123}
 - id: cm_ht_baiyanmeng
   name: 白魇魔·第三魂约
   set: chongmei
   rarity: SR
   pet_scope: baiyanmeng
-  effect:
-    physical_dmg_pct_delta: 0.10
-    lifesteal_pct: 0.02
+  effect: {physical_dmg_pct_delta: 0.1, lifesteal_pct: 0.02}
 - id: cm_ht_moxie
   name: 莫邪·第四魂约
   set: chongmei
   rarity: SR
   pet_scope: moxie
-  effect:
-    atk_pct_delta: 0.15
+  effect: {atk_pct_delta: 0.15}
 - id: cm_ht_yanmojuedi
   name: 魇魔免疫
   set: chongmei
   rarity: SR
   pet_scope: body
-  effect:
-    hp_pct_delta: 0.10
-    damage_reduction_delta: 0.03
+  effect: {hp_pct_delta: 0.1, damage_reduction_delta: 0.03}
 - id: cm_ht_hunian
   name: 魂念觉醒
   set: chongmei
   rarity: SR
   pet_scope: body
-  effect:
-    crit_rate_delta: 0.076
-
-# ── 魂士（境1，rarity SSR，3个）──
+  effect: {crit_rate_delta: 0.076}
 - id: cm_hs_liuwei
   name: 莫邪进化·六尾妖狐
   set: chongmei
   rarity: SSR
   pet_scope: moxie
-  effect:
-    atk_pct_delta: 0.225
-    elemental_dmg_mult: 0.10
+  effect: {atk_pct_delta: 0.225, elemental_dmg_mult: 0.1}
 - id: cm_hs_banmo_first
   name: 半魔楚暮·首次觉醒
   set: chongmei
   rarity: SSR
   pet_scope: body
-  effect:
-    atk_pct_delta: 0.15
-    final_dmg_mult: 0.08
+  effect: {atk_pct_delta: 0.15, final_dmg_mult: 0.08}
 - id: cm_hs_xiashou
   name: 夺魂归来
   set: chongmei
   rarity: SSR
   pet_scope: body
-  effect:
-    atk_pct_delta: 0.10
-    crit_dmg_delta: 0.15
-
-# ── 魂师（境2，rarity SSR，4个）──
+  effect: {atk_pct_delta: 0.1, crit_dmg_delta: 0.15}
 - id: cm_hs_jiuwei
   name: 莫邪进化·九尾炎狐
   set: chongmei
   rarity: SSR
   pet_scope: moxie
-  effect:
-    elemental_dmg_mult: 0.15
-    atk_pct_delta: 0.15
+  effect: {elemental_dmg_mult: 0.15, atk_pct_delta: 0.15}
 - id: cm_hs_qiudao
   name: 囚岛淬炼
   set: chongmei
   rarity: SSR
   pet_scope: body
-  effect:
-    atk_pct_delta: 0.12
-    hp_pct_delta: 0.10
+  effect: {atk_pct_delta: 0.12, hp_pct_delta: 0.1}
 - id: cm_hs_baiyanmeng_gain
   name: 白魇魔成长
   set: chongmei
   rarity: SSR
   pet_scope: baiyanmeng
-  effect:
-    physical_dmg_pct_delta: 0.12
+  effect: {physical_dmg_pct_delta: 0.12}
 - id: cm_hs_hundian
   name: 魂殿赐技
   set: chongmei
   rarity: SSR
   pet_scope: body
-  effect:
-    attack_speed_delta: 0.10
-    crit_rate_delta: 0.05
-
-# ── 魂主（境3，rarity UR，4个）──
+  effect: {attack_speed_delta: 0.1, crit_rate_delta: 0.05}
 - id: cm_hz_baiyanmeng_awaken
   name: 白魇魔·觉醒
   set: chongmei
   rarity: UR
   pet_scope: baiyanmeng
-  effect:
-    physical_dmg_pct_delta: 0.15
-    lifesteal_pct: 0.03
+  effect: {physical_dmg_pct_delta: 0.15, lifesteal_pct: 0.03}
 - id: cm_hz_moxie_tongling
   name: 莫邪·统领级突破
   set: chongmei
   rarity: UR
   pet_scope: moxie
-  effect:
-    atk_pct_delta: 0.3
-    elemental_dmg_mult: 0.10
+  effect: {atk_pct_delta: 0.3, elemental_dmg_mult: 0.1}
 - id: cm_hz_xuanwu
   name: 玄物吸收
   set: chongmei
   rarity: UR
   pet_scope: body
-  effect:
-    atk_pct_delta: 0.10
-    hp_pct_delta: 0.15
+  effect: {atk_pct_delta: 0.1, hp_pct_delta: 0.15}
 - id: cm_hz_baiyanmeng_fanshi
   name: 白魇魔反噬加重
   set: chongmei
   rarity: UR
   pet_scope: baiyanmeng
-  effect:
-    final_dmg_mult: 0.12
-    crit_dmg_delta: 0.20
-
-# ── 魂皇（境4，rarity UR，3个）──
+  effect: {final_dmg_mult: 0.12, crit_dmg_delta: 0.2}
 - id: cm_hz_banmo_stable
   name: 半魔化·稳定
   set: chongmei
   rarity: UR
   pet_scope: body
-  effect:
-    atk_pct_delta: 0.15
-    damage_reduction_delta: 0.05
+  effect: {atk_pct_delta: 0.15, damage_reduction_delta: 0.05}
 - id: cm_hz_moxie_peak
   name: 莫邪·战力巅峰
   set: chongmei
   rarity: UR
   pet_scope: moxie
-  effect:
-    atk_pct_delta: 0.225
-    elemental_dmg_mult: 0.10
+  effect: {atk_pct_delta: 0.225, elemental_dmg_mult: 0.1}
 - id: cm_hz_yunjing
   name: 云境突破
   set: chongmei
   rarity: UR
   pet_scope: body
-  effect:
-    attack_speed_delta: 0.12
-    crit_rate_delta: 0.05
-
-# ── 魂宰（境5，rarity UR，3个）──
+  effect: {attack_speed_delta: 0.12, crit_rate_delta: 0.05}
 - id: cm_hz_qizuifu
   name: 莫邪进化·七罪狐
   set: chongmei
   rarity: UR
   pet_scope: moxie
-  effect:
-    atk_pct_delta: 0.3
-    true_dmg_pct_delta: 0.05
-    final_dmg_mult: 0.10
+  effect: {atk_pct_delta: 0.3, true_dmg_pct_delta: 0.05, final_dmg_mult: 0.1}
 - id: cm_hz_baiyanmeng_wanquan
   name: 白魇魔·完全体
   set: chongmei
   rarity: UR
   pet_scope: baiyanmeng
-  effect:
-    physical_dmg_pct_delta: 0.20
-    lifesteal_pct: 0.03
+  effect: {physical_dmg_pct_delta: 0.2, lifesteal_pct: 0.03}
 - id: cm_hz_zhuzai
   name: 主宰级突破
   set: chongmei
   rarity: UR
   pet_scope: body
-  effect:
-    atk_pct_delta: 0.15
-    hp_pct_delta: 0.15
-
-# ── 魂朽（境6，rarity EX，3个）──
+  effect: {atk_pct_delta: 0.15, hp_pct_delta: 0.15}
 - id: cm_hxiu_shezui
   name: 莫邪进化·赦罪之狐
   set: chongmei
   rarity: EX
   pet_scope: moxie
-  effect:
-    atk_pct_delta: 0.3
-    final_dmg_mult: 0.15
-    lifesteal_pct: 0.03
+  effect: {atk_pct_delta: 0.3, final_dmg_mult: 0.15, lifesteal_pct: 0.03}
 - id: cm_hxiu_buxiu
   name: 触碰不朽
   set: chongmei
   rarity: EX
   pet_scope: body
-  effect:
-    hp_pct_delta: 0.20
-    damage_reduction_delta: 0.05
+  effect: {hp_pct_delta: 0.2, damage_reduction_delta: 0.05}
 - id: cm_hxiu_zuiyan
   name: 罪炎·第五等级
   set: chongmei
   rarity: EX
   pet_scope: body
-  effect:
-    elemental_dmg_mult: 0.20
-    true_dmg_pct_delta: 0.05
-
-# ── 千年最强（境7，rarity EX，3个）──
+  effect: {elemental_dmg_mult: 0.2, true_dmg_pct_delta: 0.05}
 - id: cm_qn_zidi
   name: 莫邪终极·幽冥狐尊·紫帝
   set: chongmei
   rarity: EX
   pet_scope: moxie
-  effect:
-    atk_pct_delta: 0.375
-    final_dmg_mult: 0.20
-    elemental_dmg_mult: 0.15
+  effect: {atk_pct_delta: 0.375, final_dmg_mult: 0.2, elemental_dmg_mult: 0.15}
 - id: cm_qn_qisi
   name: 起死回生
   set: chongmei
   rarity: EX
   pet_scope: body
-  effect:
-    hp_pct_delta: 0.25
-    lifesteal_pct: 0.05
+  effect: {hp_pct_delta: 0.25, lifesteal_pct: 0.05}
 - id: cm_qn_qiannian
   name: 千年最强者
   set: chongmei
   rarity: EX
   pet_scope: body
-  effect:
-    atk_pct_delta: 0.20
-    crit_rate_delta: 0.10
-    crit_dmg_delta: 0.30
-
-# ── 万年强者（境8，rarity EX，3个）──
+  effect: {atk_pct_delta: 0.2, crit_rate_delta: 0.1, crit_dmg_delta: 0.3}
 - id: cm_wn_moren_wanquan
   name: 魔人·完全体
   set: chongmei
   rarity: EX
   pet_scope: body
-  effect:
-    final_dmg_mult: 0.25
-    atk_pct_delta: 0.20
+  effect: {final_dmg_mult: 0.25, atk_pct_delta: 0.2}
 - id: cm_wn_moxie_zhuanji
   name: 莫邪·紫帝专精
   set: chongmei
   rarity: EX
   pet_scope: moxie
-  effect:
-    atk_pct_delta: 0.3
-    elemental_dmg_mult: 0.15
+  effect: {atk_pct_delta: 0.3, elemental_dmg_mult: 0.15}
 - id: cm_wn_wannian
   name: 万年强者·万兽之主
   set: chongmei
   rarity: EX
   pet_scope: body
-  effect:
-    final_dmg_mult: 0.30
-    atk_pct_delta: 0.25
-    hp_pct_delta: 0.20
-
-# ══ 斗破体系（修炼 path: doupo）══
-# 主打：异火吞噬进化 + 斗技爆发
-# 9 境界：斗之气→斗者→斗师→大斗师→斗灵→斗王→斗皇→斗宗→斗尊
-# （斗圣/斗帝 = 修满斗尊后的圆满意象，见联动"炎帝·万火之主"）
-
-# ── 斗之气（境0，rarity SR，4个）──
+  effect: {final_dmg_mult: 0.3, atk_pct_delta: 0.25, hp_pct_delta: 0.2}
 - id: dp_qi_xiaoyan
   name: 萧炎·废柴崛起
   set: doupo
   rarity: SR
-  effect:
-    atk_pct_delta: 0.10
+  effect: {atk_pct_delta: 0.1}
 - id: dp_qi_yaolao
   name: 药老·戒指中的灵魂
   set: doupo
   rarity: SR
-  effect:
-    all_stats_pct_delta: 0.06
+  effect: {all_stats_pct_delta: 0.06}
 - id: dp_qi_xuner
   name: 萧薰儿·青梅竹马
   set: doupo
   rarity: SR
-  effect:
-    crit_rate_delta: 0.076
+  effect: {crit_rate_delta: 0.076}
 - id: dp_qi_douzhi
   name: 斗之气·九段
   set: doupo
   rarity: SR
-  effect:
-    attack_speed_delta: 0.08
-
-# ── 斗者（境1，rarity SSR，4个）──
+  effect: {attack_speed_delta: 0.08}
 - id: dp_zhe_xizhang
   name: 玄阶斗技·吸掌
   set: doupo
   rarity: SSR
-  effect:
-    atk_ratio_delta: 0.15
+  effect: {atk_ratio_delta: 0.15}
 - id: dp_zhe_bajibeng
   name: 八极崩
   set: doupo
   rarity: SSR
-  effect:
-    crit_dmg_delta: 0.25
+  effect: {crit_dmg_delta: 0.25}
 - id: dp_zhe_qinglian
   name: 青莲地心火·异火初拥
   set: doupo
   rarity: SSR
-  effect:
-    elemental_dmg_mult: 0.12
+  effect: {elemental_dmg_mult: 0.12}
 - id: dp_zhe_yunyun
   name: 云韵·云岚宗主
   set: doupo
   rarity: SSR
-  effect:
-    hp_pct_delta: 0.219
-
-# ── 斗师（境2，rarity SSR，4个）──
+  effect: {hp_pct_delta: 0.219}
 - id: dp_shi_yunlan
   name: 云岚宗·少宗主之路
   set: doupo
   rarity: SSR
-  effect:
-    magic_dmg_pct_delta: 0.12
+  effect: {magic_dmg_pct_delta: 0.12}
 - id: dp_shi_qinglin
   name: 青鳞·碧蛇三花瞳
   set: doupo
   rarity: SSR
-  effect:
-    chain_extra_bounces: 1
+  effect: {chain_extra_bounces: 1}
 - id: dp_shi_huoneng
   name: 火能·猎魔队
   set: doupo
   rarity: SSR
-  effect:
-    attack_speed_delta: 0.10
+  effect: {attack_speed_delta: 0.1}
 - id: dp_shi_moyan
   name: 魔炎谷·火毒淬体
   set: doupo
   rarity: SSR
-  effect:
-    magic_dmg_pct_delta: 0.15
-
-# ── 大斗师（境3，rarity SSR，4个）──
+  effect: {magic_dmg_pct_delta: 0.15}
 - id: dp_ds_xinyan
   name: 陨落心炎·第二异火
   set: doupo
   rarity: SSR
-  effect:
-    elemental_dmg_mult: 0.15
+  effect: {elemental_dmg_mult: 0.15}
 - id: dp_ds_sanshou
   name: 三兽荒野决
   set: doupo
   rarity: SSR
-  effect:
-    atk_pct_delta: 0.15
+  effect: {atk_pct_delta: 0.15}
 - id: dp_ds_huiqi
   name: 丹药·回气丹
   set: doupo
   rarity: SSR
-  effect:
-    lifesteal_pct: 0.052
+  effect: {lifesteal_pct: 0.052}
 - id: dp_ds_qiangbang
   name: 迦南学院·强榜之战
   set: doupo
   rarity: SSR
-  effect:
-    final_dmg_mult: 0.08
-
-# ── 斗灵（境4，rarity UR，4个）──
+  effect: {final_dmg_mult: 0.08}
 - id: dp_ling_yiyao
   name: 一品炼药师
   set: doupo
   rarity: UR
-  effect:
-    hp_pct_delta: 0.185
-    lifesteal_pct: 0.031
+  effect: {hp_pct_delta: 0.185, lifesteal_pct: 0.031}
 - id: dp_ling_sanqian
   name: 三千雷动
   set: doupo
   rarity: UR
-  effect:
-    attack_speed_delta: 0.15
+  effect: {attack_speed_delta: 0.15}
 - id: dp_ling_guling
   name: 骨灵冷火·第三异火
   set: doupo
   rarity: UR
-  effect:
-    elemental_dmg_mult: 0.18
+  effect: {elemental_dmg_mult: 0.18}
 - id: dp_ling_jindi
   name: 薰儿·金帝焚天炎
   set: doupo
   rarity: UR
-  effect:
-    magic_dmg_pct_delta: 0.15
-
-# ── 斗王（境5，rarity UR，4个）──
+  effect: {magic_dmg_pct_delta: 0.15}
 - id: dp_wang_huolian
   name: 佛怒火莲·底牌
   set: doupo
   rarity: UR
-  effect:
-    true_dmg_pct_delta: 0.08
+  effect: {true_dmg_pct_delta: 0.08}
 - id: dp_wang_tianhuo
   name: 天火尊者·残魂
   set: doupo
   rarity: UR
-  effect:
-    all_stats_pct_delta: 0.08
+  effect: {all_stats_pct_delta: 0.08}
 - id: dp_wang_yaochen
   name: 药尘·炼药宗师
   set: doupo
   rarity: UR
-  effect:
-    hp_pct_delta: 0.15
-    damage_reduction_delta: 0.03
+  effect: {hp_pct_delta: 0.15, damage_reduction_delta: 0.03}
 - id: dp_wang_binghuang
   name: 冰皇·海波东
   set: doupo
   rarity: UR
-  effect:
-    armor_pen_delta: 0.30
-
-# ── 斗皇（境6，rarity UR，3个）──
+  effect: {armor_pen_delta: 0.3}
 - id: dp_huang_xiaoyi
   name: 小医仙·厄难毒体
   set: doupo
   rarity: UR
-  effect:
-    magic_dmg_pct_delta: 0.18
+  effect: {magic_dmg_pct_delta: 0.18}
 - id: dp_huang_meidusha
   name: 美杜莎·彩鳞女王
   set: doupo
   rarity: UR
-  effect:
-    crit_rate_delta: 0.08
-    crit_dmg_delta: 0.20
+  effect: {crit_rate_delta: 0.08, crit_dmg_delta: 0.2}
 - id: dp_huang_yanmeng
   name: 炎盟·初立
   set: doupo
   rarity: UR
-  effect:
-    atk_pct_delta: 0.20
-
-# ── 斗宗（境7，rarity EX，3个）──
+  effect: {atk_pct_delta: 0.2}
 - id: dp_zong_kongjian
   name: 空间之力·虚空挪移
   set: doupo
   rarity: EX
-  effect:
-    attack_speed_delta: 0.20
+  effect: {attack_speed_delta: 0.2}
 - id: dp_zong_jinglian
   name: 净莲妖火·第四异火
   set: doupo
   rarity: EX
-  effect:
-    elemental_dmg_mult: 0.25
+  effect: {elemental_dmg_mult: 0.25}
 - id: dp_zong_yanyan
   name: 三千焱炎火
   set: doupo
   rarity: EX
-  effect:
-    final_dmg_mult: 0.25
-
-# ── 斗尊（境8，rarity EX，3个）──
+  effect: {final_dmg_mult: 0.25}
 - id: dp_zun_xuwu
   name: 虚无吞炎·异火榜第三
   set: doupo
   rarity: EX
-  effect:
-    true_dmg_pct_delta: 0.10
-    final_dmg_mult: 0.15
+  effect: {true_dmg_pct_delta: 0.1, final_dmg_mult: 0.15}
 - id: dp_zun_xuemo
   name: 斗帝血脉·觉醒
   set: doupo
   rarity: EX
-  effect:
-    all_stats_pct_delta: 0.15
-    atk_pct_delta: 0.20
-    atk_pct_delta: 0.20
+  effect: {all_stats_pct_delta: 0.15, atk_pct_delta: 0.2}
 - id: dp_zun_yandi
   name: 炎帝之路
   set: doupo
   rarity: EX
-  effect:
-    crit_dmg_delta: 0.50
-    final_dmg_mult: 0.25
-    final_dmg_mult: 0.25
-
+  effect: {crit_dmg_delta: 0.5, final_dmg_mult: 0.25}
+- id: rune_el
+  name: 力符文·艾尔
+  set: generic
+  rarity: N
+  effect: {atk_pct_delta: 0.1}
+- id: rune_ed
+  name: 命符文·艾德
+  set: generic
+  rarity: N
+  effect: {hp_pct_delta: 0.1}
+- id: rune_tir
+  name: 速符文·提尔
+  set: generic
+  rarity: N
+  effect: {attack_speed_delta: 0.1}
+- id: rune_nef
+  name: 锐利共鸣·奈夫
+  set: generic
+  rarity: N
+  effect: {crit_rate_delta: 0.05}
+- id: rune_eth
+  name: 坚韧共鸣·爱斯
+  set: generic
+  rarity: N
+  effect: {damage_reduction_delta: 0.03}
+- id: rune_ith
+  name: 汲血共鸣·伊司
+  set: generic
+  rarity: N
+  effect: {lifesteal_pct: 0.02}
+- id: rune_tal
+  name: 法能共鸣·塔尔
+  set: generic
+  rarity: N
+  effect: {magic_dmg_pct_delta: 0.08}
+- id: rune_ral
+  name: 之语·燃焰
+  set: generic
+  rarity: SR
+  effect: {physical_dmg_pct_delta: 0.1}
+- id: rune_ort
+  name: 之语·雷击
+  set: generic
+  rarity: SR
+  effect: {attack_speed_delta: 0.1, crit_rate_delta: 0.03}
+- id: rune_thul
+  name: 之语·寒晶
+  set: generic
+  rarity: SR
+  effect: {hp_pct_delta: 0.08, armor_pen_delta: 0.04}
+- id: rune_amn
+  name: 之语·荒猎
+  set: generic
+  rarity: SR
+  effect: {crit_dmg_delta: 0.15}
+- id: rune_sol
+  name: 之语·阳辉
+  set: generic
+  rarity: SR
+  effect: {atk_pct_delta: 0.12}
+- id: rune_shael
+  name: 之语·迅影
+  set: generic
+  rarity: SR
+  effect: {attack_speed_delta: 0.12}
+- id: rune_dol
+  name: 之语·荆棘
+  set: generic
+  rarity: SR
+  effect: {damage_reduction_delta: 0.05, hp_pct_delta: 0.08}
+- id: rune_hel
+  name: 之语·破甲
+  set: generic
+  rarity: SR
+  effect: {armor_pen_delta: 0.08}
+- id: rune_io
+  name: 之语·灵光
+  set: generic
+  rarity: SR
+  effect: {crit_rate_delta: 0.06, crit_dmg_delta: 0.12}
+- id: rune_lum
+  name: 之语·圣辉
+  set: generic
+  rarity: SSR
+  effect: {atk_pct_delta: 0.1, hp_pct_delta: 0.1}
+- id: rune_ko
+  name: 之语·鹰眼
+  set: generic
+  rarity: SSR
+  effect: {crit_rate_delta: 0.08, attack_speed_delta: 0.08}
+- id: rune_fal
+  name: 觉醒·蛮力
+  set: generic
+  rarity: SSR
+  effect: {atk_pct_delta: 0.16}
+- id: rune_lem
+  name: 觉醒·坚韧
+  set: generic
+  rarity: SSR
+  effect: {hp_pct_delta: 0.16}
+- id: rune_pul
+  name: 觉醒·锐利
+  set: generic
+  rarity: SSR
+  effect: {crit_rate_delta: 0.08, crit_dmg_delta: 0.2}
+- id: rune_um
+  name: 觉醒·秘法
+  set: generic
+  rarity: SSR
+  effect: {physical_dmg_pct_delta: 0.06, magic_dmg_pct_delta: 0.06}
+- id: rune_mal
+  name: 觉醒·疾风
+  set: generic
+  rarity: SSR
+  effect: {attack_speed_delta: 0.15}
+- id: rune_ist
+  name: 觉醒·贯穿
+  set: generic
+  rarity: SSR
+  effect: {armor_pen_delta: 0.1, atk_pct_delta: 0.08}
+- id: rune_gul
+  name: 神话·烈焰之语
+  set: generic
+  rarity: SSR
+  effect: {final_dmg_mult: 0.08}
+- id: rune_vex
+  name: 神话·永冻之语
+  set: generic
+  rarity: SSR
+  effect: {hp_pct_delta: 0.15, damage_reduction_delta: 0.05}
+- id: rune_cham
+  name: 神话·虚空之语
+  set: generic
+  rarity: SSR
+  effect: {lifesteal_pct: 0.04, attack_speed_delta: 0.1}
+- id: rune_ohm
+  name: 神语·审判
+  set: generic
+  rarity: UR
+  effect: {crit_dmg_delta: 0.35}
+- id: rune_lo
+  name: 神语·天命
+  set: generic
+  rarity: UR
+  effect: {all_stats_pct_delta: 0.08}
+- id: rune_zod
+  name: 神语·永恒
+  set: generic
+  rarity: UR
+  effect: {final_dmg_mult: 0.1}
 paths:
-# ══ 遮天修炼路径（境界树）══
-# 阶梯抽取：玩家初始可抽境界 0（轮海）的羁绊；集齐当前境界全部羁绊并吞噬突破后，
-# path_realm[id] 推进，解锁下一境界的抽取。
-# rarity 按境界深度：轮海=SR，道宫/四极=SSR，化龙~准帝=UR，大帝/红尘仙/天帝=EX。
 - id: zhutian
   name: 遮天
   realms:
   - name: 轮海
-    bonds:
-    - zt_lunhai_daojing
-    - zt_lunhai_kuhai
-    - zt_lunhai_mingquan
-    - zt_lunhai_shenqiao
-    - zt_jm_jie
-    reward:
-      atk_pct_delta: 0.22
-      attack_speed_delta: 0.10
+    bonds: [zt_lunhai_daojing, zt_lunhai_kuhai, zt_lunhai_mingquan, zt_lunhai_shenqiao, zt_jm_jie]
+    reward: {atk_pct_delta: 0.22, attack_speed_delta: 0.1}
     note: 苦海聚精气，肉身筑基
   - name: 道宫
-    bonds:
-    - zt_daogong_heart
-    - zt_daogong_liver
-    - zt_daogong_spleen
-    - zt_daogong_lung
-    - zt_daogong_kidney
-    - zt_jm_dou
-    reward:
-      atk_pct_delta: 0.24
-      crit_rate_delta: 0.08
+    bonds: [zt_daogong_heart, zt_daogong_liver, zt_daogong_spleen, zt_daogong_lung, zt_daogong_kidney, zt_jm_dou]
+    reward: {atk_pct_delta: 0.24, crit_rate_delta: 0.08}
     note: 五脏神觉醒，build 第一个分支点
   - name: 四极
-    bonds:
-    - zt_siji_left_arm
-    - zt_siji_right_arm
-    - zt_siji_left_leg
-    - zt_siji_right_leg
-    - zt_jm_xing
-    reward:
-      atk_pct_delta: 0.26
-      attack_speed_delta: 0.18
+    bonds: [zt_siji_left_arm, zt_siji_right_arm, zt_siji_left_leg, zt_siji_right_leg, zt_jm_xing]
+    reward: {atk_pct_delta: 0.26, attack_speed_delta: 0.18}
     note: 淬炼四肢，装备槽/属性成型
   - name: 化龙
-    bonds:
-    - zt_hualong_spine_1
-    - zt_hualong_spine_2
-    - zt_hualong_spine_3
-    - zt_jm_bing
-    reward:
-      atk_pct_delta: 0.30
-      final_dmg_mult: 0.10
+    bonds: [zt_hualong_spine_1, zt_hualong_spine_2, zt_hualong_spine_3, zt_jm_bing]
+    reward: {atk_pct_delta: 0.3, final_dmg_mult: 0.1}
     note: 脊柱化龙，中期爆发
   - name: 仙台
-    bonds:
-    - zt_xiantai_zhandao
-    - zt_xiantai_saint
-    - zt_xiantai_dasheng
-    - zt_jm_zu
-    reward:
-      atk_pct_delta: 0.34
-      final_dmg_mult: 0.13
+    bonds: [zt_xiantai_zhandao, zt_xiantai_saint, zt_xiantai_dasheng, zt_jm_zu]
+    reward: {atk_pct_delta: 0.34, final_dmg_mult: 0.13}
     note: 仙台三重（斩道/圣人/大圣）
   - name: 准帝
-    bonds:
-    - zt_zhundi_tribulation
-    - zt_zhundi_curse_break
-    - zt_jm_qian
-    reward:
-      final_dmg_mult: 0.17
-      crit_dmg_delta: 0.320
+    bonds: [zt_zhundi_tribulation, zt_zhundi_curse_break, zt_jm_qian]
+    reward: {final_dmg_mult: 0.17, crit_dmg_delta: 0.32}
     note: 圣体破诅咒成准帝，全书最大爽点
   - name: 大帝
-    bonds:
-    - zt_dadi_dao
-    - zt_dadi_cauldron
-    - zt_dadi_busiyao
-    - zt_dadi_diershi
-    - zt_dadi_xianlu
-    - zt_jm_lin
-    reward:
-      final_dmg_mult: 0.20
+    bonds: [zt_dadi_dao, zt_dadi_cauldron, zt_dadi_busiyao, zt_dadi_diershi, zt_dadi_xianlu, zt_jm_lin]
+    reward: {final_dmg_mult: 0.2}
     synergy_unlock: zhutian_emperor_fist
     note: 成帝→不死药→活出第二世→成仙路开启；解锁天帝拳联动
   - name: 红尘仙
-    bonds:
-    - zt_hongchen_nihuo
-    - zt_hongchen_zikhan
-    - zt_hongchen_jiqu
-    - zt_hongchen_xian
-    - zt_jm_zhe
-    reward:
-      final_dmg_mult: 0.25
+    bonds: [zt_hongchen_nihuo, zt_hongchen_zikhan, zt_hongchen_jiqu, zt_hongchen_xian, zt_jm_zhe]
+    reward: {final_dmg_mult: 0.25}
     note: 逆活第三世→自斩一刀→汲取不死物质→红尘为仙
   - name: 天帝
-    bonds:
-    - zt_tiandi_wandao
-    - zt_tiandi_quan
-    - zt_tiandi_duduan
-    - zt_tiandi
-    - zt_jm_shu
-    reward:
-      status: heaven_emperor
-      final_dmg_mult: 0.35
+    bonds: [zt_tiandi_wandao, zt_tiandi_quan, zt_tiandi_duduan, zt_tiandi, zt_jm_shu]
+    reward: {status: heaven_emperor, final_dmg_mult: 0.35}
     synergy_unlock: zhutian_emperor_fist
     note: 万道相合→天帝拳成→独断万古→天帝果位
-
-# ══ 星辰变修炼路径 ══
 - id: xingchenbian
   name: 星辰变
   realms:
   - name: 星云
-    bonds:
-    - xc_xy_xingchen
-    - xc_xy_yunqi
-    - xc_xy_linggen
-    reward:
-      magic_dmg_pct_delta: 0.096
+    bonds: [xc_xy_xingchen, xc_xy_yunqi, xc_xy_linggen]
+    reward: {magic_dmg_pct_delta: 0.096}
     note: 气态凝聚，法术萌芽
   - name: 流星
-    bonds:
-    - xc_lx_liuxing
-    - xc_lx_liuxinglei
-    - xc_lx_poeng
-    reward:
-      magic_dmg_pct_delta: 0.128
-      attack_speed_delta: 0.064
+    bonds: [xc_lx_liuxing, xc_lx_liuxinglei, xc_lx_poeng]
+    reward: {magic_dmg_pct_delta: 0.128, attack_speed_delta: 0.064}
     note: 破空而出，速度爆发
   - name: 星核
-    bonds:
-    - xc_xh_xinhe
-    - xc_xh_faize
-    - xc_xh_yuanshen
-    reward:
-      magic_dmg_pct_delta: 0.128
-      final_dmg_mult: 0.048
+    bonds: [xc_xh_xinhe, xc_xh_faize, xc_xh_yuanshen]
+    reward: {magic_dmg_pct_delta: 0.128, final_dmg_mult: 0.048}
     note: 凝聚核心，法术成型
   - name: 行星
-    bonds:
-    - xc_xx_guidao
-    - xc_xx_wuxing
-    - xc_xx_dunjia
-    reward:
-      magic_dmg_pct_delta: 0.16
-      elemental_dmg_mult: 0.064
+    bonds: [xc_xx_guidao, xc_xx_wuxing, xc_xx_dunjia]
+    reward: {magic_dmg_pct_delta: 0.16, elemental_dmg_mult: 0.064}
     note: 稳定轨道，全面成长
   - name: 渡劫
-    bonds:
-    - xc_dj_leijie
-    - xc_dj_duomie
-    - xc_dj_leijian
-    reward:
-      final_dmg_mult: 0.096
-      elemental_dmg_mult: 0.064
+    bonds: [xc_dj_leijie, xc_dj_duomie, xc_dj_leijian]
+    reward: {final_dmg_mult: 0.096, elemental_dmg_mult: 0.064}
     note: 天劫洗礼，质变门槛
   - name: 恒星
-    bonds:
-    - xc_hx_hengguang
-    - xc_hx_taoyang
-    - xc_hx_hengxing
-    reward:
-      magic_dmg_pct_delta: 0.16
-      elemental_dmg_mult: 0.064
+    bonds: [xc_hx_hengguang, xc_hx_taoyang, xc_hx_hengxing]
+    reward: {magic_dmg_pct_delta: 0.16, elemental_dmg_mult: 0.064}
     note: 自身发光，法术巅峰
   - name: 暗星
-    bonds:
-    - xc_ax_ansu
-    - xc_ax_xuanying
-    - xc_ax_zhulai
-    reward:
-      final_dmg_mult: 0.12
-      crit_rate_delta: 0.04
+    bonds: [xc_ax_ansu, xc_ax_xuanying, xc_ax_zhulai]
+    reward: {final_dmg_mult: 0.12, crit_rate_delta: 0.04}
     note: 暗物质，隐藏力量
   - name: 黑洞
-    bonds:
-    - xc_hd_tunshi
-    - xc_hd_xumie
-    - xc_hd_yinli
-    reward:
-      final_dmg_mult: 0.128
-      lifesteal_pct: 0.024
+    bonds: [xc_hd_tunshi, xc_hd_xumie, xc_hd_yinli]
+    reward: {final_dmg_mult: 0.128, lifesteal_pct: 0.024}
     note: 吞噬万物，终极法术
   - name: 宇宙
-    bonds:
-    - xc_yz_yuzhou
-    - xc_yz_hongmeng
-    - xc_yz_chuangshi
-    reward:
-      final_dmg_mult: 0.16
-      magic_dmg_pct_delta: 0.12
+    bonds: [xc_yz_yuzhou, xc_yz_hongmeng, xc_yz_chuangshi]
+    reward: {final_dmg_mult: 0.16, magic_dmg_pct_delta: 0.12}
     note: 自成一界，造物之主
-
-# ══ 宠魅修炼路径 ══
 - id: chongmei
   name: 宠魅
   realms:
   - name: 魂徒
-    bonds:
-    - cm_ht_baiyanmeng
-    - cm_ht_moxie
-    - cm_ht_yanmojuedi
-    - cm_ht_hunian
-    reward:
-      atk_pct_delta: 0.17
-      attack_speed_delta: 0.03
-      lifesteal_pct: 0.02
+    bonds: [cm_ht_baiyanmeng, cm_ht_moxie, cm_ht_yanmojuedi, cm_ht_hunian]
+    reward: {atk_pct_delta: 0.17, attack_speed_delta: 0.03, lifesteal_pct: 0.02}
     note: 白魇魔签订+莫邪签订，魇魔绝地求生
   - name: 魂士
-    bonds:
-    - cm_hs_liuwei
-    - cm_hs_banmo_first
-    - cm_hs_xiashou
-    reward:
-      atk_pct_delta: 0.22
-      final_dmg_mult: 0.09
+    bonds: [cm_hs_liuwei, cm_hs_banmo_first, cm_hs_xiashou]
+    reward: {atk_pct_delta: 0.22, final_dmg_mult: 0.09}
     note: 六尾妖狐+半魔首觉，击败夏广寒
   - name: 魂师
-    bonds:
-    - cm_hs_jiuwei
-    - cm_hs_qiudao
-    - cm_hs_baiyanmeng_gain
-    - cm_hs_hundian
-    reward:
-      atk_pct_delta: 0.22
-      elemental_dmg_mult: 0.110
+    bonds: [cm_hs_jiuwei, cm_hs_qiudao, cm_hs_baiyanmeng_gain, cm_hs_hundian]
+    reward: {atk_pct_delta: 0.22, elemental_dmg_mult: 0.11}
     note: 九尾炎狐+囚岛淬炼+魂殿赐技
   - name: 魂主
-    bonds:
-    - cm_hz_baiyanmeng_awaken
-    - cm_hz_moxie_tongling
-    - cm_hz_xuanwu
-    - cm_hz_baiyanmeng_fanshi
-    reward:
-      atk_pct_delta: 0.25
-      lifesteal_pct: 0.03
+    bonds: [cm_hz_baiyanmeng_awaken, cm_hz_moxie_tongling, cm_hz_xuanwu, cm_hz_baiyanmeng_fanshi]
+    reward: {atk_pct_delta: 0.25, lifesteal_pct: 0.03}
     note: 白魇魔觉醒+莫邪统领级
   - name: 魂皇
-    bonds:
-    - cm_hz_banmo_stable
-    - cm_hz_moxie_peak
-    - cm_hz_yunjing
-    reward:
-      atk_pct_delta: 0.25
-      damage_reduction_delta: 0.05
+    bonds: [cm_hz_banmo_stable, cm_hz_moxie_peak, cm_hz_yunjing]
+    reward: {atk_pct_delta: 0.25, damage_reduction_delta: 0.05}
     note: 半魔化稳定+莫邪巅峰
   - name: 魂宰
-    bonds:
-    - cm_hz_qizuifu
-    - cm_hz_baiyanmeng_wanquan
-    - cm_hz_zhuzai
-    reward:
-      final_dmg_mult: 0.15
-      true_dmg_pct_delta: 0.05
+    bonds: [cm_hz_qizuifu, cm_hz_baiyanmeng_wanquan, cm_hz_zhuzai]
+    reward: {final_dmg_mult: 0.15, true_dmg_pct_delta: 0.05}
     note: 七罪狐+白魇魔完全体+主宰级
   - name: 魂朽
-    bonds:
-    - cm_hxiu_shezui
-    - cm_hxiu_buxiu
-    - cm_hxiu_zuiyan
-    reward:
-      final_dmg_mult: 0.20
-      lifesteal_pct: 0.03
+    bonds: [cm_hxiu_shezui, cm_hxiu_buxiu, cm_hxiu_zuiyan]
+    reward: {final_dmg_mult: 0.2, lifesteal_pct: 0.03}
     note: 赦罪之狐+触碰不朽（白魇魔被吞噬，半魔化觉醒）
   - name: 千年最强
-    bonds:
-    - cm_qn_zidi
-    - cm_qn_qisi
-    - cm_qn_qiannian
-    reward:
-      final_dmg_mult: 0.20
-      atk_pct_delta: 0.20
+    bonds: [cm_qn_zidi, cm_qn_qisi, cm_qn_qiannian]
+    reward: {final_dmg_mult: 0.2, atk_pct_delta: 0.2}
     note: 幽冥狐尊·紫帝降临（第三魂宠登场）
   - name: 万年强者
-    bonds:
-    - cm_wn_moren_wanquan
-    - cm_wn_moxie_zhuanji
-    - cm_wn_wannian
-    reward:
-      final_dmg_mult: 0.25
-      atk_pct_delta: 0.25
-      hp_pct_delta: 0.15
+    bonds: [cm_wn_moren_wanquan, cm_wn_moxie_zhuanji, cm_wn_wannian]
+    reward: {final_dmg_mult: 0.25, atk_pct_delta: 0.25, hp_pct_delta: 0.15}
     note: 魔人完全体+万兽之主
-
-# ══ 斗破修炼路径（境界树，rarity 随境递增）══
 - id: doupo
   name: 斗破
   realms:
   - name: 斗之气
-    bonds:
-    - dp_qi_xiaoyan
-    - dp_qi_yaolao
-    - dp_qi_xuner
-    - dp_qi_douzhi
-    reward:
-      atk_pct_delta: 0.25
-      attack_speed_delta: 0.05
+    bonds: [dp_qi_xiaoyan, dp_qi_yaolao, dp_qi_xuner, dp_qi_douzhi]
+    reward: {atk_pct_delta: 0.25, attack_speed_delta: 0.05}
     note: 废柴觉醒+药老认主
   - name: 斗者
-    bonds:
-    - dp_zhe_xizhang
-    - dp_zhe_bajibeng
-    - dp_zhe_qinglian
-    - dp_zhe_yunyun
-    reward:
-      atk_pct_delta: 0.25
-      elemental_dmg_mult: 0.06
+    bonds: [dp_zhe_xizhang, dp_zhe_bajibeng, dp_zhe_qinglian, dp_zhe_yunyun]
+    reward: {atk_pct_delta: 0.25, elemental_dmg_mult: 0.06}
     note: 初拥异火+斗技小成
   - name: 斗师
-    bonds:
-    - dp_shi_yunlan
-    - dp_shi_qinglin
-    - dp_shi_huoneng
-    - dp_shi_moyan
-    reward:
-      atk_pct_delta: 0.30
-      attack_speed_delta: 0.08
+    bonds: [dp_shi_yunlan, dp_shi_qinglin, dp_shi_huoneng, dp_shi_moyan]
+    reward: {atk_pct_delta: 0.3, attack_speed_delta: 0.08}
     note: 斗气外放+学院历练
   - name: 大斗师
-    bonds:
-    - dp_ds_xinyan
-    - dp_ds_sanshou
-    - dp_ds_huiqi
-    - dp_ds_qiangbang
-    reward:
-      atk_pct_delta: 0.30
-      lifesteal_pct: 0.02
+    bonds: [dp_ds_xinyan, dp_ds_sanshou, dp_ds_huiqi, dp_ds_qiangbang]
+    reward: {atk_pct_delta: 0.3, lifesteal_pct: 0.02}
     note: 第二异火+强榜扬名
   - name: 斗灵
-    bonds:
-    - dp_ling_yiyao
-    - dp_ling_sanqian
-    - dp_ling_guling
-    - dp_ling_jindi
-    reward:
-      atk_pct_delta: 0.35
-      elemental_dmg_mult: 0.10
+    bonds: [dp_ling_yiyao, dp_ling_sanqian, dp_ling_guling, dp_ling_jindi]
+    reward: {atk_pct_delta: 0.35, elemental_dmg_mult: 0.1}
     note: 斗晶凝成+炼药初成
   - name: 斗王
-    bonds:
-    - dp_wang_huolian
-    - dp_wang_tianhuo
-    - dp_wang_yaochen
-    - dp_wang_binghuang
-    reward:
-      atk_pct_delta: 0.35
-      hp_pct_delta: 0.10
+    bonds: [dp_wang_huolian, dp_wang_tianhuo, dp_wang_yaochen, dp_wang_binghuang]
+    reward: {atk_pct_delta: 0.35, hp_pct_delta: 0.1}
     note: 佛怒火莲成名+四方盟友
   - name: 斗皇
-    bonds:
-    - dp_huang_xiaoyi
-    - dp_huang_meidusha
-    - dp_huang_yanmeng
-    reward:
-      atk_pct_delta: 0.40
-      crit_rate_delta: 0.06
+    bonds: [dp_huang_xiaoyi, dp_huang_meidusha, dp_huang_yanmeng]
+    reward: {atk_pct_delta: 0.4, crit_rate_delta: 0.06}
     note: 斗气化翼+炎盟之主
   - name: 斗宗
-    bonds:
-    - dp_zong_kongjian
-    - dp_zong_jinglian
-    - dp_zong_yanyan
-    reward:
-      atk_pct_delta: 0.40
-      final_dmg_mult: 0.10
+    bonds: [dp_zong_kongjian, dp_zong_jinglian, dp_zong_yanyan]
+    reward: {atk_pct_delta: 0.4, final_dmg_mult: 0.1}
     note: 空间之力+第四异火
   - name: 斗尊
-    bonds:
-    - dp_zun_xuwu
-    - dp_zun_xuemo
-    - dp_zun_yandi
-    reward:
-      final_dmg_mult: 0.35
-      atk_pct_delta: 0.25
-      hp_pct_delta: 0.15
+    bonds: [dp_zun_xuwu, dp_zun_xuemo, dp_zun_yandi]
+    reward: {final_dmg_mult: 0.35, atk_pct_delta: 0.25, hp_pct_delta: 0.15}
     note: 异火榜第三+斗帝血脉（圆满=炎帝之姿）
-
-# ══ 通用符文融合路径（generic 羁绊的吞噬出口）══
-# 30 个 generic 分 6 个融合境界（每境界不重复羁绊）
 - id: generic_fusion
   name: 符文融合
   realms:
-  - name: 融合·一阶
-    bonds:
-    - common_atk
-    - common_hp
-    - common_speed
-    reward: { atk_pct_delta: 0.05, hp_pct_delta: 0.05 }
-  - name: 融合·二阶
-    bonds:
-    - common_crit
-    - common_lifesteal
-    - common_armor
-    reward: { crit_rate_delta: 0.05, lifesteal_pct: 0.02, damage_reduction_delta: 0.02 }
-  - name: 融合·三阶
-    bonds:
-    - common_pen
-    - common_cdmg
-    - common_regen
-    - common_dodge
-    reward: { armor_pen: 0.05, crit_dmg_delta: 0.10, lifesteal_pct: 0.02, attack_speed_delta: 0.05 }
-  - name: 融合·四阶
-    bonds:
-    - common_might
-    - common_vitality
-    - common_swift
-    - common_focus
-    - common_bloodlust
-    reward: { atk_pct_delta: 0.08, hp_pct_delta: 0.08, attack_speed_delta: 0.05, crit_rate_delta: 0.03 }
-  - name: 融合·五阶
-    bonds:
-    - common_fortify
-    - common_pierce
-    - common_fury
-    - common_ward
-    - common_precision
-    reward: { damage_reduction_delta: 0.03, armor_pen: 0.05, crit_dmg_delta: 0.08, hp_pct_delta: 0.05 }
-  - name: 融合·六阶
-    bonds:
-    - common_valor
-    - common_tempest
-    - common_savage
-    - common_guardian
-    - common_hunter
-    - common_berserker
-    - common_titan
-    - common_assassin
-    - common_paladin
-    - common_warlord
-    reward: { atk_pct_delta: 0.10, hp_pct_delta: 0.10, crit_rate_delta: 0.05, lifesteal_pct: 0.03 }
+  - name: 符文初烙
+    bonds: [rune_el, rune_ed, rune_tir]
+    reward: {atk_pct_delta: 0.05, hp_pct_delta: 0.05}
+    note: 符文融合（D2 之语主题重构 2026-11-04）
+  - name: 符文共鸣
+    bonds: [rune_nef, rune_eth, rune_ith, rune_tal]
+    reward: {crit_rate_delta: 0.05, lifesteal_pct: 0.02, damage_reduction_delta: 0.02}
+    note: 符文融合（D2 之语主题重构 2026-11-04）
+  - name: 符文之语·初
+    bonds: [rune_ral, rune_ort, rune_thul, rune_amn, rune_sol]
+    reward: {armor_pen: 0.05, crit_dmg_delta: 0.1, lifesteal_pct: 0.02, attack_speed_delta: 0.05}
+    note: 符文融合（D2 之语主题重构 2026-11-04）
+  - name: 符文之语·中
+    bonds: [rune_shael, rune_dol, rune_hel, rune_io, rune_lum, rune_ko]
+    reward: {atk_pct_delta: 0.08, hp_pct_delta: 0.08, attack_speed_delta: 0.05, crit_rate_delta: 0.03}
+    note: 符文融合（D2 之语主题重构 2026-11-04）
+  - name: 符文觉醒
+    bonds: [rune_fal, rune_lem, rune_pul, rune_um, rune_mal, rune_ist]
+    reward: {damage_reduction_delta: 0.03, armor_pen: 0.05, crit_dmg_delta: 0.08, hp_pct_delta: 0.05}
+    note: 符文融合（D2 之语主题重构 2026-11-04）
+  - name: 符文神话
+    bonds: [rune_gul, rune_vex, rune_cham, rune_ohm, rune_lo, rune_zod]
+    reward: {atk_pct_delta: 0.1, hp_pct_delta: 0.1, crit_rate_delta: 0.05, lifesteal_pct: 0.03}
+    note: 符文融合（D2 之语主题重构 2026-11-04）

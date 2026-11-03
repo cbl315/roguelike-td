@@ -9,7 +9,7 @@
 
 enemy_hp:
   base: 100.0
-  growth: 1.076       # 数值轮 2026-11 Boss 设计轮：Boss AI 召唤近似 1.08 后回调
+  growth: 1.080       # 数值轮 2026-11 符文重构轮：generic 垫卡增强 +6pp 后回调（scan 查表）
 
 enemy_count:
   base: 8

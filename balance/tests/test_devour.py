@@ -31,12 +31,12 @@ def test_no_devourable_when_realm_incomplete():
 def test_devour_advances_realm():
     """吞噬后升境：第 0 境 → 第 1 境。"""
     pools = RoguePools(RNG(seed=1))
-    pool = ["zt_lunhai_daojing", "zt_lunhai_kuhai", "zt_lunhai_mingquan", "zt_lunhai_shenqiao", "zt_jm_jie", "common_atk"]
+    pool = ["zt_lunhai_daojing", "zt_lunhai_kuhai", "zt_lunhai_mingquan", "zt_lunhai_shenqiao", "zt_jm_jie", "rune_el"]
     dev = pools.find_devourable(pool, path_realm={})
     path_id, idx, needed = dev
     removed = pools.devour(pool, needed)
     assert set(removed) == {"zt_lunhai_daojing", "zt_lunhai_kuhai", "zt_lunhai_mingquan", "zt_lunhai_shenqiao", "zt_jm_jie"}
-    assert "common_atk" in pool               # 通用羁绊不动
+    assert "rune_el" in pool               # 通用羁绊不动
 
 
 def test_multiple_realms_scalable():
