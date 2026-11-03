@@ -5,7 +5,7 @@
 extends RefCounted
 class_name BreakthroughController
 
-const HP_PER_WAVE := 16.0
+const HP_PER_WAVE := 11.0   # 波怪血×11（实测 16 偏肉：w10 ~16s 还要兼顾清小怪；11 ≈ 11s）
 const KILL_REWARD := 60.0
 const SPAWN_OFFSET := Vector2(420, -160)   # 守关者出生点（英雄右上方）
 const REALM_HP_STEP := 0.06

@@ -286,7 +286,7 @@ func _on_replace_cancel() -> void:
 	_replace_mode = false
 	_pending_offer = {}
 	build.refund_bond_draw()
-	_refresh_bond_offers()
+	# 不刷新 offers：退款+刷新=免费换三张的白嫖口（重新抽取走正常 open 付费）
 
 
 ## M3: 装备 tab 渲染（升级界面，非 3 选 1）
