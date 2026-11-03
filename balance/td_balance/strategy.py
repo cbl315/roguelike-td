@@ -113,6 +113,24 @@ class SimpleStrategy(Strategy):
     def __init__(self, fixed_path: str | None = None) -> None:
         self.fixed_path = fixed_path
 
+    ## ── 玩家画像钩子（子类覆写；业界画像分层：新手乱选 / 纯单修 / 贪心混修）──
+    def pick_offer(self, offers: list, needed: list, pools) -> object:
+        """从三选一中挑一张。贪心默认：needed 优先 → 体系卡 → 首张。"""
+        chosen = offers[0]
+        needed_set = set(needed)
+        for o in offers:
+            if o.id in needed_set:
+                return o
+        for o in offers:
+            bset = pools._bond_to_set.get(o.id, "")
+            if bset not in ("generic", "seed", ""):
+                return o
+        return chosen
+
+    def want_equipment(self, state) -> bool:
+        """是否愿意花钱升装备。贪心默认：愿意。"""
+        return True
+
     def spend_lobby(
         self,
         state: PlayerState,
@@ -121,6 +139,7 @@ class SimpleStrategy(Strategy):
         wave: int = 1,
     ) -> list[Action]:
         reroll_cap = econ.reroll_cap_per_wave
+        self._state = state   # 画像钩子可访问
         actions: list[Action] = []
         bond_times_drawn = 0
 
@@ -184,22 +203,12 @@ class SimpleStrategy(Strategy):
                 if not offers:
                     state.add_gold(cost)
                     continue
-                # 优先选体系羁绊（跳过 generic，除非只有 generic）
-                chosen = offers[0]
+                # 选卡走画像钩子（贪心/新手/单修行为分化）；None=这张不想要（退款）
                 needed = current_realm_needed()
-                needed_set = set(needed)
-                for o in offers:
-                    # 优先选当前境界需要的
-                    if o.id in needed_set:
-                        chosen = o
-                        break
-                if chosen.id not in needed_set:
-                    # 其次选体系羁绊（非 generic）
-                    for o in offers:
-                        bset = pools._bond_to_set.get(o.id, "")
-                        if bset not in ("generic", "seed", ""):
-                            chosen = o
-                            break
+                chosen = self.pick_offer(offers, needed, pools)
+                if chosen is None:
+                    state.add_gold(cost)
+                    continue
                 # 种子卡：不进 bond_pool，直接解锁体系 + 给金币 + 加起点效果
                 seed = pools.get_seed(chosen.id)
                 if seed:
@@ -222,7 +231,7 @@ class SimpleStrategy(Strategy):
                 continue
             # 3) 升装备（里程碑守卫考核：+5/10/15/20 需波间 DPS 达标；
             #    羁绊吞噬已自动升境，守关者压力移到装备线）
-            if state.equip_level < EQUIP_MAX_LEVEL:
+            if state.equip_level < EQUIP_MAX_LEVEL and self.want_equipment(state):
                 next_eq = state.equip_level + 1
                 if next_eq in EQUIP_MILESTONES and state.equip_guard_cleared < next_eq:
                     pc = resolve_player(state, pools)
@@ -262,3 +271,42 @@ class SimpleStrategy(Strategy):
             break
 
         return actions
+
+
+# ══ 玩家画像（业界平衡惯例：分层模拟不同水平/偏好的玩家）══
+
+
+class NoviceStrategy(SimpleStrategy):
+    """半新手画像：30% 概率乱选（不看 needed），装备金>200 才想起来升。
+    平衡含义：新手体验护栏（纯乱选在贴线设计下全灭——0% 无区分度，
+    半新手才有诊断价值；纯下限数据见 git 历史 2026-11-03）。"""
+
+    def pick_offer(self, offers: list, needed: list, pools):
+        import random as _r
+        self._rng = getattr(self, "_rng", _r.Random(getattr(self, "_seed", 12345)))
+        if self._rng.random() < 0.3:
+            return offers[self._rng.randrange(len(offers))]
+        return super().pick_offer(offers, needed, pools)
+
+    def want_equipment(self, state) -> bool:
+        return state.gold > 200.0
+
+
+class MonoPathStrategy(SimpleStrategy):
+    """专注单修画像：只选主体系卡（generic/他系不拿），needed 优先 + 装备照升。
+    平衡含义：① 单修可行性（遮天 90% vs 星辰变 0% = 体系本体强度差异的暴露）；
+    ② 对照 greedy 可度量 generic 散卡对主体系的稀释代价。"""
+
+    def pick_offer(self, offers: list, needed: list, pools):
+        main = getattr(getattr(self, "_state", None), "_main_path", None)
+        needed_set = set(needed)
+        for o in offers:
+            if o.id in needed_set:
+                return o
+        for o in offers:
+            bset = pools._bond_to_set.get(o.id, "")
+            if main and bset == main:
+                return o
+            if not main and bset not in ("generic", "seed", ""):
+                return o
+        return None   # 没有本体系卡：不选（攒钱）

@@ -22,3 +22,9 @@
       ——插件在导出版是死代码（bridge 需编辑器 debugger 通路，无注入风险），
       但占体积且 autoload 指向需同步清理；建议做一次性 export 脚本
 - [ ] game_manager 两处 `../UILayer/HUD|Lobby` 相对路径 → unique name（%HUD/%Lobby）
+- [ ] 模拟精度：装备守卫 gate 的 DPS 阈值制在模拟里无实质压力（breakthrough_req
+      0.45-0.75 扫描胜率全 50.7% 平坦）——实机守卫战有承压/死亡成本未建模；
+      可改为 gate 期间本波承压 +20% 或直接战斗判定
+- [ ] 流派平衡（画像矩阵 2026-11-03 暴露）：① generic 散卡在贪心画像下是负贡献
+      （mono 遮天 90.7% vs greedy 50%——散卡稀释池）② 体系单修可行性天差地别
+      （遮天 90% vs 星辰变 0%）——微调方向：generic 增强 或 贪心策略学 mono 拒散卡

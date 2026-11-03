@@ -251,10 +251,13 @@ def _battle_outcome(pc: PlayerCombat, wave: int, p, core_hp_current: float,
             "clear_time": clear_time, "ult_carry": ult_carry_out}
 
 
-def simulate_run(seed: int, strategy=None, n_waves: int | None = None) -> RunResult:
-    """模拟一局完整 run（经济 + 战斗）。返回 RunResult。"""
+def simulate_run(seed: int, strategy=None, n_waves: int | None = None,
+                  wave_params=None) -> RunResult:
+    """模拟一局完整 run（经济 + 战斗）。返回 RunResult。
+    wave_params: 参数扫描注入（None=读 yaml 默认）。"""
     econ = load_economy_params()
-    wave_params = load_wave_params()
+    if wave_params is None:
+        wave_params = load_wave_params()
     if n_waves is None:
         n_waves = wave_params.main_quest_waves
 

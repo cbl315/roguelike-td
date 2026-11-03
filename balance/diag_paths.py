@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
-"""diag_paths.py — 分体系胜率诊断（数值调参专用）。
+"""diag_paths.py — 分体系×玩家画像胜率诊断（数值调参主工具）。
 
-固定体系跑 N 局，输出各体系胜率 / 死亡分布 / 末期 DPS / 死亡热点，
-快速定位"哪条体系在哪个波次失血"。
+画像分层（业界惯例）：
+  greedy  贪心混修（原 SimpleStrategy：needed 优先→体系卡，装备照升）
+  novice  新手乱选（随机挑卡、不升装备）——新手体验护栏
+  mono    纯单修（只拿主体系卡）——混修设计的代价幅度
 
 用法：
-  python3 diag_paths.py            # 每体系 400 局
-  python3 diag_paths.py -n 200     # 快速迭代用小样本
+  python3 diag_paths.py                     # 贪心 × 4 体系（兼容原用法）
+  python3 diag_paths.py --profiles greedy novice mono   # 画像矩阵
+  python3 diag_paths.py -n 200 --profile novice
 """
 import argparse
 import statistics
@@ -17,38 +20,44 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from td_balance import run_sim  # noqa: E402
-from td_balance.strategy import SimpleStrategy  # noqa: E402
+from td_balance.strategy import SimpleStrategy, NoviceStrategy, MonoPathStrategy  # noqa: E402
 
 PATHS = ["zhutian", "xingchenbian", "chongmei", "doupo"]
+PROFILES = {"greedy": SimpleStrategy, "novice": NoviceStrategy, "mono": MonoPathStrategy}
 
 
-def run_path(path: str, n: int, seed_base: int = 7) -> str:
-    strat = SimpleStrategy(fixed_path=path)
-    wins, deaths, dps_final = 0, [], []
+def run_cell(path: str, strat_cls, n: int, seed_base: int = 7) -> str:
+    strat = strat_cls(fixed_path=path)
+    wins, deaths = 0, []
     for i in range(n):
         r = run_sim.simulate_run(seed=seed_base * 1000003 + i, strategy=strat)
         if r.won:
             wins += 1
-            dps_final.append(r.dps_per_wave[-1] if r.dps_per_wave else 0.0)
         else:
             deaths.append(r.death_wave)
     wr = wins / n * 100.0
     med = statistics.median(deaths) if deaths else 0
-    mid = sum(1 for d in deaths if 5 <= d <= 15)
-    hot = Counter(deaths)
-    top = ", ".join(f"w{k}:{v}" for k, v in sorted(hot.items(), key=lambda x: -x[1])[:5])
-    dps = f"{statistics.median(dps_final):,.0f}" if dps_final else "-"
-    return (f"{path:12s} 胜率 {wr:5.1f}% | 死亡中位 {med:4.0f} | "
-            f"w5-15死 {mid:3d}/{n - wins} | 末期DPS {dps} | 死亡热点 {top}")
+    hot = ", ".join(f"w{k}:{v}" for k, v in sorted(Counter(deaths).items(), key=lambda x: -x[1])[:3])
+    return f"{wr:5.1f}%|med{med:3.0f}|{hot}"
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("-n", "--runs", type=int, default=400)
+    ap.add_argument("--profiles", nargs="+", default=["greedy"], choices=list(PROFILES))
     args = ap.parse_args()
-    print(f"每体系 {args.runs} 局（seed 基 7，debuff/ult on）")
+    multi = len(args.profiles) > 1
+    if multi:
+        print(f"| 体系 | " + " | ".join(f"{p}" for p in args.profiles) + " |")
+        print("|---|" + "---|" * len(args.profiles))
     for p in PATHS:
-        print(run_path(p, args.runs))
+        cells = [run_cell(p, PROFILES[prof], args.runs) for prof in args.profiles]
+        if multi:
+            print(f"| {p} | " + " | ".join(cells) + " |")
+        else:
+            print(f"{p:12s} {cells[0]}   (n={args.runs})")
+    if not multi:
+        print(f"画像={args.profiles[0]}（greedy=贪心混修 novice=新手 mono=单修；--profiles 全画像矩阵）")
 
 
 if __name__ == "__main__":
