@@ -93,15 +93,16 @@ func _ready() -> void:
 	_build.summon_unit_devoured.connect(_on_summon_devoured)
 	# 境界吞噬桥接（build_state 不引 EventBus autoload，保持 headless -s 可测）
 	_build.realm_devoured.connect(func(p: String, r: int, n: String): EventBus.bond_devoured.emit(p, r, n))
-	# 突破怪：集齐境界 → 挑战守关者 → 赢了才升境（强制多修的考核压力）
+	# 突破守关者（2026-11-03 改版）：装备里程碑(+5/10/15/20)考核——
+	# 羁绊吞噬已恢复自动升境，守卫只看守装备词条
 	_breakthrough = preload("res://src/systems/breakthrough_controller.gd").new()
 	_breakthrough.setup(self)
-	_build.breakthrough_ready.connect(_breakthrough.on_breakthrough_ready)
+	_build.equip_guard_required.connect(_breakthrough.on_equip_guard_required)
+	_build.equip_guard_required.connect(func(m: int): _breakthrough.challenge())
 	# 底部羁绊池展示条（按体系分组 + 体系色边框）
 	_bond_pool_bar = preload("res://src/scenes/hud/bond_pool_bar.gd").new()
 	add_child(_bond_pool_bar)
 	_bond_pool_bar.setup(_build, _pools)
-	_lobby.breakthrough_challenge_requested.connect(challenge_breakthrough)
 	_lobby.confirmed.connect(_on_lobby_confirmed)
 	_hud.bond_picker_requested.connect(open_bond_picker)
 	_hud.char_panel_toggled.connect(toggle_char_panel)

@@ -130,19 +130,23 @@ def main() -> int:
             time.sleep(0.45)
         st2 = run(g, src_state()) or {}
         devoured_dp = [b for b in st2.get("devoured", []) if str(b).startswith("dp_")]
-        # 突破守关者机制：集齐只挂 pending（卡池锁定），挑战击杀后才升境
-        check("集齐挂pending(卡池锁)", st2.get("realm") == 0 and len(devoured_dp) == 0,
+        # 2026-11-03 改版：羁绊集齐自动升境（守关者考核移到装备里程碑）
+        check("集齐自动升境1", st2.get("realm") == 1 and len(devoured_dp) >= 4,
               f"realm={st2.get('realm')} devoured_dp={len(devoured_dp)}")
-        r = run(g, f'var gm = {GM}\nreturn JSON.stringify({{"p": not gm._build.pending_breakthrough.is_empty()}})')
-        check("pending就位", bool(r and r.get("p")))
-        run(g, f'var gm = {GM}\ngm.challenge_breakthrough()\nreturn "ok"')
+        # ── 装备里程碑守卫：升+4 → 点+5被拦+守卫 → 击杀 → 解锁升级+词条三选一 ──
+        run(g, f'var gm = {GM}\ntree.paused = true\ngm._build.add_gold(3000.0)\ngm._build.equip_level = 0\n'
+               f'for i in range(4):\n\tgm._build.equip_upgrade()\nreturn "ok"')
+        r = run(g, f'var gm = {GM}\nvar r5: Dictionary = gm._build.equip_upgrade()\ntree.paused = false\n'
+                   f'return JSON.stringify({{"blocked": r5.get("blocked", false), "ms": r5.get("milestone", 0), '
+                   f'"lv": gm._build.equip_level}})')
+        check("装备+5被守卫拦截", bool(r and r.get("blocked")) and r.get("ms") == 5 and r.get("lv") == 4, str(r))
         r = run(g, f'var gm = {GM}\nreturn JSON.stringify({{"alive": gm._breakthrough.is_guard_alive()}})')
-        check("守关者降临", bool(r and r.get("alive")))
+        check("装备守关者降临", bool(r and r.get("alive")))
         run(g, f'var gm = {GM}\ngm._breakthrough.debug_kill_guard()\nreturn "ok"')
-        st3 = run(g, src_state()) or {}
-        devoured_dp3 = [b for b in st3.get("devoured", []) if str(b).startswith("dp_")]
-        check("击杀守关者升境1", st3.get("realm") == 1 and len(devoured_dp3) >= 4,
-              f"realm={st3.get('realm')} devoured_dp={len(devoured_dp3)}")
+        r = run(g, f'var gm = {GM}\ntree.paused = true\nvar rr: Dictionary = gm._build.equip_upgrade()\n'
+                   f'return JSON.stringify({{"cleared": gm._build.equip_guard_cleared, "lv2": gm._build.equip_level, '
+                       f'"opts": rr.get("milestone_options", []).size()}})')
+        check("击杀解锁+升级拿词条", r and r.get("cleared") == 5 and r.get("lv2") == 5 and r.get("opts") == 3, str(r))
 
         # ── Boss debuff：跳第10波，验证激活 + 删除道具闭环 ──
         run(g, f'var gm = {GM}\ngm._build.add_gold(1000.0)\nreturn "ok"')

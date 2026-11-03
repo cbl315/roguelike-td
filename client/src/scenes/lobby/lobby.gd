@@ -5,7 +5,6 @@ extends Control
 class_name Lobby
 
 signal confirmed()
-signal breakthrough_challenge_requested()   # 突破守关者挑战（game_manager 生成怪物）
 
 const REROLL_BASE := 1
 ## 封印之手（Boss Debuff）：本会话刷新次数增减（game_manager 注入，波后大厅 -1）
@@ -342,7 +341,8 @@ func _render_equipment_tab() -> void:
 		vbox.add_child(cost_label)
 		# 升级按钮
 		var btn := Button.new()
-		btn.text = "升级到 +%d (%d金)" % [next_level, int(cost)]
+		var guard_pending: bool = pools.is_milestone_level(next_level) and build.equip_guard_cleared < next_level
+		btn.text = ("⚔ 守卫看守 +%d (先击杀守关者)" % next_level) if guard_pending else ("升级到 +%d (%d金)" % [next_level, int(cost)])
 		btn.disabled = build.gold < cost
 		btn.custom_minimum_size = Vector2(300, 60)
 		btn.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -365,13 +365,6 @@ func _render_equipment_tab() -> void:
 	call_deferred("_record_card_rect", panel, 0)
 	# 动作按钮
 	_clear_actions()
-	if build and not build.pending_breakthrough.is_empty():
-		var pd: Dictionary = build.pending_breakthrough
-		var btn := Button.new()
-		btn.text = "⚔ 挑战突破守关者（第 %d 境）" % (int(pd.get("realm_idx", 0)) + 1)
-		btn.add_theme_color_override("font_color", Color(0.8, 0.55, 1.0))
-		btn.pressed.connect(func(): breakthrough_challenge_requested.emit())
-		_actions.add_child(btn)
 	_add_action("切换 羁绊/装备 (Tab)", "_on_toggle_tab", true)
 	_add_action("稍后再选", "_on_confirm", true)
 
@@ -389,6 +382,12 @@ func _clean_reward(reward: Dictionary) -> Dictionary:
 func _on_equip_upgrade() -> void:
 	var result: Dictionary = build.equip_upgrade()
 	if result.is_empty():
+		return
+	# 里程碑守卫拦截：守关者已由 game_manager 生成（equip_guard_required 信号），
+	# 面板关闭去打怪，赢了再来升级
+	if result.get("blocked", false):
+		_info_label.text = "⚔ +%d 词条被突破守关者看守——先击杀它！" % int(result.get("milestone", 0))
+		close()
 		return
 	# 里程碑触发：展示 3 张词条候选让玩家选
 	var options: Array = result.get("milestone_options", [])
@@ -446,13 +445,6 @@ func _record_card_rect(card: Control, idx: int) -> void:
 		var reroll_lbl := "刷新羁绊 (免费 %d/%d)" % [_rerolls_this_wave, cap]
 		_add_action(reroll_lbl, "_on_reroll_bond",
 			_rerolls_this_wave < cap)
-	if build and not build.pending_breakthrough.is_empty():
-		var pd: Dictionary = build.pending_breakthrough
-		var btn := Button.new()
-		btn.text = "⚔ 挑战突破守关者（第 %d 境）" % (int(pd.get("realm_idx", 0)) + 1)
-		btn.add_theme_color_override("font_color", Color(0.8, 0.55, 1.0))
-		btn.pressed.connect(func(): breakthrough_challenge_requested.emit())
-		_actions.add_child(btn)
 	_add_action("切换 羁绊/装备 (Tab)", "_on_toggle_tab", true)
 	_add_action("稍后再选", "_on_confirm", true)
 

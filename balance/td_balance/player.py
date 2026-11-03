@@ -33,6 +33,7 @@ class PlayerState:
     # 羁绊池（id 列表，上限来自 bonds.yaml bond_pool.capacity）
     bond_pool: list[str] = field(default_factory=list)
     equip_affixes: list[dict] = field(default_factory=list)   # 装备里程碑词条（持续类）
+    equip_guard_cleared: int = 0   # 装备里程碑守卫已通过级（5/10/15/20）
     bond_pool_capacity: int = 10
     # 已吞噬池（套系 id）—— 旧字段，保留兼容
     devoured_sets: list[str] = field(default_factory=list)

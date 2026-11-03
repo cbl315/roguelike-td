@@ -162,17 +162,13 @@ class SimpleStrategy(Strategy):
         guard = 0
         while state.gold > 0 and guard < 100:
             guard += 1
-            # 1) 检查是否可吞噬（当前境界凑齐）——突破守关者考核：
-            #    波间 DPS ≥ 下一波需求×系数才放行（纯单体系卡打不过，混修才稳）
+            # 1) 检查是否可吞噬（当前境界凑齐）→ 自动升境（2026-11-03 改版：
+            #    羁绊突破不打怪保爽感，守关者考核移到装备里程碑）
             dev = pools.find_devourable(state.bond_pool, state.path_realm)
             if dev:
                 path_id, realm_idx, needed = dev
-                pc = resolve_player(state, pools)
-                armor = 20.0 + 1.5 * wave   # 与 run_sim._enemy_armor 同式（避免循环 import）
-                dps = _dmg_mod.expected_dps(pc.offense, _dmg_mod.EnemyStats(armor=armor))
-                req = required_dps(wave, load_wave_params()) * BREAKTHROUGH_DPS_REQ   # 当前波基准（避开 Boss 波需求尖峰）
                 cost = devour_cost(econ)
-                if dps >= req and state.spend(cost):
+                if state.spend(cost):
                     pools.devour(state.bond_pool, needed)
                     state.path_realm[path_id] = realm_idx + 1  # 升境
                     do(Action(ActionType.DEVOUR, cost=cost, detail=f"{path_id} realm{realm_idx}→{realm_idx+1}"))
@@ -224,8 +220,18 @@ class SimpleStrategy(Strategy):
                 bond_times_drawn += 1
                 do(Action(ActionType.DRAW_BOND, cost=cost, detail=f"{chosen.name}"))
                 continue
-            # 3) 升装备（里程碑抽词条：一次性 gold_lump 立即加金，其余进持续属性池）
+            # 3) 升装备（里程碑守卫考核：+5/10/15/20 需波间 DPS 达标；
+            #    羁绊吞噬已自动升境，守关者压力移到装备线）
             if state.equip_level < EQUIP_MAX_LEVEL:
+                next_eq = state.equip_level + 1
+                if next_eq in EQUIP_MILESTONES and state.equip_guard_cleared < next_eq:
+                    pc = resolve_player(state, pools)
+                    armor = 20.0 + 1.5 * wave
+                    dps = _dmg_mod.expected_dps(pc.offense, _dmg_mod.EnemyStats(armor=armor))
+                    if dps < required_dps(wave, load_wave_params()) * BREAKTHROUGH_DPS_REQ:
+                        pass   # 守卫打不过：装备暂缓（攒 DPS 下波再战）
+                    else:
+                        state.equip_guard_cleared = next_eq   # 守卫击杀，解锁里程碑
                 cost = equip_upgrade_cost(state.equip_level, econ)
                 if state.spend(cost):
                     state.equip_level += 1

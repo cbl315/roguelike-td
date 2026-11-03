@@ -8,7 +8,7 @@ class_name BreakthroughController
 const HP_PER_WAVE := 11.0   # 波怪血×11（实测 16 偏肉：w10 ~16s 还要兼顾清小怪；11 ≈ 11s）
 const KILL_REWARD := 60.0
 const SPAWN_OFFSET := Vector2(420, -160)   # 守关者出生点（英雄右上方）
-const REALM_HP_STEP := 0.06
+const MILESTONE_HP_STEP := 0.2   # 每档里程碑(5/10/15/20) +20% 守卫血
 
 var _gm = null   # GameManager 弱引用（避免循环依赖，不标注类型）
 var _guard: Enemy = null
@@ -22,14 +22,17 @@ func is_guard_alive() -> bool:
 	return _guard != null and is_instance_valid(_guard)
 
 
-func on_breakthrough_ready(_path_id: String, _realm_idx: int) -> void:
+var current_milestone: int = 0   # 当前守卫考核的里程碑级
+
+func on_equip_guard_required(milestone: int) -> void:
+	current_milestone = milestone
 	SoundManager.play("wave_start", -2.0)
 	if _gm._hud:
-		_gm._hud.show_toast("⚔ 境界圆满！波间可挑战【突破守关者】— 击杀后才升境")
+		_gm._hud.show_toast("⚔ 装备 +%d 词条被【突破守关者】看守——击杀它解锁里程碑！" % milestone)
 
 
 func challenge() -> void:
-	if _gm == null or _gm._build == null or _gm._build.pending_breakthrough.is_empty():
+	if _gm == null or _gm._build == null or current_milestone <= 0:
 		return
 	if is_guard_alive():
 		return   # 守关者已在场
@@ -37,15 +40,15 @@ func challenge() -> void:
 	if _gm._lobby and _gm._lobby.visible:
 		_gm._lobby.close()
 	_gm.get_tree().paused = false
-	var pd: Dictionary = _gm._build.pending_breakthrough
-	var realm_idx: int = int(pd.get("realm_idx", 0))
-	var hp: float = WaveCurves.enemy_hp(_gm.current_wave) * HP_PER_WAVE * (1.0 + realm_idx * REALM_HP_STEP)
+	var step: float = 1.0 + (current_milestone / 5 - 1) * MILESTONE_HP_STEP
+	var hp: float = WaveCurves.enemy_hp(_gm.current_wave) * HP_PER_WAVE * step
 	var guard_enemy := Enemy.new()
 	_gm.add_child(guard_enemy)
 	guard_enemy.setup(hp, false, true, _gm._hero, GameConst.ROOM_RECT)
 	guard_enemy.global_position = _gm._hero.global_position + SPAWN_OFFSET
 	guard_enemy.modulate = Color(0.8, 0.55, 1.0)   # 紫色标识
 	guard_enemy.kill_reward = KILL_REWARD
+	guard_enemy.is_boss = true   # 大血条/演出按 Boss 待遇
 	guard_enemy.died.connect(_on_guard_down)
 	_gm._spawner.register_enemy(guard_enemy)
 	_guard = guard_enemy
@@ -55,9 +58,12 @@ func challenge() -> void:
 
 func _on_guard_down(_enemy: Node = null) -> void:
 	_guard = null
-	if _gm == null or _gm._build == null or _gm._build.pending_breakthrough.is_empty():
+	if _gm == null or _gm._build == null or current_milestone <= 0:
 		return
-	_gm._build.apply_breakthrough()   # 真正升境（演出走 realm_devoured → HUD 大字）
+	_gm._build.clear_equip_guard(current_milestone)   # 解锁里程碑（下次升级直接通过）
+	if _gm._hud:
+		_gm._hud.show_toast("⚔ 守关者已诛！装备 +%d 词条解锁，去升级吧" % current_milestone)
+	current_milestone = 0
 
 
 ## 波结束守关者还活着 → 撤退（pending 保留，波间可再挑战）。

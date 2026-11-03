@@ -15,7 +15,9 @@ signal summon_unit_devoured(unit_id: String)   # 白魇魔被吞噬
 signal realm_devoured(path_id: String, realm_idx: int, realm_name: String)
 # 突破怪机制：集齐境界卡 → pending（卡池锁定）→ 打赢突破怪 → apply_breakthrough 才升境
 signal breakthrough_ready(path_id: String, realm_idx: int)
-var pending_breakthrough: Dictionary = {}   # {path_id, realm_idx, needed}
+signal equip_guard_required(milestone_level: int)   # 装备里程碑守卫：打赢才可升级拿词条
+var equip_guard_milestone: int = 0   # 待挑战的里程碑级（5/10/15/20；0=无）
+var equip_guard_cleared: int = 0     # 已通过的里程碑级（本级守卫已死）
 
 var gold: float = 0.0
 var accumulated_effects: Array = []    # Array[Dictionary] 累积的 effect（境界 reward + 装备词条）
@@ -139,23 +141,12 @@ func _try_devour() -> void:
 		var pid: String = dev_d.get("path_id")
 		var idx: int = int(dev_d.get("realm_idx"))
 		var needed: Array = dev_d.get("needed", [])
-		# 突破怪机制：集齐只挂 pending（卡池锁定=path_realm 不推进，抽不到下一境界卡），
-		# 打赢突破守关者（game_manager 生成）才 apply_breakthrough 真正升境。
-		if pending_breakthrough.is_empty():
-			pending_breakthrough = {"path_id": pid, "realm_idx": idx, "needed": needed.duplicate()}
-			breakthrough_ready.emit(pid, idx)
-			break
-		break   # 已有待突破的境界：卡住（先打赢当前守关者）
+		# 羁绊突破：自动升境（爽感优先——2026-11-03 改版：守关者考核移到装备里程碑）
+		_apply_devour(pid, idx, needed)
 
 
-## 打赢突破守关者 → 真正升境（原吞噬逻辑：移卡/reward/演出/召唤事件）
-func apply_breakthrough() -> void:
-	if pending_breakthrough.is_empty():
-		return
-	var pid: String = pending_breakthrough.get("path_id")
-	var idx: int = int(pending_breakthrough.get("realm_idx"))
-	var needed: Array = pending_breakthrough.get("needed", [])
-	pending_breakthrough = {}
+## 吞噬升境（自动）：移卡/reward/演出/召唤事件
+func _apply_devour(pid: String, idx: int, needed: Array) -> void:
 	for b in needed:
 		bond_pool.erase(b)
 		if not devoured_bonds.has(b):
@@ -265,6 +256,14 @@ func assemble_pet_stats(pet: String) -> CombatStats:
 func equip_upgrade() -> Dictionary:
 	if pools == null or equip_level >= pools.equip_max_level():
 		return {}
+	# 里程碑守卫：下一级是里程碑(+5/10/15/20)且该级守卫未通过 → 拦截，
+	# 通知 game_manager 生成突破守关者（不扣费；打赢后 clear_equip_guard 升级）
+	var next_level: int = equip_level + 1
+	if pools.is_milestone_level(next_level) and equip_guard_cleared < next_level:
+		if equip_guard_milestone != next_level:
+			equip_guard_milestone = next_level
+			equip_guard_required.emit(next_level)
+		return {"blocked": true, "milestone": next_level}
 	# 算成本（含 equip_upgrade_cost_delta 折扣）
 	var cost: float = pools.equip_upgrade_cost(equip_level)
 	cost += _sum_effect("equip_upgrade_cost_delta")
@@ -291,6 +290,13 @@ func equip_upgrade() -> Dictionary:
 
 
 ## 玩家从里程碑 3 选 1 里选了一张词条
+## 装备里程碑守卫被击杀 → 解锁该里程碑（下一次 equip_upgrade 正常通过并出词条）
+func clear_equip_guard(milestone: int) -> void:
+	equip_guard_cleared = maxi(equip_guard_cleared, milestone)
+	equip_guard_milestone = 0
+	changed.emit()
+
+
 func take_milestone_affix(affix: Dictionary) -> void:
 	equip_affixes.append(affix)
 	var aff: Dictionary = affix.get("effect", {})
