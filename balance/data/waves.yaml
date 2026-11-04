@@ -9,11 +9,11 @@
 
 enemy_hp:
   base: 100.0
-  growth: 1.080       # 数值轮 2026-11 符文重构轮：generic 垫卡增强 +6pp 后回调（scan 查表）
+  growth: 1.094       # 数值轮 2026-11 符文阶梯轮：符文过滤提升卡池浓度 +35pp 后三参回调
 
 enemy_count:
   base: 8
-  per_wave: 1.45      # 数值轮 2026-11 宠魅手感轮：随 growth 一起回调
+  per_wave: 1.50      # 数值轮 2026-11 符文阶梯轮：随 growth 一起回调
 
 wave_duration:
   base_seconds: 25

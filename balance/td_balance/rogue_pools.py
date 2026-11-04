@@ -95,9 +95,18 @@ class RoguePools:
         bond_map = {b.id: b for b in self.bonds}
         owned = set(owned_bond_ids or [])
 
-        # 构建合法池 = generic + 种子 + 已选体系当前境界的羁绊
+        # 构建合法池 = generic（按符文境界阶梯）+ 种子 + 已选体系当前境界的羁绊
         pr = path_realm or {}
-        legal: list[str] = [b.id for b in self.bonds if b.set == "generic"]
+        # generic 符文按 generic_fusion 境界解锁（可抽 = 当前境 +1 预览，
+        # 修复：重构后 SR/SSR/UR 符文开局全池可抽的阶梯破坏）
+        gf = next((pp for pp in self.paths if pp.id == "generic_fusion"), None)
+        gf_realm = pr.get("generic_fusion", 0)
+        legal: list[str] = []
+        if gf is not None:
+            for ri, realm in enumerate(gf.realms):
+                if ri <= gf_realm + 1:   # 当前境 + 下一境预览
+                    legal.extend(realm.bonds)
+        legal = [bid for bid in legal if bid in {b.id for b in self.bonds if b.set == "generic"}]
         # 种子卡：始终可见（不管选没选体系），但已选的不重复出现
         for b in self.bonds:
             if b.set == "seed" and b.seed_path not in pr:
