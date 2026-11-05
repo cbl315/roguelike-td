@@ -51,6 +51,10 @@ static func _apply(stats, key: String, val) -> void:
 			stats.hp_pct_bonus += v
 		"lifesteal_pct":
 			stats.lifesteal_pct += v
+		"pet_atk_pct_delta":
+			stats.pet_atk_pct += v   # 召唤系：宠物攻击%（本体不吃，宠物组装读取）
+		"projectile_delta":
+			stats.projectile_count = maxi(1, stats.projectile_count + int(v))   # 弹数（符文吞噬奖励）
 		"damage_reduction_delta":
 			stats.damage_reduction += v
 		# 以下 key 不影响 CombatStats（经济/控制/特殊），暂忽略

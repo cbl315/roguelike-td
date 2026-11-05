@@ -146,6 +146,11 @@ class PlayerCombat:
             s.damage_reduction = min(0.75, s.damage_reduction + val)  # 封顶 75%
         elif key == "lifesteal_pct":
             s.lifesteal_pct += val
+        elif key == "pet_atk_pct_delta":
+            # 召唤系符文：宠物攻击%（本体不吃，resolve_pets 读取）
+            o._pet_atk_pct = getattr(o, "_pet_atk_pct", 0.0) + val
+        elif key == "projectile_delta":
+            o.projectile_count = max(1, o.projectile_count + int(val))
         elif key == "hp_regen_pct_per_5s":
             s.regen_per_5s += val
         elif key == "shield_pct":
@@ -272,6 +277,12 @@ def resolve_pets(state, pools) -> dict:
         atk_pct = getattr(p.offense, "_atk_pct_bonus", 0.0)
         base = CombatStats().atk * SUMMON_BASE_ATK_RATIO
         p.offense.atk = base * (1.0 + atk_pct)
+        # 召唤系符文：本体聚合的宠物攻击%叠加（build_state.gd 同构）
+        if hasattr(state, "equip_affixes") or True:
+            body = resolve_player(state, pools)
+            pet_boost = getattr(body.offense, "_pet_atk_pct", 0.0)
+            if pet_boost > 0.0:
+                p.offense.atk *= (1.0 + pet_boost)
         return p
 
     pets: dict = {"moxie": _pet("moxie")}

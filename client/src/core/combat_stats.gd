@@ -38,6 +38,7 @@ var chain_extra_bounces: int = 0          # 连锁弹射次数（联动）
 const BASE_MAX_HP := 1000.0
 var hp_pct_bonus: float = 0.0             # Σ hp% 加成（effective_max_hp 时乘 base）
 var lifesteal_pct: float = 0.0            # 吸血（造成伤害的比例回血）
+var pet_atk_pct: float = 0.0   # 召唤系加成（宠物组装时读取）
 var damage_reduction: float = 0.0         # 减伤（受伤百分比减少）
 
 

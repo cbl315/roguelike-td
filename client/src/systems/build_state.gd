@@ -247,6 +247,10 @@ func assemble_pet_stats(pet: String) -> CombatStats:
 	# apply_atk_bonus 会重置为 BASE_ATK×(1+Σ)——先加成、再乘宠物基础比例
 	stats.apply_atk_bonus()
 	stats.atk = stats.atk * SUMMON_BASE_ATK_RATIO
+	# 召唤系符文加成：宠物攻击 ×(1 + pet_atk_pct)（本体 assemble_stats 聚合后传入）
+	var body: CombatStats = assemble_stats()
+	if body.pet_atk_pct > 0.0:
+		stats.atk *= (1.0 + body.pet_atk_pct)
 	return stats
 
 

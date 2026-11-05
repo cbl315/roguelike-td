@@ -163,7 +163,7 @@ class SimpleStrategy(Strategy):
             for path_id in chosen:
                 state.path_realm[path_id] = 0
             # generic_fusion 默认解锁
-            state.path_realm["generic_fusion"] = 0
+            state.path_realm.update({"generic_phys": 0, "generic_magic": 0, "generic_summon": 0})
             state.__dict__["_main_path"] = chosen[0]
         # 如果已选了体系，设 main_path
         if state._main_path is None and state.path_realm:

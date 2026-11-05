@@ -76,16 +76,27 @@ func _read_json(filename: String) -> Dictionary:
 ## path_realm: {path_id: 已完成境界数}；初始为空 = 所有 path 从境0开始。
 ## 只能抽 generic 通用符文 + 各 path 当前境界的羁绊；已拥有不重复；突破后解锁下一境界。
 ## prefer_ids: 兼容旧接口——作为加权偏好叠加在合法池上（不绕过阶梯限制）。
-## 符文卡 → 境界序号（按 generic_fusion.realms 的顺序；非符文返回 99 恒可抽）
+## 符文卡 → 等级序号（三系各自 0-3；非符文返回 0 恒可抽）
 func _rune_realm_index(bid: String) -> int:
 	for p in _paths:
-		if p.get("id") == "generic_fusion":
+		if str(p.get("id", "")).begins_with("generic_"):
 			var realms: Array = p.get("realms", [])
 			for ri in range(realms.size()):
 				if realms[ri].get("bonds", []).has(bid):
 					return ri
-			return 99   # 不在符文树（旧数据兜底）
-	return 99
+	return 0
+
+
+## 符文卡所属系的当前境界（path_realm 查询；未修返回 0）
+func _rune_series_realm(bid: String, path_realm: Dictionary) -> int:
+	for p in _paths:
+		var pid: String = str(p.get("id", ""))
+		if pid.begins_with("generic_"):
+			var realms: Array = p.get("realms", [])
+			for ri in range(realms.size()):
+				if realms[ri].get("bonds", []).has(bid):
+					return int(path_realm.get(pid, 0))
+	return 0
 
 
 func draw_bond_offers(n: int = 3, prefer_ids: Array = [], owned_ids: Array = [], path_realm: Dictionary = {}) -> Array:
@@ -94,13 +105,14 @@ func draw_bond_offers(n: int = 3, prefer_ids: Array = [], owned_ids: Array = [],
 	for bid in owned_ids:
 		owned[bid] = true
 
-	# 合法池 = generic（按符文境界阶梯：当前境+1 预览，防高阶符文开局白给）
-	# + 种子卡（未选体系时可见） + 已选体系当前境界的羁绊
+	# 合法池 = generic 三系（战魂/奥术/灵契）各自阶梯：初级恒开，
+	# 吞噬完初级才解锁该系中级+（严格解锁）+ 种子卡 + 已选体系当前境界
 	var legal: Array = []
-	var gf_realm: int = int(path_realm.get("generic_fusion", 0))
 	for b in _bonds:
 		if b.get("set") == "generic":
-			if _rune_realm_index(str(b.get("id"))) <= gf_realm + 1:
+			var series_realm: int = _rune_series_realm(str(b.get("id")), path_realm)
+			var card_lvl: int = _rune_realm_index(str(b.get("id")))
+			if card_lvl == 0 or card_lvl <= series_realm:
 				legal.append(b.get("id"))
 		# 种子卡：始终可见（除非已选了该体系）
 		if b.get("is_seed", false):
