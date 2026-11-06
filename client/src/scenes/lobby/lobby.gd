@@ -589,6 +589,20 @@ func _make_card(offer: Dictionary, idx: int, compact: bool = false) -> Control:
 		# 兜底：从 effect 字典现算
 		desc = pools._effect_to_text(offer.get("effect", {}))
 	if desc != "":
+		# VFX 批次三：词条图标（首个 effect key 检索）
+		var atlas := get_node_or_null("/root/SpriteAtlas")
+		if atlas != null and not compact:
+			var effs: Dictionary = offer.get("effect", {})
+			for ek in effs.keys():
+				var eic: Texture2D = atlas.get_effect_icon(str(ek))
+				if eic:
+					var itr := TextureRect.new()
+					itr.texture = eic
+					itr.custom_minimum_size = Vector2(22, 22)
+					itr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+					itr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+					vbox.add_child(itr)
+				break   # 只挂首个（信息密度控制）
 		var desc_label := Label.new()
 		desc_label.text = desc
 		desc_label.add_theme_color_override("font_color", Color(0.95, 0.85, 0.4))

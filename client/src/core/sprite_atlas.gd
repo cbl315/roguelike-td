@@ -28,6 +28,9 @@ var devour_ring_tex: Texture2D = null
 var enemy_hit_texs: Dictionary = {}
 var enemy_death_texs: Dictionary = {}
 var bg_texs: Dictionary = {}
+var effect_icon_texs: Dictionary = {}   # effect key → 词条图标
+var debuff_icon_texs: Dictionary = {}   # debuff id → 图标
+var particle_texs: Array[Texture2D] = []
 
 # 弹道贴图（4 种元素，随机选取增加视觉多样性）
 var projectile_texs: Array[Texture2D] = []
@@ -131,6 +134,31 @@ func _ready() -> void:
 		"heaven": _load_scaled("res://src/assets/bg/bg_heaven_realm.png", 1024),
 	}
 
+	# ── 词条效果图标（15 张：effect key → 图标，卡面/角色面板用）──
+	var eff_icons := {
+		"atk_pct_delta": "skill_attack_speed", "crit_rate_delta": "skill_crit_rate",
+		"crit_dmg_delta": "skill_crit_dmg", "attack_speed_delta": "skill_attack_speed",
+		"magic_dmg_pct_delta": "skill_magic_dmg", "physical_dmg_pct_delta": "skill_phys_dmg",
+		"final_dmg_mult": "skill_final_dmg", "armor_pen_delta": "skill_armor_pen",
+		"true_dmg_pct_delta": "skill_true_dmg", "lifesteal_pct": "skill_lifesteal",
+		"damage_reduction_delta": "skill_dmg_reduce", "hp_pct_delta": "skill_dmg_reduce",
+		"pet_atk_pct_delta": "skill_multishot", "projectile_delta": "skill_multishot",
+		"all_stats_pct_delta": "skill_final_dmg",
+	}
+	for k in eff_icons.keys():
+		effect_icon_texs[k] = _load_scaled("res://src/assets/skills/%s.png" % eff_icons[k], 24)
+
+	# ── Boss debuff 图标（17 张：debuff id → 图标，预告条/横幅用）──
+	for db in ["armor_break", "blind_eye", "bond_suppress", "counter_force", "crit_shatter",
+			"gold_phage", "haste_order", "healing_seal", "immortal_body", "immovable",
+			"magic_resist", "mirror_armor", "phys_resist", "regen_core", "sealed_hand",
+			"single_shot", "ult_seal"]:
+		debuff_icon_texs[db] = _load_scaled("res://src/assets/debuffs/debuff_%s.png" % db, 32)
+
+	# ── 粒子贴图（4 张：击杀爆发随机）──
+	for pn in ["blood_drop", "debris_stone", "energy_shard", "soul_flame"]:
+		particle_texs.append(_load_scaled("res://src/assets/particles/particle_%s.png" % pn, 20))
+
 # ── 新资源访问器 ──
 func get_third_pet_tex(unit_id: String) -> Texture2D:
 	return summon_third_texs.get(unit_id)
@@ -162,6 +190,17 @@ func get_enemy_hit_tex(kind_key: String) -> Texture2D:
 
 func get_enemy_death_tex(kind_key: String) -> Texture2D:
 	return enemy_death_texs.get(kind_key)
+
+func get_effect_icon(effect_key: String) -> Texture2D:
+	return effect_icon_texs.get(effect_key)
+
+func get_debuff_icon(debuff_id: String) -> Texture2D:
+	return debuff_icon_texs.get(debuff_id)
+
+func get_particle_tex(rng: RandomNumberGenerator) -> Texture2D:
+	if particle_texs.is_empty():
+		return null
+	return particle_texs[rng.randi() % particle_texs.size()]
 
 func get_bg(key: String) -> Texture2D:
 	return bg_texs.get(key)

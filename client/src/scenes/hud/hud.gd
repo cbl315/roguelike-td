@@ -19,6 +19,7 @@ var _boss_dim: ColorRect = null
 var _boss_banner_label: Label = null
 var _boss_portrait: TextureRect = null
 var _boss_portrait_idx: int = -1
+var _forecast_icon: TextureRect = null
 var _boss_banner_timer: float = 0.0
 const POS_BOSS_BAR := Vector2(660, 26)     # 顶部中央大血条
 
@@ -352,6 +353,19 @@ func _setup_forecast_ui() -> void:
 
 
 func update_boss_forecast(nb: Dictionary, gold: float) -> void:
+	# VFX 批次三：预告条挂 debuff 图标（按 debuff id 检索）
+	if _forecast_icon == null:
+		_forecast_icon = TextureRect.new()
+		_forecast_icon.position = POS_TOP_RIGHT + Vector2(-40, 92)
+		_forecast_icon.size = Vector2(32, 32)
+		_forecast_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_forecast_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		add_child(_forecast_icon)
+	if _forecast_icon != null:
+		var icon_db: String = str(nb.get("id", ""))
+		var ic: Texture2D = SpriteAtlas.get_debuff_icon(icon_db) if icon_db != "" else null
+		_forecast_icon.texture = ic
+		_forecast_icon.visible = ic != null and not nb.get("removed", false)
 	_forecast_cache = {"nb": nb, "gold": gold}
 	var show: bool = not nb.is_empty()
 	_forecast_label.visible = show
@@ -550,6 +564,22 @@ func _render_char_panel(build: BuildState, pools: RoguePools) -> void:
 	# 标题
 	var title := Label.new()
 	title.text = "=== 角色面板 (Tab 关闭) ==="
+	# VFX 批次三：吞噬进度环（标题旁视觉锚点）
+	var atlas5 := get_node_or_null("/root/SpriteAtlas")
+	if atlas5 != null and atlas5.get_devour_ring() != null:
+		var ring := TextureRect.new()
+		ring.texture = atlas5.get_devour_ring()
+		ring.custom_minimum_size = Vector2(44, 44)
+		ring.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		ring.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		var ring_wrap := HBoxContainer.new()
+		ring_wrap.add_child(ring)
+		var rw_lbl := Label.new()
+		rw_lbl.text = "  修炼进程"
+		rw_lbl.add_theme_font_size_override("font_size", 16)
+		rw_lbl.add_theme_color_override("font_color", Color(0.95, 0.8, 0.4))
+		ring_wrap.add_child(rw_lbl)
+		vbox.add_child(ring_wrap)
 	title.add_theme_font_size_override("font_size", 28)
 	vbox.add_child(title)
 	# 属性

@@ -453,6 +453,7 @@ func _on_enemy_killed(enemy: Node) -> void:
 	_build.add_gold(reward)
 	EventBus.gold_changed.emit(_build.gold)
 	_hud.update_gold(_build.gold)
+	_spawn_kill_particles(e.global_position if e != null else Vector2.ZERO)
 	# Sparkle Lite：击杀反馈（Boss 强震动+顿帧+闪屏，普通怪轻震动）
 	if _fb_kill_boss != null and e != null and e.is_boss:
 		_fb_kill_boss.play()
@@ -619,6 +620,28 @@ func _on_summon_requested(unit_id: String, unit_name: String) -> void:
 
 
 ## 白魇魔被吞噬 → 停用对应召唤单位。
+## 击杀粒子（VFX 批次三）：4-6 个随机粒子贴图散开淡出（0.5s）
+func _spawn_kill_particles(pos: Vector2) -> void:
+	var atlas := get_node_or_null("/root/SpriteAtlas")
+	if atlas == null:
+		return
+	for i in range(4 + (_rng.randi() % 3)):
+		var pt: Texture2D = atlas.get_particle_tex(_rng)
+		if pt == null:
+			return
+		var tr := TextureRect.new()
+		tr.texture = pt
+		tr.position = pos
+		tr.z_index = 40
+		add_child(tr)
+		var ang: float = _rng.randf() * TAU
+		var dist: float = 30.0 + _rng.randf() * 40.0
+		var tw := get_tree().create_tween()
+		tw.tween_property(tr, "position", pos + Vector2.RIGHT.rotated(ang) * dist, 0.5)
+		tw.parallel().tween_property(tr, "modulate:a", 0.0, 0.5)
+		tw.tween_callback(tr.queue_free)
+
+
 ## Boss 击杀演出：全局慢动作 0.45s + 双金色冲击波 + HUD 大字（Boss 波收尾记忆点）
 func _boss_defeat_performance(e: Enemy) -> void:
 	EventBus.boss_defeated.emit("boss")
