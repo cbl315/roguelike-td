@@ -163,9 +163,11 @@ def download(url: str, dest: Path) -> None:
         f.write(r.read())
 
 
-# 智谱 CogView 固定在右下角加"AI生成"水印（全图右下 ~12%×4% 区域）。
+# 智谱 CogView 固定在右下角加"AI生成"水印。
 # 水印相对坐标（按图片宽高比例），适配任意分辨率。
-WATERMARK_BOX = (0.846, 0.936, 0.963, 0.970)  # (x0, y0, x1, y1) 比例
+# 2026-11-06 实测：水印样式已变大（灰色胶囊形底衬+文字，约占右下 ~22%×10%），
+# 早期小框 (0.846, 0.936, 0.963, 0.970) 会漏残留，故扩大覆盖到右下角边缘。
+WATERMARK_BOX = (0.78, 0.90, 1.0, 1.0)  # (x0, y0, x1, y1) 比例
 
 
 def remove_watermark(path: Path, box: tuple[float, float, float, float] = WATERMARK_BOX) -> bool:

@@ -43,14 +43,20 @@ uv run tools/gen_art.py sync --id bond_zhutian_emperor_cauldron --ref ~/download
 
 ```
 client/src/assets/
-├── bonds/       羁绊卡面（24 张）
-├── debuffs/     Boss debuff 图标（17 张）
-├── skills/      技能词条图标（15 张）
-├── enemies/     敌人 + Boss 立绘（8 张）
-├── characters/  英雄立绘（1 张）
-├── effects/     特效贴图（8 张）
-└── bg/          场景背景（3 张）
+├── bonds/        羁绊卡面（25 张）
+├── debuffs/      Boss debuff 图标（17 张）
+├── skills/       技能词条图标（15 张）
+├── enemies/      敌人 + Boss 立绘（8 张）
+├── characters/   英雄/召唤兽立绘 + 进化形态（15 张）
+├── effects/      特效贴图：弹道/命中/击杀/终极演出（24 张）
+├── auras/        升境法阵/境界徽章/光环（16 张）
+├── enemy_states/ 敌人受击/死亡状态帧 + Boss 狂态/半身像（16 张）
+├── particles/    碎屑粒子贴图（4 张）
+├── ui/           血条等 UI 贴图（2 张）
+└── bg/           场景背景（3 张）
 ```
+
+> VFX 计划（羁绊视觉升级 + 打击感）的 66 张资源设计见 [`docs/ART_VFX_PLAN.md`](../docs/ART_VFX_PLAN.md)；其中状态帧/进化链条目需以现有立绘为参考图用 Seedream 图生图精修，CogView 直出仅作占位。
 
 ## 推荐工作流
 
@@ -67,7 +73,7 @@ client/src/assets/
 
 - CogView-3-Flash 免费但有速率限制，脚本默认每次调用间隔 1 秒（`RATE_LIMIT_SEC`）
 - 失败自动重试 3 次，指数退避（4s → 8s → 16s）
-- 全部 76 张约需 2-3 分钟跑完
+- 全部 145 张约需 3-5 分钟跑完
 
 ---
 

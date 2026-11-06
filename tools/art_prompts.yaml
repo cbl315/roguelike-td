@@ -168,6 +168,36 @@ categories:
       - id: summon_baiyanmeng
         prompt: 召唤兽"白魇魔"——一团青色魔焰凝聚的人形恶魔虚影，无面目，身披青色灵魂火焰，邪恶气息，悬浮感，正视角全身，纯白背景便于抠图。
 
+      # ══ VFX 计划（docs/ART_VFX_PLAN.md §5.3）：进化链一律以上一形态为参考图（图生图）保主体一致 ══
+      # 莫邪进化链（对应 chongmei.md §2.1 精灵图：sixtail_evil/ninetail_fire/sevensin/zidi_purple）
+      - id: moxie_sixtail_evil
+        prompt: 莫邪进化"六尾妖狐"——同一只银白小狐（参考 summon_moxie 主体），六条尾巴展开，尾尖燃橙红邪焰，眼神更凶悍，正视角全身，纯白背景便于抠图。
+      - id: moxie_ninetail_fire
+        prompt: 莫邪进化"九尾炎狐"——同一只银白狐（参考上一形态），九尾全开展如焰扇，周身橙红炎焰环绕，统领级威严，正视角全身，纯白背景便于抠图。
+      - id: moxie_sevensin
+        prompt: 莫邪进化"七罪狐·堕落炎君"——同一只狐（参考上一形态），体型更硕大，毛色转暗银，罪炎暗红如熔岩裂纹，堕落君王气场，正视角全身，纯白背景便于抠图。
+      - id: moxie_zidi_purple
+        prompt: 莫邪终极"幽冥狐尊·紫帝"——同一只狐的巅峰形态（参考上一形态），九尾化紫焰冥炎，幽冥紫气缭绕，不死传说级威压，正视角全身，纯白背景便于抠图。
+      # 白魇魔强化（参考 summon_baiyanmeng 主体）
+      - id: baiyanmeng_awakened
+        prompt: 白魇魔"觉醒"——同一团魔焰恶魔虚影（参考 summon_baiyanmeng），魔焰暴涨为深青色，轮廓更凝实，爪指成形，战力飙升感，正视角全身，纯白背景便于抠图。
+      - id: baiyanmeng_perfect
+        prompt: 白魇魔"完全体"——同一恶魔的君主级形态（参考上一形态），青紫黑三色魔焰交织成甲，身形高大，吞噬万物的压迫感，正视角全身，纯白背景便于抠图。
+      # 第三魂宠三选一（chongmei.md §2.3，起点形态）
+      - id: summon_dragonlet
+        prompt: 召唤兽"小蛰龙"——一只小巧的青蓝色幼龙，鳞片如玉，小翅膀未丰，龙息微吐，稚气又威武，正视角全身，纯白背景便于抠图。
+      - id: summon_flower_king
+        prompt: 召唤兽"善恶花王"——一朵半白半红的双色巨花妖，花心中一张善恶双面面孔，藤蔓为肢，妖异华丽，正视角全身，纯白背景便于抠图。
+      - id: summon_wind_binder
+        prompt: 召唤兽"缚风灵"——一团凝成人形的青白风灵，身体半透明由旋风构成，眼眸碧绿，飘逸灵动，正视角全身，纯白背景便于抠图。
+      # hero 法相（参考 hero_sword_cultivator 主体）
+      - id: hero_sword_cultivator_v2
+        prompt: 剑修法相"御剑境"——同一位白袍剑修少年（参考 hero_sword_cultivator），身周环绕五柄青色灵剑听候驱驰，衣袂罡风，气场更强，正视角全身，纯白背景便于抠图。
+      - id: hero_sword_cultivator_v3
+        prompt: 剑修法相"万剑归宗"——同一位剑修的巅峰法相（参考上一形态），背后剑阵全开数十柄金色灵剑悬浮，金光加身，万剑听令之势，正视角全身，纯白背景便于抠图。
+      - id: hero_banmo_form
+        prompt: 主角"半魔化魔人"——同一位白袍剑修被魔焰侵蚀的变身形态（参考 hero_sword_cultivator 面容），左半身正常右半身覆盖暗紫魔甲，魔焰自肩背喷薄，一眼清明一眼魔瞳，痛苦与力量并存，正视角全身，纯白背景便于抠图。
+
   # ═══ 特效（弹道/暴击/元素）═══
   - id: effects
     size: "512x512"
@@ -180,8 +210,27 @@ categories:
       - { id: fx_projectile_thunder,   prompt: "特效'雷弹道'——一道蓝紫色闪电矢。" }
       - { id: fx_hit_crit,             prompt: "特效'暴击命中'——爆裂的紫色星形冲击，火星四射。" }
       - { id: fx_hit_normal,           prompt: "特效'普通命中'——白色小爆点，简洁。" }
-      - { id: fx_transform_great_sage, prompt: "特效'大圣变身'——赤红雷电环绕的爆发表圈。" }
+      - { id: fx_transform_great_sage, prompt: "特效'大圣变身'——赤红雷电环绕的爆发表圈。（legacy 色系，保留）" }
       - { id: fx_aoe_blast,            prompt: "特效'AOE爆发'——金色冲击波环形扩散。" }
+
+      # ══ VFX 计划（docs/ART_VFX_PLAN.md §5.4）：tier2/3 以上一档为参考图生成 ══
+      - { id: fx_projectile_physical_t2, prompt: "特效'物理弹道·二阶'——同一颗金色光球（参考 fx_projectile_physical）加强：金色尾焰加长，外附旋转光环。" }
+      - { id: fx_projectile_physical_t3, prompt: "特效'物理弹道·三阶'——光球巅峰形态：白金双色核心，双环环绕，金色微粒拖尾，圣光质感。" }
+      - { id: fx_projectile_fire_t2,      prompt: "特效'火弹道·二阶'——同一颗火球加强：橙红尾焰更烈，火星四溅，外附火焰环。" }
+      - { id: fx_projectile_fire_t3,      prompt: "特效'火弹道·三阶'——火球巅峰：白炽核心+暗红焰环，凤凰虚影裹挟，焚灭感。" }
+      - { id: fx_projectile_ice_t2,       prompt: "特效'冰弹道·二阶'——同一冰锥加强：冰晶尾迹更密，寒雾环绕，外附冰霜环。" }
+      - { id: fx_projectile_ice_t3,       prompt: "特效'冰弹道·三阶'——冰锥巅峰：钻石般多棱核心，三重冰晶环，绝对零度寒雾。" }
+      - { id: fx_projectile_thunder_t2,   prompt: "特效'雷弹道·二阶'——同一闪电矢加强：双闪电缠绕，电弧分支更多，紫电光环。" }
+      - { id: fx_projectile_thunder_t3,   prompt: "特效'雷弹道·三阶'——闪电巅峰：蓝紫雷龙缠绕的闪电矢，天罚雷狱感。" }
+      - { id: fx_hit_normal_t2,           prompt: "特效'普通命中·二阶'——白色爆点加强：双层冲击环+十字星芒，更饱满。" }
+      - { id: fx_hit_crit_t2,             prompt: "特效'暴击命中·二阶'——紫色星爆加强：三层冲击环+紫金星屑喷发，毁灭感。" }
+      - { id: fx_kill_burst,              prompt: "特效'击杀爆裂'——碎屑向心聚拢后炸开的白金色爆裂，短促有力。" }
+      - { id: fx_kill_burst_elite,        prompt: "特效'精英击杀爆裂'——更大规模的金橙色爆裂，冲击波+碎屑+光柱，三层结构。" }
+      # 体系终极演出（修满整条路径触发，按体系色直出）
+      - { id: fx_ult_zhutian,       prompt: "终极演出'天帝临世'——金紫双色神光天柱自天而降，鼎形金纹法阵铺开，万道金光，遮天体系至高意象，竖构图。" }
+      - { id: fx_ult_xingchenbian,  prompt: "终极演出'星辰归墟'——深空蓝紫星漩坍缩成一点后炸开，流星四散，星辰变体系至高意象，竖构图。" }
+      - { id: fx_ult_chongmei,      prompt: "终极演出'紫帝降临'——紫焰冥炎冲天而起，狐影虚像盘踞焰中，兽魂符文环绕，宠魅体系至高意象，竖构图。" }
+      - { id: fx_ult_doupo,         prompt: "终极演出'焚天炎环'——莲焰状焰红巨环层层炸开，火海翻涌，斗破体系至高意象，竖构图。" }
 
   # ═══ 场景背景 ═══
   - id: bg
@@ -192,3 +241,79 @@ categories:
       - { id: bg_battle_arena, prompt: "战斗场景背景——东方修仙演武场，石质地面，古朴立柱，紫雾远景，黄昏天光。" }
       - { id: bg_dungeon,      prompt: "战斗场景背景——幽暗地牢，苔藓石墙，绿色幽火提灯，深邃远景。" }
       - { id: bg_heaven_realm, prompt: "战斗场景背景——天界云海，金色宫阙剪影，紫金霞光，恢弘壮阔。" }
+
+  # ═══ VFX 计划：升境法阵/境界徽章/光环（docs/ART_VFX_PLAN.md §5.2）═══
+  # 中性银白条目为"无彩色版"——运行时 modulate 染体系色（GROUP_COLORS）。
+  - id: auras
+    size: "512x512"
+    style_suffix: |-
+      俯视视角圆形法阵/光环/徽章，游戏特效贴图，发光，半透明，纯黑背景便于叠加，居中，无文字。
+    items:
+      # ── 升境爆发法阵（4 IP 系专属直出体系色 + 1 通用）──
+      - { id: aura_circle_zhutian,      prompt: "升境法阵'遮天'——金色古鼎纹+紫金雷纹双层圆阵，上古符文环绕，帝王威压。" }
+      - { id: aura_circle_xingchenbian, prompt: "升境法阵'星辰变'——蓝紫星轨圆阵，星座连线，星屑流光。" }
+      - { id: aura_circle_chongmei,     prompt: "升境法阵'宠魅'——紫色魂纹圆阵，兽魂虚影盘踞，魂焰缭绕。" }
+      - { id: aura_circle_doupo,        prompt: "升境法阵'斗破'——焰红莲焰层层绽放的圆阵，斗气旋涡。" }
+      - { id: aura_circle_generic,      prompt: "通用升境法阵——中性银白符文圆阵，几何纹路，无彩色（运行时染色）。" }
+      # ── 境界徽章 4 档 ──
+      - { id: badge_realm_t1, prompt: "境界徽章'初阶'——质朴的圆形石刻徽章，裂纹古拙，微光。" }
+      - { id: badge_realm_t2, prompt: "境界徽章'中阶'——白银徽章，纹路清晰，冷光流转。" }
+      - { id: badge_realm_t3, prompt: "境界徽章'高阶'——黄金徽章，浮雕繁复，金光内蕴。" }
+      - { id: badge_realm_t4, prompt: "境界徽章'圆满'——鎏金徽章巅峰形态，镶宝石，放射光冕，极致华丽。" }
+      # ── hero/召唤物境界光环 3 档（中性银白，染体系色）──
+      - { id: aura_hero_t1, prompt: "英雄脚下光环·一阶——细银白光环，两三符文点缀，低调（无彩色，运行时染色）。" }
+      - { id: aura_hero_t2, prompt: "英雄脚下光环·二阶——双环银白光环，符文增多，火苗状微光（无彩色，运行时染色）。" }
+      - { id: aura_hero_t3, prompt: "英雄脚下光环·三阶——三层复杂光环，符阵全开，光冕感（无彩色，运行时染色）。" }
+      - { id: aura_pet_t1,  prompt: "召唤物脚下光环·一阶——小银白圆环，极简（无彩色，运行时染色）。" }
+      - { id: aura_pet_t2,  prompt: "召唤物脚下光环·二阶——小双环，微光纹路（无彩色，运行时染色）。" }
+      - { id: aura_pet_t3,  prompt: "召唤物脚下光环·三阶——小三层环，光纹绽放（无彩色，运行时染色）。" }
+      # ── 吞噬进度环 ──
+      - { id: ring_devour_progress, prompt: "吞噬进度环——极简细圆环，四分之三暗、四分之一亮用于进度填充表现，外缘微光（无彩色，运行时染色）。" }
+
+  # ═══ VFX 计划：敌人状态帧/Boss 狂态/半身像（docs/ART_VFX_PLAN.md §5.1）═══
+  # 状态帧必须以现有 enemies/ 立绘为参考图（图生图）生成，否则主体必跑偏。
+  - id: enemy_states
+    size: "1024x1024"
+    style_suffix: |-
+      2D游戏敌人立绘，侧视角，全身，与 enemies/ 类同主体同画风（参考图生成），纯绿色背景(#00FF00)便于抠图，居中，无文字。
+    items:
+      # ── 受击形变帧（切帧 60ms + 白色 overlay）──
+      - { id: enemy_grunt_hit,        prompt: "同一只'喽啰'灰皮魔物（参考 enemy_grunt）受击瞬间——身体挤压变形，表情痛苦瞪眼，木棒脱手。" }
+      - { id: enemy_runner_hit,       prompt: "同一只'疾奔者'风魔（参考 enemy_runner）受击瞬间——冲势被打断，身体后仰变形，风纹散乱。" }
+      - { id: enemy_brute_hit,        prompt: "同一只'蛮兵'红皮巨魔（参考 enemy_brute）受击瞬间——巨躯后倾，肌肉紧绷，怒吼表情。" }
+      - { id: enemy_shaman_hit,       prompt: "同一只'巫祝'（参考 enemy_shaman）受击瞬间——法杖折断一半，骨面具裂缝，符文溃散。" }
+      - { id: enemy_frost_wraith_hit, prompt: "同一只'霜骸'亡灵武士（参考 enemy_frost_wraith）受击瞬间——碎裂加深，冰晶崩飞，身形涣散。" }
+      # ── 死亡爆裂前帧（接金环+squash 演出）──
+      - { id: enemy_grunt_death,        prompt: "同一只'喽啰'（参考 enemy_grunt）崩解中——身体碎裂成光点飞散，轮廓残缺，木棒坠落。" }
+      - { id: enemy_runner_death,       prompt: "同一只'疾奔者'（参考 enemy_runner）崩解中——风魔之躯散作风纹与光点，流线身形解体。" }
+      - { id: enemy_brute_death,        prompt: "同一只'蛮兵'（参考 enemy_brute）崩解中——巨躯多处碎裂，红光自裂缝喷出，轰然倒势。" }
+      - { id: enemy_shaman_death,       prompt: "同一只'巫祝'（参考 enemy_shaman）崩解中——紫袍化烟，骨面具坠地，符文熄灭。" }
+      - { id: enemy_frost_wraith_death, prompt: "同一只'霜骸'（参考 enemy_frost_wraith）崩解中——冰躯全面碎裂，寒雾升腾，蓝瞳熄灭。" }
+      # ── Boss 狂暴形态（血<50% 换图）──
+      - { id: boss_blind_eye_enraged,     prompt: "同一只'致盲之眼'独眼巨人（参考 boss_blind_eye）狂暴形态——巨眼裂纹爆发红光，浑身赤红纹路，石柱举起，暴怒至极。" }
+      - { id: boss_regen_core_enraged,    prompt: "同一只'回春之核'石巨人（参考 boss_regen_core）狂暴形态——生命水晶过载爆绿光，藤蔓疯长成刺，再生雾气弥漫。" }
+      - { id: boss_immortal_body_enraged, prompt: "同一只'不灭之躯'金属泰坦（参考 boss_immortal_body）狂暴形态——裂纹全面喷发熔岩红光，金属赤热，双拳燃焰。" }
+      # ── Boss HUD 半身像（顶部大血条旁）──
+      - { id: boss_blind_eye_portrait,     prompt: "Boss半身像'致盲之眼'——独眼巨人头肩特写，巨眼黑纹覆盖，凶戾，深色纯色背景便于抠图。" }
+      - { id: boss_regen_core_portrait,    prompt: "Boss半身像'回春之核'——石巨人胸口生命水晶特写，藤蔓攀肩，阴绿光泽，深色纯色背景便于抠图。" }
+      - { id: boss_immortal_body_portrait, prompt: "Boss半身像'不灭之躯'——熔岩泰坦头肩特写，裂纹红光，金属质感，威压感，深色纯色背景便于抠图。" }
+
+  # ═══ VFX 计划：碎屑粒子贴图（docs/ART_VFX_PLAN.md §5.1，入库缩 128）═══
+  - id: particles
+    size: "512x512"
+    style_suffix: |-
+      单颗粒子贴图，游戏特效素材，发光，半透明边缘，纯黑背景便于叠加，居中，无文字。
+    items:
+      - { id: particle_debris_stone,  prompt: "石屑粒子——一小块棱角碎石碎片，受击飞溅用。" }
+      - { id: particle_blood_drop,    prompt: "血滴粒子——一滴拉丝的暗红血珠，飞溅轨迹感。" }
+      - { id: particle_energy_shard,  prompt: "能量碎片粒子——中性银白发光碎片，菱形（无彩色，运行时染色）。" }
+      - { id: particle_soul_flame,    prompt: "魂火粒子——一小簇幽紫火苗，飘忽摇曳。" }
+
+  # ═══ VFX 计划：UI 血条贴图（docs/ART_VFX_PLAN.md §5.1，入库裁切）═══
+  - id: ui
+    size: "1440x720"
+    style_suffix: |-
+      游戏UI贴图，横屏画面中央一条完整横置元素，上下大面积纯黑留边便于裁切，无文字。
+    items:
+      - { id: ui_hp_bar_normal, prompt: "普通敌人血条——游戏风横向血条完整框架：暗色底槽+描边+两段刻度线，简洁清晰，中央横贯画面。" }
+      - { id: ui_hp_bar_boss,   prompt: "Boss血条——宽厚华丽的横向血条框架：暗金雕边+分段刻度+两端装饰兽首纹，威压感，中央横贯画面。" }
