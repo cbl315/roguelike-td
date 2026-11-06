@@ -98,6 +98,8 @@ func _ready() -> void:
 	_breakthrough = preload("res://src/systems/breakthrough_controller.gd").new()
 	_breakthrough.setup(self)
 	_build.equip_guard_required.connect(_breakthrough.on_equip_guard_required)
+	_build.third_pet_required.connect(_on_third_pet_required)
+	_lobby.third_pet_chosen.connect(choose_third_pet)
 	_build.equip_guard_required.connect(func(m: int): _breakthrough.challenge())
 	# 底部羁绊池展示条（按体系分组 + 体系色边框）
 	_bond_pool_bar = preload("res://src/scenes/hud/bond_pool_bar.gd").new()
@@ -608,6 +610,19 @@ func _boss_defeat_performance(e: Enemy) -> void:
 		_hud.show_boss_defeated_banner()
 
 
+## 第三魂宠三选一（千年境）：小蛰龙(物理)/善恶花王(控制)/缚风灵(法术)
+func _on_third_pet_required() -> void:
+	SoundManager.play("breakthrough", -3.0)
+	if _hud:
+		_hud.show_toast("🐉 千年境！白魇魔之力空出一个召唤位——选择你的第三魂宠")
+	if _lobby:
+		_lobby.open_third_pet_select()
+
+
+func choose_third_pet(pet_key: String) -> void:
+	_build.choose_third_pet(pet_key)
+
+
 ## ── 突破守关者（委托 BreakthroughController，单一职责剥离）──
 
 func challenge_breakthrough() -> void:
@@ -651,6 +666,11 @@ func _refresh_summon_stats() -> void:
 func _on_summon_fired(target: Node, dmg: float, is_crit: bool, source: Node) -> void:
 	if not is_instance_valid(source):
 		return
+	# 善恶花王（控制系）：弹道命中附加减速 30%×1.5s
+	if "unit_id" in source and str(source.unit_id) == "third_flower":
+		var fl: Enemy = target as Enemy
+		if fl != null:
+			fl.apply_slow(0.30, 1.5)
 	var proj := Projectile.new()
 	add_child(proj)
 	proj.setup(source.global_position, target, dmg, is_crit)

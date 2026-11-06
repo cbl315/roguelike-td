@@ -268,6 +268,51 @@ func _render_replace_mode() -> void:
 	_actions.add_child(cancel_btn)
 
 
+## 第三魂宠三选一（千年境）：小蛰龙/善恶花王/缚风灵——选一永久拥有
+signal third_pet_chosen(pet_key: String)
+
+var _third_pet_mode: bool = false
+
+func open_third_pet_select() -> void:
+	_third_pet_mode = true
+	get_tree().paused = true
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	_refresh_third_pet_ui()
+
+
+func _refresh_third_pet_ui() -> void:
+	card_click_rects.clear()
+	_info_label.text = "🐉 选择第三魂宠（永久，三选一）"
+	for c in _cards_container.get_children():
+		c.queue_free()
+	for c in _actions.get_children():
+		c.queue_free()
+	var defs := [
+		{"key": "dragon", "name": "小蛰龙", "rarity": "UR", "pet_scope": "third",
+			"effect": {"pet_atk_pct_delta": 0.18, "physical_dmg_pct_delta": 0.08},
+			"desc": "物理·AOE——高攻击成长，清群流（进化终点：天苍青蛰龙）"},
+		{"key": "flower", "name": "善恶花王", "rarity": "UR", "pet_scope": "third",
+			"effect": {"pet_atk_pct_delta": 0.14, "hp_pct_delta": 0.08},
+			"desc": "控制——弹道减速敌人 30%×1.5s，控制流（进化终点：善恶始祖）"},
+		{"key": "wind", "name": "缚风灵", "rarity": "UR", "pet_scope": "third",
+			"effect": {"pet_atk_pct_delta": 0.16, "attack_speed_delta": 0.08},
+			"desc": "法术·速攻——攻速+50% 高频弹道（进化终点：七图圣兽）"},
+	]
+	for i in range(defs.size()):
+		var card: Control = _make_card(defs[i], i)
+		_cards_container.add_child(card)
+		call_deferred("_record_card_rect", card, i)
+
+
+func _pick_third_pet(idx: int) -> void:
+	var keys := ["dragon", "flower", "wind"]
+	if idx < 0 or idx >= keys.size():
+		return
+	_third_pet_mode = false
+	third_pet_chosen.emit(keys[idx])
+	close()
+
+
 ## 替换模式：点了某张池中羁绊卡片 = 丢弃它换 pending_offer。
 func _on_replace_pick(idx: int) -> void:
 	if idx < 0 or idx >= build.bond_pool.size():
@@ -598,6 +643,9 @@ func pick_card(idx: int) -> void:
 
 
 func _on_pick(idx: int) -> void:
+	if _third_pet_mode:
+		_pick_third_pet(idx)
+		return
 	# 里程碑词条选择模式
 	if _milestone_select_mode:
 		_on_milestone_pick(idx)

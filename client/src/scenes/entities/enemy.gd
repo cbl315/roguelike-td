@@ -41,6 +41,14 @@ var _ranged_cd: float = 1.2       # 首发延迟
 var _boss_phase2: bool = false          # 血<50% 狂暴阶段
 var _boss_summon_cd: float = 6.0        # 召唤小怪间隔
 var _boss_barrage_cd: float = 4.0       # 环形弹幕间隔
+var _slow_timer: float = 0.0   # 减速状态剩余（善恶花王·控制）
+var _slow_pct: float = 0.0     # 减速幅度
+
+
+## 控制魂宠（善恶花王）攻击附带减速
+func apply_slow(pct: float, duration: float) -> void:
+	_slow_pct = maxf(_slow_pct, pct)
+	_slow_timer = maxf(_slow_timer, duration)
 # HEALER：治疗光环
 const HEAL_RADIUS := 220.0
 const HEAL_CD := 3.0
@@ -136,6 +144,10 @@ func _process(delta: float) -> void:
 	# 朝英雄移动（按行为分派）
 	var dir: Vector2 = (_hero.global_position - global_position)
 	var dist: float = dir.length()
+	if _slow_timer > 0.0:
+		_slow_timer -= delta
+		if _slow_timer <= 0.0:
+			_slow_pct = 0.0
 	if is_boss:
 		_boss_ai(delta, dir, dist)   # Boss 专属行为（含移动/阶段/召唤/弹幕）
 		_ultimo_boss_hp_notify()
@@ -172,7 +184,7 @@ func take_damage(amount: float) -> void:
 ## Boss 狂暴阶段：移速+40%、接触伤+50%、变红 + 红色冲击波（视觉/数值双反馈）
 func _enter_boss_phase2() -> void:
 	_boss_phase2 = true
-	move_speed *= 1.4
+	move_speed *= 1.4   # 基准移速（speed_now 会再乘减速）
 	leak_damage *= 1.5
 	modulate = Color(1.0, 0.45, 0.35)
 	var sw := Shockwave.new()
@@ -194,7 +206,7 @@ func _boss_ai(delta: float, dir: Vector2, dist: float) -> void:
 	# 曾现异常（1283 帧不触发、手动同方法即触发），受击路径更稳定可靠
 	# 缓速逼近（Boss 威压感：比普通怪慢但稳定压迫）
 	if dist > contact_dist:
-		global_position += dir.normalized() * move_speed * delta
+		global_position += dir.normalized() * move_speed * (1.0 - _slow_pct) * delta
 	# 周期召唤：2 只普通追击小怪（30% 常规血量）
 	_boss_summon_cd -= delta
 	if _boss_summon_cd <= 0.0:
@@ -243,7 +255,7 @@ func _ultimo_boss_hp_notify() -> void:
 ## 默认：直追英雄
 func _move_chaser(delta: float, dir: Vector2, dist: float) -> void:
 	if dist > contact_dist:
-		var step: float = move_speed * delta
+		var step: float = move_speed * (1.0 - _slow_pct) * delta
 		if dist > step:
 			global_position += dir.normalized() * step
 		else:
