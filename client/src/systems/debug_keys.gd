@@ -8,7 +8,14 @@ extends Node
 const GOLD_GRANT := 500.0
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _ready() -> void:
+	# 树暂停（大厅/结算）时也要能响应调试键——否则 N/B 在选卡界面全部失灵
+	process_mode = Node.PROCESS_MODE_ALWAYS
+
+
+# _input 而非 _unhandled_input：大厅开着时 GUI 焦点会拦截 unhandled 层
+# （实测最高频'按键没反应'根因）；N/B/G 与 UI 键位无冲突安全
+func _input(event: InputEvent) -> void:
 	if not OS.is_debug_build():
 		return
 	if not (event is InputEventKey) or not event.pressed:
@@ -16,6 +23,16 @@ func _unhandled_input(event: InputEvent) -> void:
 	var gm = get_node_or_null("/root/GameRoot/GameManager")
 	if gm == null or not ("_build" in gm):
 		return
+	# 便利：大厅/面板开着时也能跳——自动关面板解锁（波间 state=2 本就合法，
+	# 卡的是树暂停+面板焦点；实测最高频的"按键没反应"原因）
+	var lobby = get_node_or_null("/root/GameRoot/UILayer/Lobby")
+	if lobby != null and lobby.visible:
+		match event.keycode:
+			KEY_N, KEY_B, KEY_G:
+				lobby.close()
+				get_tree().paused = false
+			_:
+				pass
 	match event.keycode:
 		KEY_G:
 			gm._build.add_gold(GOLD_GRANT)
