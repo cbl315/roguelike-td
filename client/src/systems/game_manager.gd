@@ -498,6 +498,22 @@ func _try_release_ult() -> void:
 		_fb_ult.play()
 	SoundManager.play("boss_kill", -3.0)
 	_hero.play_attack_fx()
+	# 四体系大招特效（VFX 资源批次）：全屏中央一闪渐隐
+	var main_pid: String = ""
+	for pid in _build.path_realm.keys():
+		if pid != "generic_fusion" and not pid.begins_with("generic_") and not pid.begins_with("seed"):
+			main_pid = pid
+			break
+	var ult_fx: Texture2D = SpriteAtlas.get_ult_fx_tex(main_pid)
+	if ult_fx:
+		var fx := TextureRect.new()
+		fx.texture = ult_fx
+		fx.position = _hero.global_position - ult_fx.get_size() * 0.5
+		fx.z_index = 60
+		add_child(fx)
+		var tw := get_tree().create_tween()
+		tw.tween_property(fx, "modulate:a", 0.0, 0.6)
+		tw.tween_callback(fx.queue_free)
 	# 结算：全屏敌人受 clamp(expected×8, max_hp×18%, max_hp×45%)——
 	# 前期 hit×8 主导（全额爽）；后期保底 18% 血（清屏感回来了）；Boss 单独 15% 上限
 	var killed := 0
@@ -519,8 +535,8 @@ func _on_hero_fired(target: Node, dmg: float, is_crit: bool) -> void:
 	var proj := Projectile.new()
 	add_child(proj)
 	proj.setup(_hero.global_position, target, dmg, is_crit)
-	# 美术：弹道贴图（随机元素特效）
-	var ptex: Texture2D = SpriteAtlas.get_projectile_tex(_rng)
+	# 美术：弹道贴图（随机元素；暴击升级 t2 特效——伤害等级视觉反馈）
+	var ptex: Texture2D = SpriteAtlas.get_projectile_t2_tex(_rng) if is_crit else SpriteAtlas.get_projectile_tex(_rng)
 	if ptex:
 		proj.set_sprite(ptex)
 	# 吸血：projectile 命中时按 lifesteal_pct 回血
@@ -569,6 +585,11 @@ func spawn_summon_unit(unit_id: String, unit_name: String, offset: Vector2) -> v
 		"baiyanmeng":
 			if SpriteAtlas.summon_baiyanmeng_tex:
 				summon.set_sprite(SpriteAtlas.summon_baiyanmeng_tex)
+		_:
+			# 第三魂宠三选一（third_dragon/third_flower/third_wind）
+			var tp_tex: Texture2D = SpriteAtlas.get_third_pet_tex(unit_id)
+			if tp_tex:
+				summon.set_sprite(tp_tex)
 	# 初始位置 = 英雄位置 + 偏移（避免从原点飞过来）
 	summon.global_position = _hero.global_position + offset
 	# 绑定 source：信号自带 (target, dmg)，bind 把召唤单位追加在末尾 → (target, dmg, source)

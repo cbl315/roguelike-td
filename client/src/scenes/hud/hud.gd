@@ -17,6 +17,8 @@ var _boss_bar: ProgressBar = null
 var _boss_name_label: Label = null
 var _boss_dim: ColorRect = null
 var _boss_banner_label: Label = null
+var _boss_portrait: TextureRect = null
+var _boss_portrait_idx: int = -1
 var _boss_banner_timer: float = 0.0
 const POS_BOSS_BAR := Vector2(660, 26)     # 顶部中央大血条
 
@@ -42,6 +44,14 @@ func _setup_boss_ui() -> void:
 	_boss_name_label = Label.new()
 	_boss_name_label.position = POS_BOSS_BAR + Vector2(0, 24)
 	_boss_name_label.size = Vector2(600, 24)
+	# Boss 立绘（大血条左侧，出场/狂暴切换——VFX 资源批次）
+	_boss_portrait = TextureRect.new()
+	_boss_portrait.position = POS_BOSS_BAR + Vector2(-92, -32)
+	_boss_portrait.size = Vector2(88, 88)
+	_boss_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_boss_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_boss_portrait.visible = false
+	add_child(_boss_portrait)
 	_boss_name_label.horizontal_alignment = 1
 	_boss_name_label.add_theme_font_size_override("font_size", 18)
 	_boss_name_label.add_theme_color_override("font_color", Color(1.0, 0.6, 0.5))
@@ -59,9 +69,17 @@ func _setup_boss_ui() -> void:
 
 
 func _on_boss_spawned(boss_name: String, max_hp: float) -> void:
-	# 氛围 + 血条 + 横幅
+	# 氛围 + 血条 + 横幅 + 立绘（按当前波次 %3 与 spawner 选图一致）
 	if _boss_dim:
 		_boss_dim.color = Color(0.25, 0.05, 0.05, 0.18)
+	if _boss_portrait:
+		_boss_portrait_idx = Engine.get_process_frames()   # 兜底，gm 会用准确波次覆盖
+		var wv: int = get_tree().current_scene.get("current_wave") if get_tree().current_scene and "current_wave" in get_tree().current_scene else 0
+		_boss_portrait_idx = int(wv) % 3
+		var pt: Texture2D = SpriteAtlas.get_boss_portrait_tex(_boss_portrait_idx, false)
+		if pt:
+			_boss_portrait.texture = pt
+			_boss_portrait.visible = true
 	if _boss_bar:
 		_boss_bar.visible = true
 		_boss_bar.max_value = max_hp
@@ -81,6 +99,11 @@ func _on_boss_spawned(boss_name: String, max_hp: float) -> void:
 func _on_boss_hp(hp: float, max_hp: float) -> void:
 	if _boss_bar and _boss_bar.visible:
 		_boss_bar.value = hp
+		# 血 <50% → 狂暴立绘（与 Boss AI 阶段转换同步）
+		if _boss_portrait and _boss_portrait.visible and max_hp > 0 and hp < max_hp * 0.5:
+			var et: Texture2D = SpriteAtlas.get_boss_portrait_tex(_boss_portrait_idx, true)
+			if et and _boss_portrait.texture != et:
+				_boss_portrait.texture = et
 
 
 func _on_boss_defeated(_boss_name: String) -> void:
@@ -105,6 +128,8 @@ func hide_boss_ui() -> void:
 
 
 func _hide_boss_ui() -> void:
+	if _boss_portrait:
+		_boss_portrait.visible = false
 	if _boss_dim:
 		_boss_dim.color = Color(0.25, 0.05, 0.05, 0.0)
 	if _boss_bar:

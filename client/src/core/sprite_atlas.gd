@@ -10,6 +10,15 @@ var _cache: Dictionary = {}   # "path@size" → ImageTexture
 var hero_tex: Texture2D = null
 var summon_moxie_tex: Texture2D = null
 var summon_baiyanmeng_tex: Texture2D = null
+# 第三魂宠三选一（VFX 资源批次 2026-11）
+var summon_third_texs: Dictionary = {}   # third_dragon/third_flower/third_wind → Texture2D
+# Boss 立绘（HUD 大血条用）+ 狂暴态
+var boss_portrait_texs: Dictionary = {}  # boss 贴图索引 → portrait 立绘
+var boss_enraged_texs: Dictionary = {}   # boss 贴图索引 → 狂暴立绘
+# 大招特效（四体系）
+var ult_fx_texs: Dictionary = {}         # zhutian/xingchenbian/chongmei/doupo → Texture2D
+# 弹道 t2/t3（伤害等级升级视觉）
+var projectile_t2_texs: Array[Texture2D] = []
 
 # 弹道贴图（4 种元素，随机选取增加视觉多样性）
 var projectile_texs: Array[Texture2D] = []
@@ -58,6 +67,46 @@ func _ready() -> void:
 		"res://src/assets/enemies/boss_immortal_body.png",
 	]:
 		_boss_enemy_texs.append(_load_scaled(p, 150))
+
+	# ── 第三魂宠（三选一，68px）──
+	summon_third_texs["third_dragon"] = _load_scaled("res://src/assets/characters/summon_dragonlet.png", 68)
+	summon_third_texs["third_flower"] = _load_scaled("res://src/assets/characters/summon_flower_king.png", 68)
+	summon_third_texs["third_wind"] = _load_scaled("res://src/assets/characters/summon_wind_binder.png", 68)
+
+	# ── Boss 立绘/狂暴态（HUD 大血条 + 狂暴切换）──
+	var boss_keys := ["blind_eye", "regen_core", "immortal_body"]
+	for i in range(boss_keys.size()):
+		boss_portrait_texs[i] = _load_scaled("res://src/assets/enemy_states/boss_%s_portrait.png" % boss_keys[i], 96)
+		boss_enraged_texs[i] = _load_scaled("res://src/assets/enemy_states/boss_%s_enraged.png" % boss_keys[i], 96)
+
+	# ── 大招特效（四体系，300px）──
+	for pid in ["zhutian", "xingchenbian", "chongmei", "doupo"]:
+		ult_fx_texs[pid] = _load_scaled("res://src/assets/effects/fx_ult_%s.png" % pid, 300)
+
+	# ── 弹道 t2（伤害等级升级，36px）──
+	for p in [
+		"res://src/assets/effects/fx_projectile_physical_t2.png",
+		"res://src/assets/effects/fx_projectile_fire_t2.png",
+		"res://src/assets/effects/fx_projectile_ice_t2.png",
+		"res://src/assets/effects/fx_projectile_thunder_t2.png",
+	]:
+		projectile_t2_texs.append(_load_scaled(p, 36))
+
+# ── 新资源访问器 ──
+func get_third_pet_tex(unit_id: String) -> Texture2D:
+	return summon_third_texs.get(unit_id)
+
+func get_boss_portrait_tex(index: int, enraged: bool = false) -> Texture2D:
+	var d: Dictionary = boss_enraged_texs if enraged else boss_portrait_texs
+	return d.get(index % max(d.size(), 1))
+
+func get_ult_fx_tex(path_id: String) -> Texture2D:
+	return ult_fx_texs.get(path_id)
+
+func get_projectile_t2_tex(rng: RandomNumberGenerator) -> Texture2D:
+	if projectile_t2_texs.is_empty():
+		return null
+	return projectile_t2_texs[rng.randi() % projectile_t2_texs.size()]
 
 
 ## 加载并缩放贴图（缓存按 path+size 组合）。
