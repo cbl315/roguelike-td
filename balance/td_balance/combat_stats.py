@@ -270,9 +270,12 @@ def resolve_pets(state, pools) -> dict:
 
     def _pet(scope: str) -> "PlayerCombat":
         p = PlayerCombat()
-        for bid in state.bond_pool:
+        third_id = {"dragon": "cm_third_dragon", "flower": "cm_third_flower", "wind": "cm_third_wind"}
+        for bid in state.bond_pool + list(getattr(state, "_third_cards", [])):
             b = bond_map.get(bid)
-            if b and b.effect and b.pet_scope == scope:
+            if not (b and b.effect):
+                continue
+            if b.pet_scope == scope or (scope == "third" and bid == third_id.get(third, "")):
                 p.accumulate(b.effect)
         atk_pct = getattr(p.offense, "_atk_pct_bonus", 0.0)
         base = CombatStats().atk * SUMMON_BASE_ATK_RATIO
@@ -288,4 +291,15 @@ def resolve_pets(state, pools) -> dict:
     pets: dict = {"moxie": _pet("moxie")}
     if 1 <= realm < 6:
         pets["baiyanmeng"] = _pet("baiyanmeng")
+    # 第三魂宠（千年境 realm7+ 三选一）：物理高攻/法术速攻/控制折算
+    third = getattr(state, "third_pet_id", "")
+    if realm >= 7 and third:
+        tp = _pet("third")
+        if third == "dragon":
+            tp.offense.atk *= 1.35            # 物理高攻（AOE 折算）
+        elif third == "flower":
+            tp.offense.atk *= 1.15            # 控制系：减速的等效 DPS 折算
+        elif third == "wind":
+            tp.offense.attack_speed += 0.50   # 法术速攻
+        pets["third"] = tp
     return pets

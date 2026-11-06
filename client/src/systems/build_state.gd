@@ -16,6 +16,8 @@ signal realm_devoured(path_id: String, realm_idx: int, realm_name: String)
 # 突破怪机制：集齐境界卡 → pending（卡池锁定）→ 打赢突破怪 → apply_breakthrough 才升境
 signal breakthrough_ready(path_id: String, realm_idx: int)
 signal equip_guard_required(milestone_level: int)   # 装备里程碑守卫：打赢才可升级拿词条
+signal third_pet_required()   # 千年境（realm7）：第三魂宠三选一（小蛰龙/善恶花王/缚风灵）
+var third_pet_id: String = ""   # 选中的第三魂宠（dragon/flower/wind；空=未选）
 var equip_guard_milestone: int = 0   # 待挑战的里程碑级（5/10/15/20；0=无）
 var equip_guard_cleared: int = 0     # 已通过的里程碑级（本级守卫已死）
 
@@ -161,6 +163,28 @@ func _apply_devour(pid: String, idx: int, needed: Array) -> void:
 			summon_unit_requested.emit("baiyanmeng", "白魇魔")
 		elif idx + 1 == 6:
 			summon_unit_devoured.emit("baiyanmeng")
+		elif idx + 1 == 7:
+			third_pet_required.emit()   # 千年境：白魇魔已吞噬，第三魂宠登场三选一
+
+
+## 第三魂宠三选一（千年境）：选中即得实体 + 专属卡直接入池（另两张永不出现）
+const THIRD_PETS := {
+	"dragon": {"name": "小蛰龙", "card": "cm_third_dragon", "buff": {"pet_atk_pct_delta": 0.18, "physical_dmg_pct_delta": 0.08}},
+	"flower": {"name": "善恶花王", "card": "cm_third_flower", "buff": {"pet_atk_pct_delta": 0.14, "hp_pct_delta": 0.08}},
+	"wind":   {"name": "缚风灵", "card": "cm_third_wind", "buff": {"pet_atk_pct_delta": 0.16, "attack_speed_delta": 0.08}},
+}
+
+
+func choose_third_pet(pet_key: String) -> void:
+	if not THIRD_PETS.has(pet_key) or not third_pet_id.is_empty():
+		return
+	third_pet_id = pet_key
+	var def: Dictionary = THIRD_PETS[pet_key]
+	# 专属卡直接入 devoured（视为已拥有的强化，不占池/不占吞噬）
+	if not devoured_bonds.has(def["card"]):
+		devoured_bonds.append(def["card"])
+	summon_unit_requested.emit("third_" + pet_key, def["name"])
+	changed.emit()
 
 
 ## 宠魅三区：宠物基础攻击系数（与 Python 端 SUMMON_BASE_ATK_RATIO 一致）
@@ -231,6 +255,17 @@ func assemble_stats() -> CombatStats:
 ## 不吃境界 reward / 装备词条 / 联动（那些是本体的）。
 func assemble_pet_stats(pet: String) -> CombatStats:
 	var stats := CombatStats.new()
+	# 第三魂宠：基础攻速/伤害倾向按类型分化（物理高攻/法术高速/控制中庸）
+	if pet.begins_with("third_"):
+		match pet:
+			"third_dragon":
+				stats.atk_pct_bonus += 0.35   # 物理高攻（AOE 折算）
+			"third_flower":
+				stats.atk_pct_bonus += 0.15
+				stats.hp_pct_bonus += 0.30   # 控制系肉度（贴身减速）
+			"third_wind":
+				stats.atk_pct_bonus += 0.20
+				stats.attack_speed += 0.50   # 法术速攻
 	if pools != null:
 		for bid in bond_pool:
 			if _bond_scope(bid) == pet:

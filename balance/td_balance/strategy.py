@@ -186,6 +186,12 @@ class SimpleStrategy(Strategy):
             dev = pools.find_devourable(state.bond_pool, state.path_realm)
             if dev:
                 path_id, realm_idx, needed = dev
+                # 千年境（宠魅 realm7）：第三魂宠三选一（模拟随机均衡选取）
+                if path_id == "chongmei" and realm_idx + 1 == 7 and not getattr(state, "third_pet_id", ""):
+                    import random as _r2
+                    third = _r2.Random(12345).choice(["dragon", "flower", "wind"])
+                    state.__dict__["third_pet_id"] = third
+                    state.__dict__["_third_cards"] = [{"dragon": "cm_third_dragon", "flower": "cm_third_flower", "wind": "cm_third_wind"}[third]]
                 cost = devour_cost(econ)
                 if state.spend(cost):
                     pools.devour(state.bond_pool, needed)

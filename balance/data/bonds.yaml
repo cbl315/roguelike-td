@@ -1,6 +1,8 @@
 # bonds.yaml — 羁绊数据（SSOT）
 # 体系：zhutian 遮天 / xingchenbian 星辰变 / chongmei 宠魅 / doupo 斗破
 #       generic 符文三系：战魂·物理 / 奥术·魔法 / 灵契·召唤（各4级，吞噬奖励 弹+1/2/3、究极吸血）。
+#       第三魂宠三选一（千年境 realm7）：小蛰龙(物理)/善恶花王(控制)/缚风灵(法术)——
+#       专属卡 cm_third_* 选中即得（不占境界吞噬需求，另两张永不出现）。
 #       全池吸血唯一来源 = 符文究极吞噬。
 bond_pool: {capacity: 10}
 bonds:
@@ -873,6 +875,27 @@ bonds:
   set: generic
   rarity: UR
   effect: {all_stats_pct_delta: 0.08, pet_atk_pct_delta: 0.1}
+- id: cm_third_dragon
+  name: 小蛰龙·青鳞初醒
+  set: chongmei
+  rarity: UR
+  pet_scope: third
+  effect: {pet_atk_pct_delta: 0.18, physical_dmg_pct_delta: 0.08}
+  note: 第三魂宠·小蛰龙（物理/AOE）专属——选龙进池
+- id: cm_third_flower
+  name: 善恶花王·花开一瞬
+  set: chongmei
+  rarity: UR
+  pet_scope: third
+  effect: {pet_atk_pct_delta: 0.14, hp_pct_delta: 0.08}
+  note: 第三魂宠·善恶花王（控制）专属——选花进池
+- id: cm_third_wind
+  name: 缚风灵·风缠之誓
+  set: chongmei
+  rarity: UR
+  pet_scope: third
+  effect: {pet_atk_pct_delta: 0.16, attack_speed_delta: 0.08}
+  note: 第三魂宠·缚风灵（法术/速攻）专属——选风进池
 paths:
 - id: zhutian
   name: 遮天
