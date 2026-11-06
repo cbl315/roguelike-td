@@ -31,6 +31,10 @@ var bg_texs: Dictionary = {}
 var effect_icon_texs: Dictionary = {}   # effect key → 词条图标
 var debuff_icon_texs: Dictionary = {}   # debuff id → 图标
 var particle_texs: Array[Texture2D] = []
+# 进化链形态（VFX 批次四）
+var moxie_form_texs: Dictionary = {}    # realm 阈值 → 贴图
+var baiyanmeng_form_texs: Dictionary = {}
+var hero_form_texs: Dictionary = {}     # v2/v3/banmo
 
 # 弹道贴图（4 种元素，随机选取增加视觉多样性）
 var projectile_texs: Array[Texture2D] = []
@@ -159,6 +163,26 @@ func _ready() -> void:
 	for pn in ["blood_drop", "debris_stone", "energy_shard", "soul_flame"]:
 		particle_texs.append(_load_scaled("res://src/assets/particles/particle_%s.png" % pn, 20))
 
+	# ── 进化链形态（VFX 批次四：宠魅特例 + 英雄通用档）──
+	# 莫邪：境1 六尾妖邪 → 境2 九尾炎狐 → 境5 七罪 → 境7 紫帝
+	moxie_form_texs = {
+		1: _load_scaled("res://src/assets/characters/moxie_sixtail_evil.png", 72),
+		2: _load_scaled("res://src/assets/characters/moxie_ninetail_fire.png", 72),
+		5: _load_scaled("res://src/assets/characters/moxie_sevensin.png", 72),
+		7: _load_scaled("res://src/assets/characters/moxie_zidi_purple.png", 72),
+	}
+	# 白魇魔：境3 觉醒 → 境5 完全体（境6 被吞噬消失）
+	baiyanmeng_form_texs = {
+		3: _load_scaled("res://src/assets/characters/baiyanmeng_awakened.png", 72),
+		5: _load_scaled("res://src/assets/characters/baiyanmeng_perfect.png", 72),
+	}
+	# 英雄：通用 v2/v3（主体系境界）+ 宠魅半魔形态（境6 白魇魔吞噬）
+	hero_form_texs = {
+		"v2": _load_scaled("res://src/assets/characters/hero_sword_cultivator_v2.png", 92),
+		"v3": _load_scaled("res://src/assets/characters/hero_sword_cultivator_v3.png", 92),
+		"banmo": _load_scaled("res://src/assets/characters/hero_banmo_form.png", 96),
+	}
+
 # ── 新资源访问器 ──
 func get_third_pet_tex(unit_id: String) -> Texture2D:
 	return summon_third_texs.get(unit_id)
@@ -196,6 +220,28 @@ func get_effect_icon(effect_key: String) -> Texture2D:
 
 func get_debuff_icon(debuff_id: String) -> Texture2D:
 	return debuff_icon_texs.get(debuff_id)
+
+## 莫邪进化：按宠魅境界取该阶段形态（取 ≤realm 的最大阈值贴图）
+func get_moxie_form(realm: int) -> Texture2D:
+	var best: Texture2D = null
+	var bk: int = -1
+	for threshold in moxie_form_texs.keys():
+		if realm >= threshold and threshold > bk:
+			best = moxie_form_texs[threshold]
+			bk = threshold
+	return best
+
+func get_baiyanmeng_form(realm: int) -> Texture2D:
+	var best2: Texture2D = null
+	var bk: int = -1
+	for threshold in baiyanmeng_form_texs.keys():
+		if realm >= threshold and threshold > bk:
+			best2 = baiyanmeng_form_texs[threshold]
+			bk = threshold
+	return best2
+
+func get_hero_form(key: String) -> Texture2D:
+	return hero_form_texs.get(key)
 
 func get_particle_tex(rng: RandomNumberGenerator) -> Texture2D:
 	if particle_texs.is_empty():

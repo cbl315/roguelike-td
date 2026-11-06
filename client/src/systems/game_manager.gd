@@ -93,6 +93,7 @@ func _ready() -> void:
 	_build.summon_unit_devoured.connect(_on_summon_devoured)
 	# 境界吞噬桥接（build_state 不引 EventBus autoload，保持 headless -s 可测）
 	_build.realm_devoured.connect(func(p: String, r: int, n: String): EventBus.bond_devoured.emit(p, r, n))
+	_build.realm_devoured.connect(func(_p, _r, _n): _refresh_evolutions())
 	# 突破守关者（2026-11-03 改版）：装备里程碑(+5/10/15/20)考核——
 	# 羁绊吞噬已恢复自动升境，守卫只看守装备词条
 	_breakthrough = preload("res://src/systems/breakthrough_controller.gd").new()
@@ -640,6 +641,44 @@ func _spawn_kill_particles(pos: Vector2) -> void:
 		tw.tween_property(tr, "position", pos + Vector2.RIGHT.rotated(ang) * dist, 0.5)
 		tw.parallel().tween_property(tr, "modulate:a", 0.0, 0.5)
 		tw.tween_callback(tr.queue_free)
+
+
+## ── 进化链换装（VFX 批次四）：境界吞噬后按宠媚境界刷新形态 ──
+func _refresh_evolutions() -> void:
+	if _build == null or not _build.path_realm.has("chongmei"):
+		return
+	var cmr: int = int(_build.path_realm.get("chongmei", 0))
+	var atlas := get_node_or_null("/root/SpriteAtlas")
+	if atlas == null:
+		return
+	for su in _summon_units:
+		if not is_instance_valid(su) or not su.active:
+			continue
+		match su.unit_id:
+			"moxie":
+				var mt: Texture2D = atlas.get_moxie_form(cmr)
+				if mt:
+					su.set_sprite(mt)
+			"baiyanmeng":
+				var bt: Texture2D = atlas.get_baiyanmeng_form(cmr)
+				if bt:
+					su.set_sprite(bt)
+	# 英雄：宠魅境6 白魇魔吞噬 → 半魔形态（最高优先）；否则通用 v2/v3（任一主体系境界）
+	if is_instance_valid(_hero):
+		var hero_tex: Texture2D = null
+		if cmr >= 6:
+			hero_tex = atlas.get_hero_form("banmo")
+		else:
+			var max_realm := 0
+			for pid in _build.path_realm.keys():
+				if not pid.begins_with("generic_"):
+					max_realm = maxi(max_realm, int(_build.path_realm.get(pid, 0)))
+			if max_realm >= 6:
+				hero_tex = atlas.get_hero_form("v3")
+			elif max_realm >= 3:
+				hero_tex = atlas.get_hero_form("v2")
+		if hero_tex:
+			_hero.set_sprite(hero_tex)
 
 
 ## Boss 击杀演出：全局慢动作 0.45s + 双金色冲击波 + HUD 大字（Boss 波收尾记忆点）
