@@ -99,6 +99,15 @@ func _spawn_one() -> void:
 		tex = SpriteAtlas.get_normal_enemy_tex(_rng)
 	if tex:
 		enemy.set_sprite(tex)
+		# 状态帧 key（受击/死亡帧检索；与贴图源同 key）
+		if is_boss:
+			pass   # Boss 用立绘/狂暴体系，不用小怪状态帧
+		elif is_elite:
+			enemy.set_kind_key("brute" if enemy.kind == Enemy.Kind.CHASER else "shaman")
+		elif enemy.kind != Enemy.Kind.CHASER:
+			enemy.set_kind_key("shaman" if enemy.kind == Enemy.Kind.RANGED else ("frost_wraith" if enemy.kind == Enemy.Kind.SPLITTER else "brute"))
+		else:
+			enemy.set_kind_key("grunt" if _rng.randf() < 0.5 else "runner")
 	# 在房间边缘随机位置出生（离英雄有一定距离）
 	enemy.global_position = _random_edge_pos()
 	enemy.reached_core.connect(_on_enemy_reached_core)

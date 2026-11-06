@@ -75,14 +75,26 @@ func refresh() -> void:
 func _make_group(set_id: String, bids: Array) -> Control:
 	var box := HBoxContainer.new()
 	box.add_theme_constant_override("separation", 4)
-	# 组头：体系名 ×数量（体系色小字，竖向贴左）
+	# 组头：体系徽章（VFX 批次二）+ 体系名 ×数量（体系色）
+	var head_box := VBoxContainer.new()
+	head_box.custom_minimum_size = Vector2(44, 60)
+	var atlas := get_node_or_null("/root/SpriteAtlas")
+	if atlas != null and set_id in GROUP_ORDER:
+		var badge: Texture2D = atlas.get_realm_badge(_tier_for(set_id))
+		if badge:
+			var tr := TextureRect.new()
+			tr.texture = badge
+			tr.custom_minimum_size = Vector2(36, 36)
+			tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			head_box.add_child(tr)
 	var head := Label.new()
-	head.text = "%s\n×%d" % [GROUP_NAMES.get(set_id, set_id), bids.size()]
+	head.text = "%s ×%d" % [GROUP_NAMES.get(set_id, set_id), bids.size()]
 	head.add_theme_font_size_override("font_size", 12)
 	head.add_theme_color_override("font_color", GROUP_COLORS.get(set_id, Color.WHITE))
-	head.custom_minimum_size = Vector2(44, 60)
 	head.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(head)
+	head_box.add_child(head)
+	box.add_child(head_box)
 	for bid in bids:
 		box.add_child(_make_mini_card(bid, set_id))
 	return box
@@ -141,3 +153,11 @@ func _make_mini_card(bid: String, set_id: String) -> Control:
 	panel.tooltip_text = "[%s] %s\n%s" % [rar, name, eff_text]
 	panel.mouse_filter = Control.MOUSE_FILTER_PASS
 	return panel
+
+
+## 组头徽章档位：按该体系已修境界（1-4 档：1-2/3-4/5-6/7+ 境）
+func _tier_for(set_id: String) -> int:
+	if _build == null:
+		return 1
+	var r: int = int(_build.path_realm.get(set_id, 0))
+	return 1 if r < 2 else (2 if r < 4 else (3 if r < 6 else 4))

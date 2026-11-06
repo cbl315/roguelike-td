@@ -87,10 +87,12 @@ func set_current_hp(value: float) -> void:
 	# #3: 受击闪白（非致命伤害）
 	if current_hp > 0.0:
 		_flash_timer = 0.08
+		_apply_hit_frame()
 		_juice.play_flash()
 	queue_redraw()
 	if current_hp <= 0.0 and not _dead:
 		_dead = true
+		_apply_death_frame()
 		died.emit(self)
 		# #3: 不立即 queue_free，播放死亡动画
 		_burst_timer = 0.0
@@ -133,9 +135,11 @@ func _process(delta: float) -> void:
 		if _regen_timer >= 5.0:
 			_regen_timer = 0.0
 			current_hp = minf(max_hp, current_hp + max_hp * regen_pct_per_5s)
-	# #3: 受击闪白计时
+	# #3: 受击闪白计时（到期恢复本体帧）
 	if _flash_timer > 0.0:
 		_flash_timer -= delta
+		if _flash_timer <= 0.0 and _base_tex != null:
+			_sprite_tex = _base_tex
 	# 治疗脉冲视觉计时
 	if _heal_pulse >= 0.0:
 		_heal_pulse += delta
@@ -314,12 +318,44 @@ var _fire_rng := RandomNumberGenerator.new()
 
 
 var _sprite_tex: Texture2D = null
+var _kind_tex_key: String = ""   # 本体贴图 key（grunt/runner/shaman/frost_wraith/brute）——状态帧检索
+var _base_tex: Texture2D = null  # 本体帧（受击后恢复用）
 
 
 ## 加载精灵贴图
 func set_sprite(tex: Texture2D) -> void:
 	_sprite_tex = tex
 	queue_redraw()
+
+
+## 状态帧支持（VFX 批次二）：spawner 装本体贴图后调用
+func set_kind_key(key: String) -> void:
+	_kind_tex_key = key
+	_base_tex = _sprite_tex
+
+
+## 受击帧：闪白期间换 hit 帧（set_current_hp 调用）
+func _apply_hit_frame() -> void:
+	if _kind_tex_key.is_empty():
+		return
+	var atlas := get_node_or_null("/root/SpriteAtlas")
+	if atlas == null or _base_tex == null:
+		return
+	var ht: Texture2D = atlas.get_enemy_hit_tex(_kind_tex_key)
+	if ht:
+		_sprite_tex = ht
+
+
+## 死亡帧：爆裂动画期换 death 帧
+func _apply_death_frame() -> void:
+	if _kind_tex_key.is_empty():
+		return
+	var atlas := get_node_or_null("/root/SpriteAtlas")
+	if atlas == null:
+		return
+	var dt: Texture2D = atlas.get_enemy_death_tex(_kind_tex_key)
+	if dt:
+		_sprite_tex = dt
 
 
 func _draw() -> void:

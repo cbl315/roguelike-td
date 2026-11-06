@@ -21,9 +21,38 @@ var _texture: Texture2D = null
 var _baked: bool = false
 
 
+var _bg_sprite: TextureRect = null
+
+
 func _ready() -> void:
 	z_index = -1   # 在所有游戏元素下面
 	_bake_floor()
+	# VFX 批次二：真实背景图（Boss 波切换 arena / w20+ heaven）
+	_bg_sprite = TextureRect.new()
+	_bg_sprite.position = GameConst.ROOM_RECT.position
+	_bg_sprite.size = GameConst.ROOM_RECT.size
+	_bg_sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_bg_sprite.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_bg_sprite.modulate = Color(1, 1, 1, 0.0)   # 默认隐藏（程序地板）
+	_bg_sprite.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_bg_sprite)
+
+
+## Boss 波切换背景（gm 波开始调用）：arena（Boss 波）/ heaven（w20+）
+func set_bg_mode(mode: String) -> void:
+	if _bg_sprite == null:
+		return
+	var atlas := get_node_or_null("/root/SpriteAtlas")
+	if atlas == null:
+		return
+	if mode == "none":
+		_bg_sprite.modulate = Color(1, 1, 1, 0.0)
+		return
+	var key := "arena" if mode == "boss" else ("heaven" if mode == "final" else "dungeon")
+	var tex: Texture2D = atlas.get_bg(key)
+	if tex:
+		_bg_sprite.texture = tex
+		_bg_sprite.modulate = Color(1, 1, 1, 0.85)
 
 
 ## 烘焙地板纹理（一次渲染，缓存复用）

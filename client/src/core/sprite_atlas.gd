@@ -19,6 +19,15 @@ var boss_enraged_texs: Dictionary = {}   # boss 贴图索引 → 狂暴立绘
 var ult_fx_texs: Dictionary = {}         # zhutian/xingchenbian/chongmei/doupo → Texture2D
 # 弹道 t2/t3（伤害等级升级视觉）
 var projectile_t2_texs: Array[Texture2D] = []
+# VFX 资源批次二（光环/徽章/状态帧/背景）
+var aura_circle_texs: Dictionary = {}
+var aura_hero_texs: Array[Texture2D] = []
+var aura_pet_texs: Array[Texture2D] = []
+var realm_badge_texs: Array[Texture2D] = []
+var devour_ring_tex: Texture2D = null
+var enemy_hit_texs: Dictionary = {}
+var enemy_death_texs: Dictionary = {}
+var bg_texs: Dictionary = {}
 
 # 弹道贴图（4 种元素，随机选取增加视觉多样性）
 var projectile_texs: Array[Texture2D] = []
@@ -92,6 +101,36 @@ func _ready() -> void:
 	]:
 		projectile_t2_texs.append(_load_scaled(p, 36))
 
+	# ── 光环（体系色圈/英雄t1-3/宠物t1-3，VFX 资源批次二）──
+	aura_circle_texs = {
+		"zhutian": _load_scaled("res://src/assets/auras/aura_circle_zhutian.png", 120),
+		"xingchenbian": _load_scaled("res://src/assets/auras/aura_circle_xingchenbian.png", 120),
+		"chongmei": _load_scaled("res://src/assets/auras/aura_circle_chongmei.png", 120),
+		"doupo": _load_scaled("res://src/assets/auras/aura_circle_doupo.png", 120),
+		"generic_fusion": _load_scaled("res://src/assets/auras/aura_circle_generic.png", 120),
+	}
+	for i in range(3):
+		aura_hero_texs.append(_load_scaled("res://src/assets/auras/aura_hero_t%d.png" % (i + 1), 110))
+		aura_pet_texs.append(_load_scaled("res://src/assets/auras/aura_pet_t%d.png" % (i + 1), 80))
+
+	# ── 境界徽章（t1-t4）+ 吞噬进度环 ──
+	for i in range(4):
+		realm_badge_texs.append(_load_scaled("res://src/assets/auras/badge_realm_t%d.png" % (i + 1), 44))
+	devour_ring_tex = _load_scaled("res://src/assets/auras/ring_devour_progress.png", 90)
+
+	# ── 敌人受击/死亡帧（5 种敌人）──
+	var kinds5 := ["grunt", "runner", "shaman", "frost_wraith", "brute"]
+	for k in kinds5:
+		enemy_hit_texs[k] = _load_scaled("res://src/assets/enemy_states/enemy_%s_hit.png" % k, 56)
+		enemy_death_texs[k] = _load_scaled("res://src/assets/enemy_states/enemy_%s_death.png" % k, 56)
+
+	# ── 战斗背景（3 张：普通/Boss/高境）──
+	bg_texs = {
+		"arena": _load_scaled("res://src/assets/bg/bg_battle_arena.png", 1024),
+		"dungeon": _load_scaled("res://src/assets/bg/bg_dungeon.png", 1024),
+		"heaven": _load_scaled("res://src/assets/bg/bg_heaven_realm.png", 1024),
+	}
+
 # ── 新资源访问器 ──
 func get_third_pet_tex(unit_id: String) -> Texture2D:
 	return summon_third_texs.get(unit_id)
@@ -102,6 +141,30 @@ func get_boss_portrait_tex(index: int, enraged: bool = false) -> Texture2D:
 
 func get_ult_fx_tex(path_id: String) -> Texture2D:
 	return ult_fx_texs.get(path_id)
+
+func get_aura_circle(path_id: String) -> Texture2D:
+	return aura_circle_texs.get(path_id)
+
+func get_aura_hero(tier: int) -> Texture2D:
+	return aura_hero_texs[clampi(tier - 1, 0, aura_hero_texs.size() - 1)] if not aura_hero_texs.is_empty() else null
+
+func get_aura_pet(tier: int) -> Texture2D:
+	return aura_pet_texs[clampi(tier - 1, 0, aura_pet_texs.size() - 1)] if not aura_pet_texs.is_empty() else null
+
+func get_realm_badge(tier: int) -> Texture2D:
+	return realm_badge_texs[clampi(tier - 1, 0, realm_badge_texs.size() - 1)] if not realm_badge_texs.is_empty() else null
+
+func get_devour_ring() -> Texture2D:
+	return devour_ring_tex
+
+func get_enemy_hit_tex(kind_key: String) -> Texture2D:
+	return enemy_hit_texs.get(kind_key)
+
+func get_enemy_death_tex(kind_key: String) -> Texture2D:
+	return enemy_death_texs.get(kind_key)
+
+func get_bg(key: String) -> Texture2D:
+	return bg_texs.get(key)
 
 func get_projectile_t2_tex(rng: RandomNumberGenerator) -> Texture2D:
 	if projectile_t2_texs.is_empty():

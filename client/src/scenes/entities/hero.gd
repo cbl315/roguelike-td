@@ -78,6 +78,20 @@ func refresh_stats() -> void:
 	else:
 		_stats = CombatStats.new()
 		_stats.apply_atk_bonus()
+	# VFX 批次二：主体系光环（体系色圈 t1；高境界升级 t2/t3——按已修体系数）
+	if build != null:
+		var main_pid := ""
+		var realms_done := 0
+		for pid in build.path_realm.keys():
+			if not pid.begins_with("generic_") and pid != "seed":
+				main_pid = pid
+				realms_done = maxi(realms_done, int(build.path_realm.get(pid, 0)))
+		var atlas := get_node_or_null("/root/SpriteAtlas")
+		if atlas != null:
+			var tier: int = 1 if realms_done < 3 else (2 if realms_done < 6 else 3)
+			_aura_tex = atlas.get_aura_hero(tier)
+			if _aura_tex == null:
+				_aura_tex = atlas.get_aura_circle(main_pid)
 	# 三伤害类型：主体系决定弹道类型（星辰变/斗破=法术，遮天/宠魅=物理）
 	if _stats != null and build != null:
 		for pid in build.path_realm.keys():
@@ -226,6 +240,13 @@ func _update_priority_label() -> void:
 
 func _draw() -> void:
 	var hp_ratio := clampf(current_hp / max_hp, 1e-05, 1.0)
+	# 主体系光环（脚下，呼吸微缩放；VFX 批次二）
+	if _aura_tex:
+		var bs: float = 1.0 + sin(Time.get_ticks_msec() * 0.003) * 0.04
+		draw_set_transform(Vector2.ZERO, 0, Vector2(bs, bs))
+		var as_: Vector2 = _aura_tex.get_size()
+		draw_texture(_aura_tex, -as_ / 2 + Vector2(0, 18))
+		draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
 	# 攻击范围圈（半透明，不参与 juice 变换）
 	draw_circle(Vector2.ZERO, attack_range, Color(0.3, 0.4, 0.6, 0.06))
 	draw_arc(Vector2.ZERO, attack_range, 0, TAU, 64, Color(0.3, 0.4, 0.6, 0.2), 1.5)
@@ -258,3 +279,4 @@ func set_sprite(tex: Texture2D) -> void:
 
 
 var _sprite_tex: Texture2D = null
+var _aura_tex: Texture2D = null   # 主体系光环（VFX 批次二：体系色圈+英雄t1-3）

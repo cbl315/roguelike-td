@@ -46,6 +46,9 @@ func _ready() -> void:
 func setup(p_name: String, p_id: String, hero: Node2D, offset: Vector2) -> void:
 	unit_name = p_name
 	unit_id = p_id
+	var atlas := get_node_or_null("/root/SpriteAtlas")
+	if atlas != null:
+		_aura_tex = atlas.get_aura_pet(1)
 	follow_target = hero
 	follow_offset = offset
 	stats = CombatStats.new()
@@ -135,9 +138,17 @@ func set_sprite(tex: Texture2D) -> void:
 
 
 var _sprite_tex: Texture2D = null
+var _aura_tex: Texture2D = null   # 宠物光环 t1（VFX 批次二）
 
 
 func _draw() -> void:
+	# 宠物光环 t1（脚下微呼吸）
+	if _aura_tex:
+		var bs: float = 1.0 + sin(Time.get_ticks_msec() * 0.004) * 0.05
+		draw_set_transform(Vector2.ZERO, 0, Vector2(bs, bs))
+		var asz: Vector2 = _aura_tex.get_size()
+		draw_texture(_aura_tex, -asz / 2 + Vector2(0, 10))
+		draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
 	# 应用 juice 变换（idle呼吸 + 移动挤压 + 攻击反馈）
 	draw_set_transform(_juice.offset, _juice.rotation, _juice.scale)
 	# 优先贴图，无则色块

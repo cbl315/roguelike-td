@@ -252,6 +252,13 @@ func _start_next_wave() -> void:
 	_hud.update_bond_cost(_build.bond_draw_cost())
 	_hud.update_equip_state(_build.equip_level, _pools.equip_upgrade_cost(_build.equip_level))
 	_hero.refresh_stats()   # debuff 属性类效果在此生效
+	# VFX 批次二：背景切换（Boss 波=arena / w20+=heaven / 普通=程序地板）
+	var floor_r := get_node_or_null("../GridLines") as Node   # floor_renderer.gd 挂 GridLines 节点
+	if floor_r != null and floor_r.has_method("set_bg_mode"):
+		var bgm := "none"
+		if WaveCurves.is_boss_wave(current_wave):
+			bgm = "boss" if current_wave < 20 else "final"
+		floor_r.set_bg_mode(bgm)
 	_boss_debuffs.modify_stats(_hero.get_stats())
 	_refresh_summon_stats()
 	if _spawner: _spawner.start_wave(current_wave)
