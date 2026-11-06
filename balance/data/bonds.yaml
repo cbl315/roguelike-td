@@ -1,8 +1,7 @@
 # bonds.yaml — 羁绊数据（SSOT）
 # 体系：zhutian 遮天 / xingchenbian 星辰变 / chongmei 宠魅 / doupo 斗破
-#       generic 符文三系（2026-11-05 重构）：战魂·物理 / 奥术·魔法 / 灵契·召唤，
-#       各 4 级（初2/中2/高3/究3），初级吞噬完才解锁中级；吞噬奖励 弹+1/+2/+3、究极吸血。
-#       全池吸血唯一来源 = 符文究极吞噬（体系卡/reward 的吸血已全部替换为主题属性）。
+#       generic 符文三系：战魂·物理 / 奥术·魔法 / 灵契·召唤（各4级，吞噬奖励 弹+1/2/3、究极吸血）。
+#       全池吸血唯一来源 = 符文究极吞噬。
 bond_pool: {capacity: 10}
 bonds:
 - {id: seed_zhutian, name: 遮天·道经种子, set: seed, rarity: SR, is_seed: true, seed_path: zhutian, seed_gold: 30, note: 选择后解锁遮天羁绊池，+30金币（不加属性）}
@@ -248,17 +247,17 @@ bonds:
   name: 星辰之力
   set: xingchenbian
   rarity: SR
-  effect: {magic_dmg_pct_delta: 0.114}
+  effect: {magic_dmg_pct_delta: 0.068, atk_pct_delta: 0.06}
 - id: xc_xy_yunqi
   name: 云气
   set: xingchenbian
   rarity: SR
-  effect: {magic_dmg_pct_delta: 0.081}
+  effect: {hp_pct_delta: 0.1, atk_pct_delta: 0.06}
 - id: xc_xy_linggen
   name: 灵根
   set: xingchenbian
   rarity: SR
-  effect: {crit_rate_delta: 0.076}
+  effect: {damage_reduction_delta: 0.03, atk_pct_delta: 0.06}
 - id: xc_lx_liuxing
   name: 流星
   set: xingchenbian
@@ -273,7 +272,7 @@ bonds:
   name: 破空
   set: xingchenbian
   rarity: SSR
-  effect: {armor_pen: 0.1}
+  effect: {hp_pct_delta: 0.08, attack_speed_delta: 0.06}
 - id: xc_xh_xinhe
   name: 星核
   set: xingchenbian
@@ -462,7 +461,7 @@ bonds:
   set: chongmei
   rarity: UR
   pet_scope: body
-  effect: {atk_pct_delta: 0.1, hp_pct_delta: 0.15}
+  effect: {atk_pct_delta: 0.13, hp_pct_delta: 0.195}
 - id: cm_hz_baiyanmeng_fanshi
   name: 白魇魔反噬加重
   set: chongmei
@@ -474,7 +473,7 @@ bonds:
   set: chongmei
   rarity: UR
   pet_scope: body
-  effect: {atk_pct_delta: 0.15, damage_reduction_delta: 0.05}
+  effect: {atk_pct_delta: 0.195, damage_reduction_delta: 0.065}
 - id: cm_hz_moxie_peak
   name: 莫邪·战力巅峰
   set: chongmei
@@ -486,7 +485,7 @@ bonds:
   set: chongmei
   rarity: UR
   pet_scope: body
-  effect: {attack_speed_delta: 0.12, crit_rate_delta: 0.05}
+  effect: {attack_speed_delta: 0.156, crit_rate_delta: 0.065}
 - id: cm_hz_qizuifu
   name: 莫邪进化·七罪狐
   set: chongmei
@@ -504,7 +503,7 @@ bonds:
   set: chongmei
   rarity: UR
   pet_scope: body
-  effect: {atk_pct_delta: 0.15, hp_pct_delta: 0.15}
+  effect: {atk_pct_delta: 0.195, hp_pct_delta: 0.195}
 - id: cm_hxiu_shezui
   name: 莫邪进化·赦罪之狐
   set: chongmei
@@ -892,28 +891,28 @@ paths:
     note: 淬炼四肢，装备槽/属性成型
   - name: 化龙
     bonds: [zt_hualong_spine_1, zt_hualong_spine_2, zt_hualong_spine_3, zt_jm_bing]
-    reward: {atk_pct_delta: 0.3, final_dmg_mult: 0.1}
+    reward: {atk_pct_delta: 0.28, final_dmg_mult: 0.07}
     note: 脊柱化龙，中期爆发
   - name: 仙台
     bonds: [zt_xiantai_zhandao, zt_xiantai_saint, zt_xiantai_dasheng, zt_jm_zu]
-    reward: {atk_pct_delta: 0.34, final_dmg_mult: 0.13}
+    reward: {atk_pct_delta: 0.32, final_dmg_mult: 0.09}
     note: 仙台三重（斩道/圣人/大圣）
   - name: 准帝
     bonds: [zt_zhundi_tribulation, zt_zhundi_curse_break, zt_jm_qian]
-    reward: {final_dmg_mult: 0.17, crit_dmg_delta: 0.32}
+    reward: {final_dmg_mult: 0.12, crit_dmg_delta: 0.32}
     note: 圣体破诅咒成准帝，全书最大爽点
   - name: 大帝
     bonds: [zt_dadi_dao, zt_dadi_cauldron, zt_dadi_busiyao, zt_dadi_diershi, zt_dadi_xianlu, zt_jm_lin]
-    reward: {final_dmg_mult: 0.2}
+    reward: {final_dmg_mult: 0.12}
     synergy_unlock: zhutian_emperor_fist
     note: 成帝→不死药→活出第二世→成仙路开启；解锁天帝拳联动
   - name: 红尘仙
     bonds: [zt_hongchen_nihuo, zt_hongchen_zikhan, zt_hongchen_jiqu, zt_hongchen_xian, zt_jm_zhe]
-    reward: {final_dmg_mult: 0.25}
+    reward: {final_dmg_mult: 0.14}
     note: 逆活第三世→自斩一刀→汲取不死物质→红尘为仙
   - name: 天帝
     bonds: [zt_tiandi_wandao, zt_tiandi_quan, zt_tiandi_duduan, zt_tiandi, zt_jm_shu]
-    reward: {status: heaven_emperor, final_dmg_mult: 0.35}
+    reward: {final_dmg_mult: 0.22, status: heaven_emperor}
     synergy_unlock: zhutian_emperor_fist
     note: 万道相合→天帝拳成→独断万古→天帝果位
 - id: xingchenbian
@@ -921,11 +920,11 @@ paths:
   realms:
   - name: 星云
     bonds: [xc_xy_xingchen, xc_xy_yunqi, xc_xy_linggen]
-    reward: {magic_dmg_pct_delta: 0.096}
+    reward: {magic_dmg_pct_delta: 0.096, hp_pct_delta: 0.1, atk_pct_delta: 0.1}
     note: 气态凝聚，法术萌芽
   - name: 流星
     bonds: [xc_lx_liuxing, xc_lx_liuxinglei, xc_lx_poeng]
-    reward: {magic_dmg_pct_delta: 0.128, attack_speed_delta: 0.064}
+    reward: {magic_dmg_pct_delta: 0.128, attack_speed_delta: 0.064, hp_pct_delta: 0.08}
     note: 破空而出，速度爆发
   - name: 星核
     bonds: [xc_xh_xinhe, xc_xh_faize, xc_xh_yuanshen]
@@ -968,19 +967,19 @@ paths:
     note: 六尾妖狐+半魔首觉，击败夏广寒
   - name: 魂师
     bonds: [cm_hs_jiuwei, cm_hs_qiudao, cm_hs_baiyanmeng_gain, cm_hs_hundian]
-    reward: {atk_pct_delta: 0.22, elemental_dmg_mult: 0.11}
+    reward: {atk_pct_delta: 0.22, elemental_dmg_mult: 0.11, hp_pct_delta: 0.06}
     note: 九尾炎狐+囚岛淬炼+魂殿赐技
   - name: 魂主
     bonds: [cm_hz_baiyanmeng_awaken, cm_hz_moxie_tongling, cm_hz_xuanwu, cm_hz_baiyanmeng_fanshi]
-    reward: {atk_pct_delta: 0.06}
+    reward: {atk_pct_delta: 0.22, hp_pct_delta: 0.08, elemental_dmg_mult: 0.08}
     note: 白魇魔觉醒+莫邪统领级
   - name: 魂皇
     bonds: [cm_hz_banmo_stable, cm_hz_moxie_peak, cm_hz_yunjing]
-    reward: {atk_pct_delta: 0.25, damage_reduction_delta: 0.05}
+    reward: {atk_pct_delta: 0.3, damage_reduction_delta: 0.05, elemental_dmg_mult: 0.08}
     note: 半魔化稳定+莫邪巅峰
   - name: 魂宰
     bonds: [cm_hz_qizuifu, cm_hz_baiyanmeng_wanquan, cm_hz_zhuzai]
-    reward: {final_dmg_mult: 0.15, true_dmg_pct_delta: 0.05}
+    reward: {final_dmg_mult: 0.2, true_dmg_pct_delta: 0.05, atk_pct_delta: 0.1}
     note: 七罪狐+白魇魔完全体+主宰级
   - name: 魂朽
     bonds: [cm_hxiu_shezui, cm_hxiu_buxiu, cm_hxiu_zuiyan]
@@ -988,11 +987,11 @@ paths:
     note: 赦罪之狐+触碰不朽（白魇魔被吞噬，半魔化觉醒）
   - name: 千年最强
     bonds: [cm_qn_zidi, cm_qn_qisi, cm_qn_qiannian]
-    reward: {final_dmg_mult: 0.2, atk_pct_delta: 0.2}
+    reward: {final_dmg_mult: 0.14, atk_pct_delta: 0.15}
     note: 幽冥狐尊·紫帝降临（第三魂宠登场）
   - name: 万年强者
     bonds: [cm_wn_moren_wanquan, cm_wn_moxie_zhuanji, cm_wn_wannian]
-    reward: {final_dmg_mult: 0.25, atk_pct_delta: 0.25, hp_pct_delta: 0.15}
+    reward: {final_dmg_mult: 0.18, atk_pct_delta: 0.18, hp_pct_delta: 0.15}
     note: 魔人完全体+万兽之主
 - id: doupo
   name: 斗破

@@ -48,7 +48,7 @@ ENEMY_HP_SCALE: float = 1.0           # 敌人血量全局缩放（大招/debuff
 ENEMY_BEHAVIOR_HP_MULT: float = 1.03
 ENEMY_BEHAVIOR_PRESSURE: float = 1.03
 ENEMY_BEHAVIOR_FROM_WAVE: int = 5
-PLAYER_ECON_MULT: float = 0.96        # 符文阶梯轮回调：卡池浓度红利用经济对冲（1.03→0.96）
+PLAYER_ECON_MULT: float = 0.94        # 流派微调轮：均衡后轻压（0.96→0.94）
 BOSS_AI_SUMMON_BONUS: float = 1.08    # Boss 召唤小怪的额外波血宏观近似
 # 宠魅召唤：显式三区建模（resolve_pets：本体/莫邪/白魇魔独立 stats，
 # 魂朽境 realm6 吞噬后白魇魔并入本体），原宏观乘区已删除。

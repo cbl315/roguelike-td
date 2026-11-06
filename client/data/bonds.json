@@ -468,7 +468,8 @@
       "set": "xingchenbian",
       "rarity": "SR",
       "effect": {
-        "magic_dmg_pct_delta": 0.114
+        "magic_dmg_pct_delta": 0.068,
+        "atk_pct_delta": 0.06
       }
     },
     {
@@ -477,7 +478,8 @@
       "set": "xingchenbian",
       "rarity": "SR",
       "effect": {
-        "magic_dmg_pct_delta": 0.081
+        "hp_pct_delta": 0.1,
+        "atk_pct_delta": 0.06
       }
     },
     {
@@ -486,7 +488,8 @@
       "set": "xingchenbian",
       "rarity": "SR",
       "effect": {
-        "crit_rate_delta": 0.076
+        "damage_reduction_delta": 0.03,
+        "atk_pct_delta": 0.06
       }
     },
     {
@@ -514,7 +517,8 @@
       "set": "xingchenbian",
       "rarity": "SSR",
       "effect": {
-        "armor_pen": 0.1
+        "hp_pct_delta": 0.08,
+        "attack_speed_delta": 0.06
       }
     },
     {
@@ -853,8 +857,8 @@
       "rarity": "UR",
       "pet_scope": "body",
       "effect": {
-        "atk_pct_delta": 0.1,
-        "hp_pct_delta": 0.15
+        "atk_pct_delta": 0.13,
+        "hp_pct_delta": 0.195
       }
     },
     {
@@ -875,8 +879,8 @@
       "rarity": "UR",
       "pet_scope": "body",
       "effect": {
-        "atk_pct_delta": 0.15,
-        "damage_reduction_delta": 0.05
+        "atk_pct_delta": 0.195,
+        "damage_reduction_delta": 0.065
       }
     },
     {
@@ -897,8 +901,8 @@
       "rarity": "UR",
       "pet_scope": "body",
       "effect": {
-        "attack_speed_delta": 0.12,
-        "crit_rate_delta": 0.05
+        "attack_speed_delta": 0.156,
+        "crit_rate_delta": 0.065
       }
     },
     {
@@ -931,8 +935,8 @@
       "rarity": "UR",
       "pet_scope": "body",
       "effect": {
-        "atk_pct_delta": 0.15,
-        "hp_pct_delta": 0.15
+        "atk_pct_delta": 0.195,
+        "hp_pct_delta": 0.195
       }
     },
     {
@@ -1678,8 +1682,8 @@
             "zt_jm_bing"
           ],
           "reward": {
-            "atk_pct_delta": 0.3,
-            "final_dmg_mult": 0.1
+            "atk_pct_delta": 0.28,
+            "final_dmg_mult": 0.07
           },
           "note": "脊柱化龙，中期爆发"
         },
@@ -1692,8 +1696,8 @@
             "zt_jm_zu"
           ],
           "reward": {
-            "atk_pct_delta": 0.34,
-            "final_dmg_mult": 0.13
+            "atk_pct_delta": 0.32,
+            "final_dmg_mult": 0.09
           },
           "note": "仙台三重（斩道/圣人/大圣）"
         },
@@ -1705,7 +1709,7 @@
             "zt_jm_qian"
           ],
           "reward": {
-            "final_dmg_mult": 0.17,
+            "final_dmg_mult": 0.12,
             "crit_dmg_delta": 0.32
           },
           "note": "圣体破诅咒成准帝，全书最大爽点"
@@ -1721,7 +1725,7 @@
             "zt_jm_lin"
           ],
           "reward": {
-            "final_dmg_mult": 0.2
+            "final_dmg_mult": 0.12
           },
           "synergy_unlock": "zhutian_emperor_fist",
           "note": "成帝→不死药→活出第二世→成仙路开启；解锁天帝拳联动"
@@ -1736,7 +1740,7 @@
             "zt_jm_zhe"
           ],
           "reward": {
-            "final_dmg_mult": 0.25
+            "final_dmg_mult": 0.14
           },
           "note": "逆活第三世→自斩一刀→汲取不死物质→红尘为仙"
         },
@@ -1750,8 +1754,8 @@
             "zt_jm_shu"
           ],
           "reward": {
-            "status": "heaven_emperor",
-            "final_dmg_mult": 0.35
+            "final_dmg_mult": 0.22,
+            "status": "heaven_emperor"
           },
           "synergy_unlock": "zhutian_emperor_fist",
           "note": "万道相合→天帝拳成→独断万古→天帝果位"
@@ -1770,7 +1774,9 @@
             "xc_xy_linggen"
           ],
           "reward": {
-            "magic_dmg_pct_delta": 0.096
+            "magic_dmg_pct_delta": 0.096,
+            "hp_pct_delta": 0.1,
+            "atk_pct_delta": 0.1
           },
           "note": "气态凝聚，法术萌芽"
         },
@@ -1783,7 +1789,8 @@
           ],
           "reward": {
             "magic_dmg_pct_delta": 0.128,
-            "attack_speed_delta": 0.064
+            "attack_speed_delta": 0.064,
+            "hp_pct_delta": 0.08
           },
           "note": "破空而出，速度爆发"
         },
@@ -1919,7 +1926,8 @@
           ],
           "reward": {
             "atk_pct_delta": 0.22,
-            "elemental_dmg_mult": 0.11
+            "elemental_dmg_mult": 0.11,
+            "hp_pct_delta": 0.06
           },
           "note": "九尾炎狐+囚岛淬炼+魂殿赐技"
         },
@@ -1932,7 +1940,9 @@
             "cm_hz_baiyanmeng_fanshi"
           ],
           "reward": {
-            "atk_pct_delta": 0.06
+            "atk_pct_delta": 0.22,
+            "hp_pct_delta": 0.08,
+            "elemental_dmg_mult": 0.08
           },
           "note": "白魇魔觉醒+莫邪统领级"
         },
@@ -1944,8 +1954,9 @@
             "cm_hz_yunjing"
           ],
           "reward": {
-            "atk_pct_delta": 0.25,
-            "damage_reduction_delta": 0.05
+            "atk_pct_delta": 0.3,
+            "damage_reduction_delta": 0.05,
+            "elemental_dmg_mult": 0.08
           },
           "note": "半魔化稳定+莫邪巅峰"
         },
@@ -1957,8 +1968,9 @@
             "cm_hz_zhuzai"
           ],
           "reward": {
-            "final_dmg_mult": 0.15,
-            "true_dmg_pct_delta": 0.05
+            "final_dmg_mult": 0.2,
+            "true_dmg_pct_delta": 0.05,
+            "atk_pct_delta": 0.1
           },
           "note": "七罪狐+白魇魔完全体+主宰级"
         },
@@ -1982,8 +1994,8 @@
             "cm_qn_qiannian"
           ],
           "reward": {
-            "final_dmg_mult": 0.2,
-            "atk_pct_delta": 0.2
+            "final_dmg_mult": 0.14,
+            "atk_pct_delta": 0.15
           },
           "note": "幽冥狐尊·紫帝降临（第三魂宠登场）"
         },
@@ -1995,8 +2007,8 @@
             "cm_wn_wannian"
           ],
           "reward": {
-            "final_dmg_mult": 0.25,
-            "atk_pct_delta": 0.25,
+            "final_dmg_mult": 0.18,
+            "atk_pct_delta": 0.18,
             "hp_pct_delta": 0.15
           },
           "note": "魔人完全体+万兽之主"

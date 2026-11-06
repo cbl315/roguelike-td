@@ -164,7 +164,7 @@ func _apply_devour(pid: String, idx: int, needed: Array) -> void:
 
 
 ## 宠魅三区：宠物基础攻击系数（与 Python 端 SUMMON_BASE_ATK_RATIO 一致）
-const SUMMON_BASE_ATK_RATIO := 0.55   # 与 Python combat_stats.SUMMON_BASE_ATK_RATIO 严格一致（曾漂移 0.6）
+const SUMMON_BASE_ATK_RATIO := 0.65   # 与 Python 严格一致（宠魅中期塌方轮 0.55→0.65）
 
 
 ## 卡的 pet_scope（宠魅三区；非宠魅卡恒为 body）

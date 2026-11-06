@@ -9,11 +9,11 @@
 
 enemy_hp:
   base: 100.0
-  growth: 1.094       # 数值轮 2026-11 符文阶梯轮：符文过滤提升卡池浓度 +35pp 后三参回调
+  growth: 1.098       # 流派微调轮终版：四体系极差 10pp 均衡后轻压
 
 enemy_count:
   base: 8
-  per_wave: 1.50      # 数值轮 2026-11 符文阶梯轮：随 growth 一起回调
+  per_wave: 1.50      # 流派微调轮终版：温和
 
 wave_duration:
   base_seconds: 25

@@ -253,7 +253,7 @@ def resolve_player(state, pools) -> PlayerCombat:
 
 # 宠物基础攻击系数（宠物是副输出单位：基础 = 英雄裸基础 × 此系数，
 # 客户端 summon_unit.gd 同步使用同一比例）
-SUMMON_BASE_ATK_RATIO = 0.55
+SUMMON_BASE_ATK_RATIO = 0.65
 
 
 def resolve_pets(state, pools) -> dict:
