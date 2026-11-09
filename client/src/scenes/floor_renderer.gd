@@ -52,7 +52,7 @@ func set_bg_mode(mode: String) -> void:
 	var tex: Texture2D = atlas.get_bg(key)
 	if tex:
 		_bg_sprite.texture = tex
-		_bg_sprite.modulate = Color(1, 1, 1, 0.85)
+		_bg_sprite.modulate = Color(1, 1, 1, 0.0)   # 1024 拉伸到 2840 会糊——暂禁用，待高分辨率背景
 
 
 ## 烘焙地板纹理（一次渲染，缓存复用）

@@ -401,9 +401,10 @@ func _draw() -> void:
 		var burst_r: float = radius + t * 40.0
 		var burst_a: float = 1.0 - t
 		# 先画本体（带 juice 死亡变换：放大+旋转+淡出）
-		# 骨骼拆分渲染（死亡散肢效果在骨骼系统里）
-		if _sprite_tex and _skel != null:
-			_skel.draw_split(_sprite_tex, self)
+		draw_set_transform(_skel.get_root_offset(), _skel.get_root_rotation(), _skel.get_root_scale())
+		if _sprite_tex:
+			var tsd: Vector2 = _sprite_tex.get_size()
+			draw_texture(_sprite_tex, -tsd / 2)
 		draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
 		# 爆裂环
 		draw_circle(Vector2.ZERO, burst_r, Color(1.0, 0.8, 0.3, burst_a * 0.6))
@@ -411,9 +412,10 @@ func _draw() -> void:
 		return
 	var hp_ratio := clampf(current_hp / max_hp, 0.0, 1.0)
 	# 本体：应用 juice 变换（idle呼吸 + 移动挤压 + 攻击/受击反馈）
-	# 骨骼拆分渲染（头/躯干/腿独立动画——剪纸模式 VFX 批次五）
-	if _sprite_tex and _skel != null:
-		_skel.draw_split(_sprite_tex, self)
+	draw_set_transform(_skel.get_root_offset(), _skel.get_root_rotation(), _skel.get_root_scale() * _juice.scale)
+	if _sprite_tex:
+		var ts: Vector2 = _sprite_tex.get_size()
+		draw_texture(_sprite_tex, -ts / 2)
 		# 命中闪白：贴图上叠加白色半透明
 		if _juice.get_flash() > 0.0:
 			var tsf: Vector2 = _sprite_tex.get_size() if _sprite_tex else Vector2(40, 40)
