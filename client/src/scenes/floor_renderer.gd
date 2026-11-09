@@ -27,15 +27,9 @@ var _bg_sprite: TextureRect = null
 func _ready() -> void:
 	z_index = -1   # 在所有游戏元素下面
 	_bake_floor()
-	# VFX 批次二：真实背景图（Boss 波切换 arena / w20+ heaven）
-	_bg_sprite = TextureRect.new()
-	_bg_sprite.position = GameConst.ROOM_RECT.position
-	_bg_sprite.size = GameConst.ROOM_RECT.size
-	_bg_sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_bg_sprite.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	_bg_sprite.modulate = Color(1, 1, 1, 0.0)   # 默认隐藏（程序地板）
-	_bg_sprite.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_bg_sprite)
+	# VFX 批次二：背景图暂移除（1440px 拉到 2840×1840 必糊——
+	# 需要 2840+ 原生分辨率或九宫格平铺方案，待高分辨率素材后恢复）
+	pass
 
 
 ## Boss 波切换背景（gm 波开始调用）：arena（Boss 波）/ heaven（w20+）
