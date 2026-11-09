@@ -261,39 +261,60 @@ func draw_split(tex: Texture2D, canvas: CanvasItem) -> void:
 	if _parts.is_empty():
 		split_texture(tex)
 	var th: float = tex.get_height()
+	var tw: float = tex.get_width()
+
+	# 各部件在"居中贴图坐标系"中的中心 Y 位置（贴图中心 = 原点 0,0）
+	# head 区间 [0, 0.32th] → 中心在 -th/2 + 0.16th = -0.34th
+	# torso 区间 [0.30th, 0.68th] → 中心在 -th/2 + 0.49th = -0.01th ≈ 0
+	# legs 区间 [0.66th, th] → 中心在 -th/2 + 0.83th = +0.33th
+	var head_pivot := Vector2(0, -th * 0.34)
+	var torso_pivot := Vector2(0, -th * 0.01)
+	var legs_pivot := Vector2(0, th * 0.33)
 
 	# ── 腿（底层）──
-	var legs: Bone = _bones["legs"]
+	var legs_b: Bone = _bones["legs"]
 	var legs_t: AtlasTexture = _parts.get("legs")
 	if legs_t:
-		var lr: Rect2 = legs_t.region
+		var ls: Vector2 = legs_t.get_size()
 		canvas.draw_set_transform(
-			legs.offset + Vector2(0, th * 0.66 - lr.size.y * 0.5),
-			legs.rotation, legs.scale
+			legs_pivot + legs_b.offset, legs_b.rotation, legs_b.scale
 		)
-		canvas.draw_texture(legs_t, Vector2(-lr.size.x * 0.5, -lr.size.y * 0.5))
+		canvas.draw_texture(legs_t, -ls / 2)
 
 	# ── 躯干（中层）──
-	var torso: Bone = _bones["torso"]
+	var torso_b: Bone = _bones["torso"]
 	var torso_t: AtlasTexture = _parts.get("torso")
 	if torso_t:
-		var tr: Rect2 = torso_t.region
+		var tss: Vector2 = torso_t.get_size()
 		canvas.draw_set_transform(
-			torso.offset + Vector2(0, th * 0.30 + tr.size.y * 0.5 - th * 0.5),
-			torso.rotation, torso.scale
+			torso_pivot + torso_b.offset, torso_b.rotation, torso_b.scale
 		)
-		canvas.draw_texture(torso_t, Vector2(-tr.size.x * 0.5, -tr.size.y * 0.5))
+		canvas.draw_texture(torso_t, -tss / 2)
 
 	# ── 头（前层）──
-	var head: Bone = _bones["head"]
+	var head_b: Bone = _bones["head"]
 	var head_t: AtlasTexture = _parts.get("head")
 	if head_t:
-		var hr: Rect2 = head_t.region
+		var hs: Vector2 = head_t.get_size()
 		canvas.draw_set_transform(
-			head.offset + Vector2(0, -th * 0.5 + hr.size.y * 0.5),
-			head.rotation, head.scale
+			head_pivot + head_b.offset, head_b.rotation, head_b.scale
 		)
-		canvas.draw_texture(head_t, Vector2(-hr.size.x * 0.5, -hr.size.y * 0.5))
+		canvas.draw_texture(head_t, -hs / 2)
 
 	# 重置
 	canvas.draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
+
+## 验证用：返回各部件当前的中心坐标（相对于实体原点）
+func debug_part_positions(tex: Texture2D) -> Dictionary:
+	if tex == null:
+		return {}
+	var th: float = tex.get_height()
+	return {
+		"head_center": str(Vector2(0, -th * 0.34) + _bones["head"].offset),
+		"torso_center": str(Vector2(0, -th * 0.01) + _bones["torso"].offset),
+		"legs_center": str(Vector2(0, th * 0.33) + _bones["legs"].offset),
+		"tex_size": str(Vector2(tex.get_width(), tex.get_height())),
+		"head_region": str(Rect2(0, 0, tex.get_width(), int(th * 0.32))),
+		"torso_region": str(Rect2(0, int(th * 0.30), tex.get_width(), int(th * 0.40))),
+		"legs_region": str(Rect2(0, int(th * 0.66), tex.get_width(), int(th * 0.34))),
+	}

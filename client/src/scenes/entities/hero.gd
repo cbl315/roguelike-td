@@ -255,12 +255,13 @@ func _draw() -> void:
 	draw_arc(Vector2.ZERO, attack_range, 0, TAU, 64, Color(0.3, 0.4, 0.6, 0.2), 1.5)
 	# 本体：应用 juice 变换（idle呼吸 + 移动挤压 + 攻击反馈）
 	# 骨骼动画：单贴图 + root transform（拆分渲染回退——几何验证通过后恢复）
-	draw_set_transform(_skel.get_root_offset(), _skel.get_root_rotation(), _skel.get_root_scale() * _juice.scale)
-	if _sprite_tex:
-		var ts: Vector2 = _sprite_tex.get_size()
-		draw_texture(_sprite_tex, -ts / 2)
+	# 骨骼拆分渲染（头/躯干/腿独立动画——剪纸模式）
+	if _sprite_tex and _skel != null:
+		_skel.draw_split(_sprite_tex, self)
 		if _juice.get_flash() > 0.0:
-			draw_rect(Rect2(-ts / 2, ts), Color(1, 1, 1, _juice.get_flash() * 0.7), true)
+			var tsf: Vector2 = _sprite_tex.get_size()
+			draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
+			draw_rect(Rect2(-tsf / 2, tsf), Color(1, 1, 1, _juice.get_flash() * 0.7), true)
 	else:
 		# 外发光
 		draw_circle(Vector2.ZERO, radius + 8, Color(0.4, 0.6, 1.0, 0.25))
