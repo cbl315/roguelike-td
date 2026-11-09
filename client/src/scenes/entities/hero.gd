@@ -139,6 +139,8 @@ func _process(delta: float) -> void:
 	var moved: float = global_position.distance_to(_prev_pos)
 	var speed_ratio: float = clampf(moved / (move_speed * delta + 1.0), 0.0, 1.0)
 	_juice.tick(delta, moved > 1.0, speed_ratio)
+	var vel: Vector2 = global_position - _prev_pos
+	_skel.tick(delta, vel, speed_ratio)
 	_prev_pos = global_position
 	queue_redraw()
 	# 筛选攻击范围内的敌人
@@ -215,6 +217,7 @@ func _do_chain_bounce(initial_target: Node2D, base_dmg: float) -> void:
 		if nearest == null:
 			break
 		hit[nearest] = true
+		_skel.play_attack()
 		fired_projectile.emit(nearest, current_dmg, false)
 		current_pos = nearest.global_position
 		current_dmg *= 0.7   # 每次递减
@@ -251,7 +254,7 @@ func _draw() -> void:
 	draw_circle(Vector2.ZERO, attack_range, Color(0.3, 0.4, 0.6, 0.06))
 	draw_arc(Vector2.ZERO, attack_range, 0, TAU, 64, Color(0.3, 0.4, 0.6, 0.2), 1.5)
 	# 本体：应用 juice 变换（idle呼吸 + 移动挤压 + 攻击反馈）
-	draw_set_transform(_juice.offset, _juice.rotation, _juice.scale)
+	draw_set_transform(_skel.get_root_offset(), _skel.get_root_rotation(), _skel.get_root_scale() * _juice.scale)
 	if _sprite_tex:
 		var ts: Vector2 = _sprite_tex.get_size()
 		draw_texture(_sprite_tex, -ts / 2)
@@ -280,3 +283,4 @@ func set_sprite(tex: Texture2D) -> void:
 
 var _sprite_tex: Texture2D = null
 var _aura_tex: Texture2D = null   # 主体系光环（VFX 批次二：体系色圈+英雄t1-3）
+var _skel = preload("res://src/core/skeletal_juice.gd").new()   # 骨骼动画（VFX 批次五）

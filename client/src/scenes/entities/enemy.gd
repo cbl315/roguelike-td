@@ -42,6 +42,12 @@ var _boss_phase2: bool = false          # 血<50% 狂暴阶段
 var _boss_summon_cd: float = 6.0        # 召唤小怪间隔
 var _boss_barrage_cd: float = 4.0       # 环形弹幕间隔
 var _slow_timer: float = 0.0   # 减速状态剩余（善恶花王·控制）
+# ── 击退 + 受击僵直（Brotato 式打击感）──
+var _knockback_vel: Vector2 = Vector2.ZERO   # 击退速度（衰减）
+var _stun_timer: float = 0.0                 # 僵直剩余（>0 不能移动/攻击）
+const KNOCKBACK_DECAY := 8.0                 # 击退衰减速率
+const STUN_BASE := 0.12                      # 基础僵直时长
+const STUN_CRIT := 0.22                      # 暴击僵直更长
 var _slow_pct: float = 0.0     # 减速幅度
 
 
@@ -65,6 +71,7 @@ var _contact_cd: float = 0.0   # 接触冷却剩余
 var _flash_timer: float = 0.0   # #3: 受击闪白剩余（fallback 色块用）
 var _burst_timer: float = -1.0  # #3: 死亡爆裂动画（>=0 时播放，0.2s 后 queue_free）
 var _juice := Juice.new()
+var _skel = preload("res://src/core/skeletal_juice.gd").new()   # 多部件骨骼动画（VFX 批次五）
 var _prev_pos: Vector2 = Vector2.ZERO
 
 ## 房间边界（由 spawner 设置）
@@ -88,6 +95,7 @@ func set_current_hp(value: float) -> void:
 	if current_hp > 0.0:
 		_flash_timer = 0.08
 		_apply_hit_frame()
+		_skel.play_hit()   # 骨骼受击反馈（兼容路径也触发）
 		_juice.play_flash()
 	queue_redraw()
 	if current_hp <= 0.0 and not _dead:
@@ -145,6 +153,15 @@ func _process(delta: float) -> void:
 		_heal_pulse += delta
 		if _heal_pulse > 0.5:
 			_heal_pulse = -1.0
+	# 击退位移（不受僵直影响——击退期间仍在飞）
+	if _knockback_vel.length() > 1.0:
+		global_position += _knockback_vel * delta
+		_knockback_vel = _knockback_vel.move_toward(Vector2.ZERO, 600.0 * delta)   # 固定 600/s 线性衰减
+	# 僵直：不能移动/攻击，但受击动画播放
+	if _stun_timer > 0.0:
+		_stun_timer -= delta
+		queue_redraw()
+		return   # 跳过 AI/移动（击退已施加在上面）
 	# 朝英雄移动（按行为分派）
 	var dir: Vector2 = (_hero.global_position - global_position)
 	var dist: float = dir.length()
@@ -175,12 +192,31 @@ func _process(delta: float) -> void:
 	var moved: float = global_position.distance_to(_prev_pos)
 	var speed_ratio: float = clampf(moved / (move_speed * delta + 1.0), 0.0, 1.0)
 	_juice.tick(delta, moved > 0.5, speed_ratio)
+	_skel.tick(delta, global_position - _prev_pos, speed_ratio)
 	_prev_pos = global_position
 	queue_redraw()
 
 
 func take_damage(amount: float) -> void:
 	current_hp -= amount   # 走 setter，归零自动触发 died
+
+
+## 带击退+僵直的受击（英雄/宠物弹道调用——Brotato 式反馈）
+func take_damage_from(amount: float, source_pos: Vector2, is_crit: bool = false) -> void:
+	take_damage(amount)
+	if _dead:
+		return
+	# 击退：从攻击源方向推开（Boss 减半、精英 ×0.7）
+	var kb_mult: float = 0.5 if is_boss else (0.7 if is_elite else 1.0)
+	var dir: Vector2 = (global_position - source_pos).normalized()
+	if dir.length() < 0.01:
+		dir = Vector2.RIGHT
+	var kb_force: float = (60.0 if not is_crit else 110.0) * kb_mult
+	_knockback_vel = dir * kb_force
+	# 僵直
+	_stun_timer = STUN_CRIT if is_crit else STUN_BASE
+	# 骨骼动画受击
+	_skel.play_hit()
 
 
 # ── 行为实现 ──
@@ -365,7 +401,7 @@ func _draw() -> void:
 		var burst_r: float = radius + t * 40.0
 		var burst_a: float = 1.0 - t
 		# 先画本体（带 juice 死亡变换：放大+旋转+淡出）
-		draw_set_transform(_juice.offset, _juice.rotation, _juice.scale)
+		draw_set_transform(_skel.get_root_offset(), _skel.get_root_rotation(), _skel.get_root_scale() * _juice.scale)
 		if _sprite_tex:
 			var ts: Vector2 = _sprite_tex.get_size()
 			draw_texture(_sprite_tex, -ts / 2)
