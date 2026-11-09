@@ -57,8 +57,9 @@ func _bake_floor() -> void:
 	var tex_w: int = ceili(room_rect.size.x)
 	var tex_h: int = ceili(room_rect.size.y)
 
-	# 用较小的分辨率烘焙（然后拉伸），大幅加速
-	var scale_down: int = 4   # 2840/4=710, 1840/4=460 → ~33万像素
+	# 全分辨率烘焙（2840×1840 ≈ 5.2M 像素，一次性无每帧开销）
+	# 此前 scale_down=4 烘焙后 4× 上采样导致格子/网格线模糊（"马赛克"根因）
+	var scale_down: int = 1
 	var bw: int = ceili(tex_w / float(scale_down))
 	var bh: int = ceili(tex_h / float(scale_down))
 	var bgrid: float = GRID_SIZE / float(scale_down)
