@@ -228,66 +228,72 @@ const BAND_TORSO := Vector2(0.28, 0.40)   # 躯干：28%-68%（与头/腿各重�
 const BAND_LEGS  := Vector2(0.66, 0.34)   # 腿部：66%-100%
 
 
-## 拆分绘制（替代单次 draw_texture 的完整调用序列）
-## 在 _draw() 里直接调用此方法代替原来的 draw_set_transform + draw_texture
+## 拆分绘制：预创建 AtlasTexture 部件 → draw_texture 简单绘制
+## 每个部件是独立的 AtlasTexture（贴图裁剪），draw 时只设 transform + draw_texture
+var _parts: Dictionary = {}   # "head"/"torso"/"legs" → AtlasTexture
+
+
+## 预拆贴图为三个 AtlasTexture（头/躯干/腿）——set_sprite 后调用一次
+func split_texture(tex: Texture2D) -> void:
+	if tex == null:
+		return
+	_parts.clear()
+	var tw: int = tex.get_width()
+	var th: int = tex.get_height()
+	# 头：顶部 30%
+	_parts["head"] = AtlasTexture.new()
+	(_parts["head"] as AtlasTexture).atlas = tex
+	(_parts["head"] as AtlasTexture).region = Rect2(0, 0, tw, int(th * 0.32))
+	# 躯干：30%-68%
+	_parts["torso"] = AtlasTexture.new()
+	(_parts["torso"] as AtlasTexture).atlas = tex
+	(_parts["torso"] as AtlasTexture).region = Rect2(0, int(th * 0.30), tw, int(th * 0.40))
+	# 腿：66%-100%
+	_parts["legs"] = AtlasTexture.new()
+	(_parts["legs"] as AtlasTexture).atlas = tex
+	(_parts["legs"] as AtlasTexture).region = Rect2(0, int(th * 0.66), tw, int(th * 0.34))
+
+
+## 拆分绘制（在 _draw() 里调用，替代单次 draw_texture）
 func draw_split(tex: Texture2D, canvas: CanvasItem) -> void:
 	if tex == null:
 		return
-	var ts: Vector2 = tex.get_size()
-	var half: Vector2 = ts / 2.0
+	if _parts.is_empty():
+		split_texture(tex)
+	var th: float = tex.get_height()
 
-	# ── 腿部（最底层）──
+	# ── 腿（底层）──
 	var legs: Bone = _bones["legs"]
-	canvas.draw_set_transform(
-		legs.offset + Vector2(0, half.y - BAND_LEGS.x * ts.y - BAND_LEGS.y * ts.y * 0.5),
-		legs.rotation, legs.scale
-	)
-	canvas.draw_texture_rect_region(tex,
-		Rect2(Vector2(0, BAND_LEGS.x * ts.y), Vector2(ts.x, BAND_LEGS.y * ts.y)),
-		Rect2(Vector2(-half.x, -BAND_LEGS.y * ts.y * 0.5), Vector2(ts.x, BAND_LEGS.y * ts.y)),
-		Color(0.85, 0.85, 0.85), false, TextureRect.STRETCH_SCALE)
+	var legs_t: AtlasTexture = _parts.get("legs")
+	if legs_t:
+		var lr: Rect2 = legs_t.region
+		canvas.draw_set_transform(
+			legs.offset + Vector2(0, th * 0.66 - lr.size.y * 0.5),
+			legs.rotation, legs.scale
+		)
+		canvas.draw_texture(legs_t, Vector2(-lr.size.x * 0.5, -lr.size.y * 0.5))
 
-	# ── 左臂（贴在躯干后）──
-	var arm_l: Bone = _bones["arm_l"]
-	canvas.draw_set_transform(
-		arm_l.offset + Vector2(-half.x * 0.3, 0), arm_l.rotation, arm_l.scale
-	)
-	canvas.draw_texture_rect_region(tex,
-		Rect2(Vector2(0, BAND_TORSO.x * ts.y), Vector2(ts.x * 0.25, BAND_TORSO.y * ts.y)),
-		Rect2(Vector2(-ts.x * 0.125, -BAND_TORSO.y * ts.y * 0.5), Vector2(ts.x * 0.25, BAND_TORSO.y * ts.y)),
-		Color(0.75, 0.75, 0.75), false)
-
-	# ── 躯干 ──
+	# ── 躯干（中层）──
 	var torso: Bone = _bones["torso"]
-	canvas.draw_set_transform(
-		torso.offset + Vector2(0, half.y - BAND_TORSO.x * ts.y - BAND_TORSO.y * ts.y * 0.5),
-		torso.rotation, torso.scale
-	)
-	canvas.draw_texture_rect_region(tex,
-		Rect2(Vector2(0, BAND_TORSO.x * ts.y), Vector2(ts.x, BAND_TORSO.y * ts.y)),
-		Rect2(Vector2(-half.x, -BAND_TORSO.y * ts.y * 0.5), Vector2(ts.x, BAND_TORSO.y * ts.y)),
-		Color.WHITE)
+	var torso_t: AtlasTexture = _parts.get("torso")
+	if torso_t:
+		var tr: Rect2 = torso_t.region
+		canvas.draw_set_transform(
+			torso.offset + Vector2(0, th * 0.30 + tr.size.y * 0.5 - th * 0.5),
+			torso.rotation, torso.scale
+		)
+		canvas.draw_texture(torso_t, Vector2(-tr.size.x * 0.5, -tr.size.y * 0.5))
 
-	# ── 头部 ──
+	# ── 头（前层）──
 	var head: Bone = _bones["head"]
-	canvas.draw_set_transform(
-		head.offset + Vector2(0, -half.y + BAND_HEAD.x * ts.y + BAND_HEAD.y * ts.y * 0.5),
-		head.rotation, head.scale
-	)
-	canvas.draw_texture_rect_region(tex,
-		Rect2(Vector2(0, BAND_HEAD.x * ts.y), Vector2(ts.x, BAND_HEAD.y * ts.y)),
-		Rect2(Vector2(-half.x, -BAND_HEAD.y * ts.y * 0.5), Vector2(ts.x, BAND_HEAD.y * ts.y)),
-		Color.WHITE)
-
-	# ── 右臂（最前层）──
-	var arm_r: Bone = _bones["arm_r"]
-	canvas.draw_set_transform(
-		arm_r.offset + Vector2(half.x * 0.3, 0), arm_r.rotation, arm_r.scale
-	)
-	canvas.draw_texture_rect_region(tex,
-		Rect2(Vector2(ts.x * 0.75, BAND_TORSO.x * ts.y), Vector2(ts.x * 0.25, BAND_TORSO.y * ts.y)),
-		Rect2(Vector2(-ts.x * 0.125, -BAND_TORSO.y * ts.y * 0.5), Vector2(ts.x * 0.25, BAND_TORSO.y * ts.y)),
-		Color.WHITE)
+	var head_t: AtlasTexture = _parts.get("head")
+	if head_t:
+		var hr: Rect2 = head_t.region
+		canvas.draw_set_transform(
+			head.offset + Vector2(0, -th * 0.5 + hr.size.y * 0.5),
+			head.rotation, head.scale
+		)
+		canvas.draw_texture(head_t, Vector2(-hr.size.x * 0.5, -hr.size.y * 0.5))
 
 	# 重置
 	canvas.draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
