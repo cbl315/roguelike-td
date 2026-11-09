@@ -248,10 +248,10 @@ func _draw() -> void:
 		var bs: float = 1.0 + sin(Time.get_ticks_msec() * 0.003) * 0.04
 		draw_set_transform(Vector2.ZERO, 0, Vector2(bs, bs))
 		var as_: Vector2 = _aura_tex.get_size()
-		draw_texture(_aura_tex, -as_ / 2 + Vector2(0, 18))
+		draw_texture(_aura_tex, -as_ / 2 + Vector2(0, 18), Color(1, 1, 1, 0.35))   # 光环限透明度 35%（防过亮）
 		draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
 	# 攻击范围圈（半透明，不参与 juice 变换）
-	draw_circle(Vector2.ZERO, attack_range, Color(0.3, 0.4, 0.6, 0.06))
+	draw_circle(Vector2.ZERO, attack_range, Color(0.3, 0.4, 0.6, 0.02))   # 极淡填充（0.06→0.02 消除'白色一坨'感）
 	draw_arc(Vector2.ZERO, attack_range, 0, TAU, 64, Color(0.3, 0.4, 0.6, 0.2), 1.5)
 	# 本体：应用 juice 变换（idle呼吸 + 移动挤压 + 攻击反馈）
 	# 骨骼动画：单贴图 + root transform（拆分渲染回退——几何验证通过后恢复）
