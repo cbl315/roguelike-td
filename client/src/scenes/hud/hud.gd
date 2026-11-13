@@ -222,6 +222,66 @@ func _process(delta: float) -> void:
 				_breakthrough_label.modulate.a = _breakthrough_timer / 0.5
 
 
+var _kill_streak_label: Label = null
+var _wave_banner_label: Label = null
+var _wave_banner_timer: float = 0.0
+
+
+## 波次开始大字（VFX 批次六）
+func show_wave_start(wave: int, is_boss: bool) -> void:
+	if _wave_banner_label == null:
+		_wave_banner_label = Label.new()
+		_wave_banner_label.position = Vector2(360, 200)
+		_wave_banner_label.size = Vector2(1200, 80)
+		_wave_banner_label.horizontal_alignment = 1
+		_wave_banner_label.add_theme_font_size_override("font_size", 42)
+		add_child(_wave_banner_label)
+	var txt := "⚡ WAVE %d ⚡" % wave
+	if is_boss:
+		txt = "⚠ BOSS WAVE %d ⚠" % wave
+		_wave_banner_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.3))
+	else:
+		_wave_banner_label.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0))
+	_wave_banner_label.text = txt
+	_wave_banner_label.modulate.a = 1.0
+	_wave_banner_label.scale = Vector2(1.5, 1.5)
+	_wave_banner_label.visible = true
+	_wave_banner_timer = 1.8
+
+
+func _tick_wave_banner(delta: float) -> void:
+	if _wave_banner_timer > 0.0:
+		_wave_banner_timer -= delta
+		var t: float = clampf(_wave_banner_timer / 1.8, 0.0, 1.0)
+		_wave_banner_label.scale = Vector2.ONE.lerp(Vector2(1.5, 1.5), t * 0.3)
+		if _wave_banner_timer <= 0.0:
+			_wave_banner_label.visible = false
+		else:
+			_wave_banner_label.modulate.a = minf(1.0, t * 3.0)
+
+
+## 连杀显示（VFX 批次六）
+func update_kill_streak(count: int) -> void:
+	if _kill_streak_label == null:
+		_kill_streak_label = Label.new()
+		_kill_streak_label.position = Vector2(1600, 500)
+		_kill_streak_label.add_theme_font_size_override("font_size", 28)
+		_kill_streak_label.add_theme_color_override("font_color", Color(1.0, 0.7, 0.3))
+		add_child(_kill_streak_label)
+	if count >= 3:
+		_kill_streak_label.text = "🔥 %d 连杀!" % count
+		_kill_streak_label.visible = true
+		_kill_streak_label.modulate.a = 1.0
+		_kill_streak_label.scale = Vector2(1.3, 1.3)
+		var tw := get_tree().create_tween()
+		tw.tween_property(_kill_streak_label, "scale", Vector2.ONE, 0.2).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	else:
+		if _kill_streak_label.visible:
+			var tw2 := get_tree().create_tween()
+			tw2.tween_property(_kill_streak_label, "modulate:a", 0.0, 0.3)
+			tw2.tween_callback(func(): _kill_streak_label.visible = false)
+
+
 ## 公开 toast（game_manager 突破怪等流程用）
 func show_toast(text: String, color: Color = Color(0.95, 0.85, 0.55), duration: float = 3.0) -> void:
 	_show_toast(text, color, duration)
