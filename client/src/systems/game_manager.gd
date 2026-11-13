@@ -31,6 +31,7 @@ var _bond_pool_bar = null   # 底部羁绊池条（preload 实例化，避免 cl
 # Sparkle Lite game feel：场景级反馈（震动/顿帧/闪屏）
 var _fb_kill: FeedbackPlayerLite = null       # 击杀普通怪
 var _fb_kill_boss: FeedbackPlayerLite = null  # 击杀 Boss（更强）
+var _fb_crit: FeedbackPlayerLite = null      # 暴击微震（VFX 批次六）
 var _fb_hit: FeedbackPlayerLite = null        # 英雄受击
 
 # Boss Debuff 系统（GDD §12）
@@ -48,6 +49,9 @@ var _fb_ult: FeedbackPlayerLite = null
 # 局内统计（结算画面用）
 var _stats_damage: float = 0.0
 var _stats_kills: int = 0
+var _kill_streak: int = 0
+var _kill_streak_timer: float = 0.0
+const KILL_STREAK_WINDOW := 2.0
 var _stats_boss_kills: int = 0
 var _stats_breakthroughs: int = 0
 var _stats_gold_earned: float = 0.0
@@ -209,7 +213,13 @@ func _process(delta: float) -> void:
 				if is_instance_valid(su):
 					su.set_enemies(_active_enemies)
 			_hud.update_enemy_count(_active_enemies.size())
-			# #2: 波次倒计时
+			# #2: 波次倒计时 + 连杀窗口
+			if _kill_streak_timer > 0.0:
+				_kill_streak_timer -= delta
+				if _kill_streak_timer <= 0.0:
+					_kill_streak = 0
+					if _hud:
+						_hud.update_kill_streak(0)
 			_wave_timer -= delta
 			_hud.update_timer(_wave_timer)
 			# M3: gold_per_sec 每秒结算
@@ -253,6 +263,8 @@ func _start_next_wave() -> void:
 	_hud.update_bond_cost(_build.bond_draw_cost())
 	_hud.update_equip_state(_build.equip_level, _pools.equip_upgrade_cost(_build.equip_level))
 	_hero.refresh_stats()   # debuff 属性类效果在此生效
+	if _hud:
+		_hud.show_wave_start(current_wave, WaveCurves.is_boss_wave(current_wave))
 	# VFX 批次二：背景切换（Boss 波=arena / w20+=heaven / 普通=程序地板）
 	var floor_r := get_node_or_null("../GridLines") as Node   # floor_renderer.gd 挂 GridLines 节点
 	if floor_r != null and floor_r.has_method("set_bg_mode"):
@@ -454,6 +466,9 @@ func _on_enemy_killed(enemy: Node) -> void:
 	_build.add_gold(reward)
 	EventBus.gold_changed.emit(_build.gold)
 	_hud.update_gold(_build.gold)
+	# 击杀碎裂（有贴图=碎片飞散，无贴图=仅粒子）
+	if e != null and e._sprite_tex != null:
+		_spawn_kill_shatter(e.global_position, e._sprite_tex, e._skel.get_root_scale().x)
 	_spawn_kill_particles(e.global_position if e != null else Vector2.ZERO)
 	# Sparkle Lite：击杀反馈（Boss 强震动+顿帧+闪屏，普通怪轻震动）
 	if _fb_kill_boss != null and e != null and e.is_boss:
@@ -463,6 +478,10 @@ func _on_enemy_killed(enemy: Node) -> void:
 	elif _fb_kill != null:
 		_fb_kill.play()
 	_stats_kills += 1
+	_kill_streak += 1
+	_kill_streak_timer = KILL_STREAK_WINDOW
+	if _kill_streak >= 3 and _hud:
+		_hud.update_kill_streak(_kill_streak)
 	_stats_gold_earned += reward
 	_gain_ult(0.015)   # 击杀加速充能 +1.5%
 
@@ -541,6 +560,12 @@ func _try_release_ult() -> void:
 
 func _on_hero_fired(target: Node, dmg: float, is_crit: bool) -> void:
 	SoundManager.play("fire", -10.0)
+	# 暴击额外微震（普通击杀有 kill_shake，暴击弹道发射时也震——爽感放大器）
+	if is_crit:
+		var crit_shake := FeedbackCameraShake2DLite.new()
+		crit_shake.position_amplitude = Vector2(2, 2)
+		crit_shake.rotation_amplitude = 0.5
+		crit_shake.duration_ms = 60.0
 	var proj := Projectile.new()
 	add_child(proj)
 	proj.setup(_hero.global_position, target, dmg, is_crit)
@@ -621,6 +646,47 @@ func _on_summon_requested(unit_id: String, unit_name: String) -> void:
 
 
 ## 白魇魔被吞噬 → 停用对应召唤单位。
+## 击杀碎裂（VFX 批次六）：敌人贴图碎成碎片飞散——替代整体淡出
+## 用 SkeletalJuice 的死亡散肢 + 额外碎片粒子（更戏剧化）
+func _spawn_kill_shatter(pos: Vector2, tex: Texture2D, enemy_scale: float) -> void:
+	if tex == null:
+		return
+	var atlas := get_node_or_null("/root/SpriteAtlas")
+	# 4-6 块贴图碎片（AtlasTexture 裁剪随机区域 → 散飞旋转淡出）
+	var frag_count: int = 5 + (_rng.randi() % 3)
+	for i in range(frag_count):
+		var frag := AtlasTexture.new()
+		frag.atlas = tex
+		var tw: int = tex.get_width()
+		var th: int = tex.get_height()
+		var fw: int = maxi(tw / 3, 8)
+		var fh: int = maxi(th / 3, 8)
+		var fx: int = _rng.randi() % maxi(tw - fw, 1)
+		var fy: int = _rng.randi() % maxi(th - fh, 1)
+		frag.region = Rect2(fx, fy, fw, fh)
+
+		var frag_node := TextureRect.new()
+		frag_node.texture = frag
+		frag_node.position = pos + Vector2(fx - tw / 2.0, fy - th / 2.0) * enemy_scale
+		frag_node.scale = Vector2(enemy_scale, enemy_scale)
+		frag_node.z_index = 45
+		frag_node.rotation = 0
+		add_child(frag_node)
+
+		# 随机方向飞散 + 旋转 + 淡出
+		var ang: float = _rng.randf() * TAU
+		var dist: float = 50.0 + _rng.randf() * 80.0
+		var tw2 := get_tree().create_tween().set_parallel(true)
+		tw2.tween_property(frag_node, "position",
+			pos + Vector2.RIGHT.rotated(ang) * dist, 0.4 + _rng.randf() * 0.2
+		).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		tw2.tween_property(frag_node, "rotation",
+			_rng.randf_range(-3.0, 3.0), 0.5
+		).set_ease(Tween.EASE_OUT)
+		tw2.tween_property(frag_node, "modulate:a", 0.0, 0.5).set_ease(Tween.EASE_IN)
+		tw2.chain().tween_callback(frag_node.queue_free)
+
+
 ## 击杀粒子（VFX 批次三）：4-6 个随机粒子贴图散开淡出（0.5s）
 func _spawn_kill_particles(pos: Vector2) -> void:
 	var atlas := get_node_or_null("/root/SpriteAtlas")

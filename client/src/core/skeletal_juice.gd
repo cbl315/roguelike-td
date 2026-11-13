@@ -41,6 +41,7 @@ var lunge_dist: float = 12.0
 var hit_dur: float = 0.15
 var hit_stagger: float = 8.0
 var hit_tilt: float = 0.15
+var hit_squash := Vector2(0.75, 1.25)   # 受击瞬间压扁（X压缩 Y拉伸）→ 弹性回弹
 var death_dur: float = 0.40
 var spawn_dur: float = 0.30
 
@@ -134,7 +135,13 @@ func _compute() -> void:
 	if _hit_t >= 0.0:
 		var p: float = _hit_t / hit_dur
 		var back: float = hit_stagger * (1.0 - _ease_out_quad(p))
-		_apply_all(Vector2(-back, 0) * _move_dir, hit_tilt * (1.0 - p), Vector2.ONE)
+		# 弹性 squash：受击瞬间压扁 → ease-out-elastic 弹回（过冲）
+		var bounce: float = _ease_out_elastic(p)
+		var sq: Vector2 = Vector2(
+			lerpf(hit_squash.x, 1.0, bounce),
+			lerpf(hit_squash.y, 1.0, bounce)
+		)
+		_apply_all(Vector2(-back, 0) * _move_dir, hit_tilt * (1.0 - p), sq)
 		_bones["head"].rotation += hit_tilt * 1.5 * (1.0 - p)
 
 	if _death_t >= 0.0:
