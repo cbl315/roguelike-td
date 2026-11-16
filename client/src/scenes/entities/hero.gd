@@ -32,7 +32,7 @@ var room_rect: Rect2 = GameConst.ROOM_RECT
 
 
 func _ready() -> void:
-	_load_animations()
+	# _load_animations()  # VFX 批次七：AI 帧生成不可用（CogView 无 img2img）——待程序帧方案
 	current_hp = max_hp
 	hp_changed.emit(current_hp, max_hp)
 	_update_priority_label()
