@@ -263,6 +263,11 @@ func _start_next_wave() -> void:
 	_hud.update_bond_cost(_build.bond_draw_cost())
 	_hud.update_equip_state(_build.equip_level, _pools.equip_upgrade_cost(_build.equip_level))
 	_hero.refresh_stats()   # debuff 属性类效果在此生效
+	# BGM：普通波=normal / Boss 波=boss（VFX 批次八）
+	if WaveCurves.is_boss_wave(current_wave):
+		SoundManager.play_bgm("bgm_boss")
+	else:
+		SoundManager.play_bgm("bgm_normal")
 	if _hud:
 		_hud.show_wave_start(current_wave, WaveCurves.is_boss_wave(current_wave))
 	# VFX 批次二：背景切换（Boss 波=arena / w20+=heaven / 普通=程序地板）

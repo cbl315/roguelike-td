@@ -29,6 +29,11 @@ const SETTINGS_PATH := "user://settings.cfg"
 
 var _streams: Dictionary = {}       # 文件名 → AudioStream（懒加载缓存）
 var _players: Array[AudioStreamPlayer] = []
+# ── BGM 系统（VFX 批次八）──
+var _bgm_player: AudioStreamPlayer = null
+var _bgm_current: String = ""
+
+const BGM_VOLUME := -12.0   # BGM 音量（dB，比 SFX 低）
 var _next_player: int = 0
 var _last_play_msec: Dictionary = {}   # sound_id → 上次播放时刻（节流）
 var muted: bool = false
@@ -53,6 +58,42 @@ func _ready() -> void:
 
 ## 播放一个音效。volume_db 衰减（负值更轻）；pitch_jitter 音高随机幅度（防疲劳）。
 ## 节流：同一 id 在 THROTTLE_MS 内只响一次（连锁弹射/高攻速不会叠成噪音）。
+## ── BGM 控制 ──
+
+## 播放 BGM（bgm_normal / bgm_boss / bgm_lobby）——自动循环
+func play_bgm(bgm_id: String, fade_time: float = 1.0) -> void:
+	if bgm_id == _bgm_current:
+		return
+	_bgm_current = bgm_id
+	if _bgm_player == null:
+		_bgm_player = AudioStreamPlayer.new()
+		_bgm_player.bus = "Master"
+		add_child(_bgm_player)
+	var path := "%s/%s.wav" % [AUDIO_DIR, bgm_id]
+	if not ResourceLoader.exists(path):
+		push_warning("BGM 不存在: %s" % path)
+		return
+	var stream := load(path) as AudioStreamWAV
+	if stream:
+		stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		stream.loop_begin = 0
+		stream.loop_end = stream.data.size() / 2  # 16bit mono
+		_bgm_player.stream = stream
+		_bgm_player.volume_db = BGM_VOLUME
+		_bgm_player.play()
+
+## 停止 BGM
+func stop_bgm() -> void:
+	if _bgm_player != null:
+		_bgm_player.stop()
+		_bgm_current = ""
+
+## BGM 音量调节
+func set_bgm_volume(db: float) -> void:
+	if _bgm_player != null:
+		_bgm_player.volume_db = db
+
+
 func play(sound_id: String, volume_db: float = 0.0, pitch_jitter: float = 0.06) -> void:
 	if muted:
 		return
