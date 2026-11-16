@@ -24,6 +24,8 @@ var _boss_banner_timer: float = 0.0
 const POS_BOSS_BAR := Vector2(660, 26)     # 顶部中央大血条
 
 
+
+
 func _setup_boss_ui() -> void:
 	# Boss 波红色氛围层（战斗区之上、HUD 之下）
 	_boss_dim = ColorRect.new()
@@ -188,6 +190,8 @@ func _ready() -> void:
 	EventBus.boss_spawned.connect(_on_boss_spawned)
 	EventBus.boss_hp_changed.connect(_on_boss_hp)
 	EventBus.boss_defeated.connect(_on_boss_defeated)
+	# 方案 A：暗色魔幻主题（全 HUD 控件统一样式）
+	theme = GameTheme.build_theme()
 	_setup_ult_ui()
 	_setup_breakthrough_ui()
 	_setup_boss_ui()   # Boss UI（依赖 _breakthrough_layer，须在其后）

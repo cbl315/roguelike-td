@@ -7,11 +7,12 @@ class_name FloorRenderer
 var room_rect := GameConst.ROOM_RECT
 const GRID_SIZE := 80.0
 
-const COL_FLOOR_A := Color(0.10, 0.105, 0.14)
-const COL_FLOOR_B := Color(0.085, 0.09, 0.125)
-const COL_GRID := Color(0.13, 0.14, 0.18)
-const COL_VIGNETTE := Color(0.02, 0.02, 0.04)
-const COL_BORDER_GLOW := Color(0.2, 0.25, 0.4, 0.15)
+# 方案 A 暗色魔幻色板（与 GameTheme 统一）
+const COL_FLOOR_A := Color("101828")   # 深蓝石板
+const COL_FLOOR_B := Color("0C1220")   # 更深石板（同色系深浅差）
+const COL_GRID := Color("1A2438")     # 石板缝
+const COL_VIGNETTE := Color("04060C")
+const COL_BORDER_GLOW := Color(0.25, 0.35, 0.6, 0.18)   # 蓝色边框微光
 
 
 func _ready() -> void:

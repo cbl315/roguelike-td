@@ -498,13 +498,9 @@ func _make_card(offer: Dictionary, idx: int, compact: bool = false) -> Control:
 	var panel := Panel.new()
 	# compact：替换模式专用窄卡（11+ 张全展示不超屏，后面的羁绊也能点到）
 	panel.custom_minimum_size = Vector2(120, 360) if compact else Vector2(280, 360)
-	var color := Color(0.2, 0.25, 0.35)
-	match offer.get("rarity"):
-		"EX": color = Color(0.6, 0.4, 0.1)
-		"UR": color = Color(0.5, 0.35, 0.1)
-		"SSR": color = Color(0.35, 0.2, 0.45)
-		"SR": color = Color(0.15, 0.25, 0.45)
-		"N": color = Color(0.2, 0.25, 0.35)
+	# 方案 A：稀有度边框发光（GameTheme 统一色板）
+	var panel_style := GameTheme.rarity_glow(str(offer.get("rarity", "N")))
+	var color: Color = GameTheme.RARITY.get(str(offer.get("rarity", "N")), GameTheme.RARITY["N"])
 	# #2: 高亮——三层：当前境界需求（金）> 同体系（青）> 无关
 	var highlight_level := 0   # 0=普通, 1=同体系, 2=当前境界
 	var will_trigger_devour := false
@@ -523,19 +519,15 @@ func _make_card(offer: Dictionary, idx: int, compact: bool = false) -> Control:
 				will_trigger_devour = dev != null
 			elif pools.bond_in_path(bid, pid):
 				highlight_level = 1
-	var border_col := Color(0.6, 0.65, 0.8)
-	var border_w := 2
+	# 方案 A：稀有度发光底色 + 高亮边框叠加（金=当前境界 / 青=同体系）
 	if highlight_level == 2:
-		border_col = Color(1.0, 0.85, 0.2)   # 金色：当前境界
-		border_w = 4
+		panel_style.border_color = Color(1.0, 0.85, 0.2)
+		panel_style.set_border_width_all(4)
+		panel_style.shadow_color = Color(1.0, 0.85, 0.2, 0.5)
+		panel_style.shadow_size = 10
 	elif highlight_level == 1:
-		border_col = Color(0.3, 0.8, 1.0)   # 青色：同体系
-		border_w = 3
-	var panel_style := StyleBoxFlat.new()
-	panel_style.bg_color = color
-	panel_style.border_width_left = border_w; panel_style.border_width_right = border_w
-	panel_style.border_width_top = border_w; panel_style.border_width_bottom = border_w
-	panel_style.border_color = border_col
+		panel_style.border_color = Color(0.3, 0.8, 1.0)
+		panel_style.set_border_width_all(3)
 	panel.add_theme_stylebox_override("panel", panel_style)
 	var vbox := VBoxContainer.new()
 	if compact:
