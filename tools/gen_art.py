@@ -326,7 +326,7 @@ def cmd_anim(args: argparse.Namespace) -> None:
 		base_style = "anime fantasy game character, clean lines, transparent background, centered, full body"
 		full_prompt = f"Character: {character.replace('_',' ')}. {base_style}. {spec['prompt'].format(phase=phase)}. Frame {i+1}/{frames}."
 		print(f"  帧 {i}: {phase}")
-		url = call_cogview(full_prompt, "480x480", api_key)
+		url = call_cogview(full_prompt, "512x512", api_key)
 		download(url, out_file)
 		remove_watermark(out_file)
 		print(f"    ✓ {out_file}")
