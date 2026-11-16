@@ -32,6 +32,7 @@ var room_rect: Rect2 = GameConst.ROOM_RECT
 
 
 func _ready() -> void:
+	_load_animations()
 	current_hp = max_hp
 	hp_changed.emit(current_hp, max_hp)
 	_update_priority_label()
@@ -70,6 +71,18 @@ func take_damage(amount: float) -> void:
 	_dmg_cooldown = DMG_INTERVAL   # 进入 0.3s 无敌
 	if current_hp <= 0.0:
 		destroyed.emit()
+
+
+func _load_animations() -> void:
+	## 加载帧动画（目录存在时才加载——无帧则用静态贴图+SkeletalJuice 兜底）
+	var base := "res://src/assets/anim/hero"
+	for state in ["idle", "walk", "attack", "hit", "death"]:
+		var info: Array = {"idle": [4, 4.0], "walk": [6, 10.0], "attack": [4, 8.0], "hit": [2, 6.0], "death": [4, 6.0]}[state]
+		var dir: String = base + "/" + state
+		# 检查第 0 帧存在
+		if ResourceLoader.exists(dir + "/" + state + "_00.png"):
+			_anim.load_frames(dir, state, int(info[0]), info[1], state != "death")
+			print("[hero] 动画加载: ", state)
 
 
 func refresh_stats() -> void:
@@ -141,6 +154,13 @@ func _process(delta: float) -> void:
 	_juice.tick(delta, moved > 1.0, speed_ratio)
 	var vel: Vector2 = global_position - _prev_pos
 	_skel.tick(delta, vel, speed_ratio)
+	# 帧动画：优先于骨骼系统（有帧则播帧，无帧用骨骼兜底）
+	if _anim.has_animation("idle"):
+		var target_state := "idle"
+		if speed_ratio > 0.1:
+			target_state = "walk"
+		_anim.play(target_state)
+		_anim.tick(delta)
 	_prev_pos = global_position
 	queue_redraw()
 	# 筛选攻击范围内的敌人
@@ -217,6 +237,8 @@ func _do_chain_bounce(initial_target: Node2D, base_dmg: float) -> void:
 		if nearest == null:
 			break
 		hit[nearest] = true
+		if _anim.has_animation("attack"):
+			_anim.play("attack")
 		_skel.play_attack()
 		fired_projectile.emit(nearest, current_dmg, false)
 		current_pos = nearest.global_position
@@ -255,8 +277,17 @@ func _draw() -> void:
 	draw_arc(Vector2.ZERO, attack_range, 0, TAU, 64, Color(0.3, 0.4, 0.6, 0.2), 1.5)
 	# 本体：应用 juice 变换（idle呼吸 + 移动挤压 + 攻击反馈）
 	# 骨骼动画：单贴图 + root transform（拆分渲染回退——几何验证通过后恢复）
-	# 骨骼拆分渲染（头/躯干/腿独立动画——剪纸模式）
-	if _sprite_tex and _skel != null:
+	# 帧动画优先（AI 生成精灵序列——真实肢体运动感）
+	# 无帧时回退到骨骼拆分（剪纸模式）→ 再无则色块
+	var anim_tex: Texture2D = _anim.get_frame() if _anim.has_animation("idle") else null
+	if anim_tex:
+		# 帧动画：只应用 juice 的 squash/flash（不做骨骼拆分——帧本身就是动画）
+		draw_set_transform(_juice.offset, _juice.rotation, _juice.scale)
+		var ats: Vector2 = anim_tex.get_size()
+		draw_texture(anim_tex, -ats / 2)
+		if _juice.get_flash() > 0.0:
+			draw_rect(Rect2(-ats / 2, ats), Color(1, 1, 1, _juice.get_flash() * 0.7), true)
+	elif _sprite_tex and _skel != null:
 		_skel.draw_split(_sprite_tex, self)
 		if _juice.get_flash() > 0.0:
 			var tsf: Vector2 = _sprite_tex.get_size()
@@ -285,3 +316,4 @@ func set_sprite(tex: Texture2D) -> void:
 var _sprite_tex: Texture2D = null
 var _aura_tex: Texture2D = null   # 主体系光环（VFX 批次二：体系色圈+英雄t1-3）
 var _skel = preload("res://src/core/skeletal_juice.gd").new()   # 骨骼动画（VFX 批次五）
+var _anim = preload("res://src/core/frame_animator.gd").new()   # 帧动画（VFX 批次七）

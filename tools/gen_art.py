@@ -284,6 +284,56 @@ def cmd_sync(args: argparse.Namespace) -> None:
 
 
 # ── CLI ───────────────────────────────────────────────────────────────
+# ══ 动画帧生成（VFX 批次七）══
+ANIM_STATES = {
+	"idle":   {"frames": 4, "fps": 4,  "prompt": "breathing naturally, subtle chest movement, {phase}"},
+	"walk":   {"frames": 6, "fps": 10, "prompt": "walking forward, {phase}, full body visible"},
+	"attack": {"frames": 4, "fps": 8,  "prompt": "swinging a sword, {phase}, dynamic action"},
+	"hit":    {"frames": 2, "fps": 6,  "prompt": "flinching from being hit, {phase}"},
+	"death":  {"frames": 4, "fps": 6,  "prompt": "falling down defeated, {phase}"},
+}
+ANIM_PHASES = {
+	"idle":   ["relaxed stance", "slight inhale", "exhale", "back to relaxed"],
+	"walk":   ["left foot forward", "mid stride", "right foot forward", "mid stride return", "left foot forward again", "cycle complete"],
+	"attack": ["raising weapon", "charging up", "full swing", "follow-through"],
+	"hit":    ["impact recoil", "recovering"],
+	"death":  ["staggering", "falling", "on the ground", "dissolving"],
+}
+
+
+def cmd_anim(args: argparse.Namespace) -> None:
+	api_key = os.environ.get("ZHIPU_API_KEY", "")
+	if not api_key and not args.dry_run:
+		sys.exit("需要 ZHIPU_API_KEY 环境变量")
+	character, state = args.character, args.state
+	spec = ANIM_STATES[state]
+	frames, phases = spec["frames"], ANIM_PHASES[state]
+	ref_path = Path(f"client/src/assets/characters/{character}.png")
+	if not ref_path.exists() and not args.dry_run:
+		sys.exit(f"参考图不存在: {ref_path}")
+	out_dir = Path(f"client/src/assets/anim/{character}/{state}")
+	out_dir.mkdir(parents=True, exist_ok=True)
+	print(f"══ 动画帧: {character}/{state} ({frames} 帧 @ {spec['fps']}fps) ══")
+	for i in range(frames):
+		out_file = out_dir / f"{state}_{i:02d}.png"
+		if out_file.exists() and not args.force:
+			print(f"  ✓ {out_file.name}（已有）")
+			continue
+		phase = phases[i % len(phases)]
+		if args.dry_run:
+			print(f"  [dry] 帧 {i}: {phase}")
+			continue
+		base_style = "anime fantasy game character, clean lines, transparent background, centered, full body"
+		full_prompt = f"Character: {character.replace('_',' ')}. {base_style}. {spec['prompt'].format(phase=phase)}. Frame {i+1}/{frames}."
+		print(f"  帧 {i}: {phase}")
+		url = call_cogview(full_prompt, "480x480", api_key)
+		download(url, out_file)
+		remove_watermark(out_file)
+		print(f"    ✓ {out_file}")
+		time.sleep(1)
+	print(f"══ 完成 ══")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="AI 批量生图（CogView-3-Flash）。见 docs/ART_PIPELINE.md。",
@@ -305,6 +355,13 @@ def main() -> None:
     p_sync.add_argument("--id", required=True, help="条目 id")
     p_sync.add_argument("--ref", required=True, help="源图路径")
     p_sync.set_defaults(func=cmd_sync)
+
+    p_anim = sub.add_parser("anim", help="生成动画帧序列（参考图链）")
+    p_anim.add_argument("character", help="角色名（如 hero_sword_cultivator）")
+    p_anim.add_argument("--state", default="walk", choices=list(ANIM_STATES.keys()))
+    p_anim.add_argument("--dry-run", action="store_true")
+    p_anim.add_argument("--force", action="store_true")
+    p_anim.set_defaults(func=cmd_anim)
 
     args = parser.parse_args()
     args.func(args)
